@@ -205,11 +205,8 @@ void SceneEngine::loadDefaultSceneRender()
 	Camera camera;
 	scene.setSelectedCamera(camera);
 	//Default geometry
-	/*Model cube;
-	cube.loadCubeModel();
-	scene.addModel(cube);*/
+	scene.generateCubeModel();
 	//Default light
-	/**/
 
 }
 #pragma endregion

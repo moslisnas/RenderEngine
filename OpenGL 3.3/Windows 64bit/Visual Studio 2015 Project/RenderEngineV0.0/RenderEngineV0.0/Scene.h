@@ -14,16 +14,27 @@ Purpose: Header of Scene class
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #endif
+#include <vector>
 #include "Camera.h"
+#include "Model.h"
 
 /// <summary>
 /// Class with all scene elements to show in final render.
 /// </summary>
 class Scene
 {
+private:
+#pragma region Adding methods
+	/// <summary>
+	/// This method add a model to the scene.
+	/// <param name="model">The model that will be added.</param>  
+	/// </summary>
+	void addModel(Model model);
+#pragma endregion
 public:
 #pragma region Variables
 	Camera selected_camera;
+	std::vector<Model> models;
 #pragma endregion
 
 #pragma region Constructor & destructor
@@ -50,5 +61,9 @@ public:
 	/// This method generate the final image to render on this frame.
 	/// </summary>  
 	void render();
+	/// <summary>
+	/// This method generate a cube and add it to the scene.
+	/// </summary>
+	void generateCubeModel();
 #pragma endregion
 };
