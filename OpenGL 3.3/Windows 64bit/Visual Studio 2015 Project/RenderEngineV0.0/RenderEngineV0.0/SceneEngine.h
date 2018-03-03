@@ -5,6 +5,13 @@ Purpose: Header of SceneEngine class
 @author Alejandro Molina Quesada
 @version 1.0
 */
+#ifndef OPENGL
+#define OPENGL
+#define SOLVE_FGLUT_WARNING
+#include <GL\glew.h>
+#include <GL\freeglut.h>
+#endif
+#include <iostream>
 
 /// <summary>
 /// Class for managing several scenes.
