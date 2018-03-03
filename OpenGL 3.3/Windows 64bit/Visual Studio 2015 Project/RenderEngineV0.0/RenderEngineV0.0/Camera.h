@@ -30,6 +30,7 @@ public:
 	float position[3];
 	float rotation[2];
 #pragma endregion
+
 #pragma region Constructor & destructor
 	/// <summary>
 	/// Constructor of <c>Camera</c> class.
@@ -40,5 +41,15 @@ public:
 	/// </summary>
 	~Camera();
 #pragma endregion
-};
 
+#pragma region Other methods
+	/// <summary>
+	/// This method update values of projection matrix (frustrum).
+	/// <param name="r">Right limit of frustrum.</param> 
+	/// <param name="l">Left limit of frustrum.</param> 
+	/// <param name="t">Top limit of frustrum.</param> 
+	/// <param name="b">Bottom limit of frustrum.</param> 
+	/// </summary>
+	void updateProjectionMatrix(float r, float l, float t, float b);
+#pragma endregion
+};

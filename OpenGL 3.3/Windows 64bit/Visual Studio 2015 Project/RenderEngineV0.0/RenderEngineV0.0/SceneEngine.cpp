@@ -22,7 +22,7 @@ SceneEngine::~SceneEngine()
 /// Rendering function.
 /// </summary>  
 void renderFunc() {
-	//scene.render();
+	scene.render();
 }
 
 #pragma region OS Event callbacks POR HACER-->Interacciones, varias cámaras
@@ -38,26 +38,26 @@ void idleFunc() {
 /// <param name="height">Size height after resizing.</param>  
 /// </summary>  
 void resizeFunc(int width, int height) {
-	/*float aspect_ratio = (float)width / (float)height;
+	float aspect_ratio = (float)width / (float)height;
 	float r, l, t, b;
 
 	if (width > height) {
-		r = scene.camera.n*tan(scene.camera.projectionAngle) * aspect_ratio;
-		t = scene.camera.n*tan(scene.camera.projectionAngle);
+		r = scene.selected_camera.near_plane*tan(scene.selected_camera.projection_angle) * aspect_ratio;
+		t = scene.selected_camera.near_plane*tan(scene.selected_camera.projection_angle);
 	}
 	else if (height > width) {
-		r = scene.camera.n*tan(scene.camera.projectionAngle);
-		t = scene.camera.n*tan(scene.camera.projectionAngle) * (1 / aspect_ratio);
+		r = scene.selected_camera.near_plane*tan(scene.selected_camera.projection_angle);
+		t = scene.selected_camera.near_plane*tan(scene.selected_camera.projection_angle) * (1 / aspect_ratio);
 	}
 	else {
-		r = scene.camera.n*tan(scene.camera.projectionAngle);
-		t = scene.camera.n*tan(scene.camera.projectionAngle);
+		r = scene.selected_camera.near_plane*tan(scene.selected_camera.projection_angle);
+		t = scene.selected_camera.near_plane*tan(scene.selected_camera.projection_angle);
 	}
 	l = -r;
 	b = -t;
-	scene.camera.updateProjectionMatrix(r, l, t, b);
+	scene.selected_camera.updateProjectionMatrix(r, l, t, b);
 	glViewport(0, 0, width, height);
-	glutPostRedisplay();*/
+	glutPostRedisplay();
 }
 /// <summary>
 /// OS event function for keyboard actions.
@@ -204,5 +204,12 @@ void SceneEngine::loadDefaultSceneRender()
 	//Default camera
 	Camera camera;
 	scene.setSelectedCamera(camera);
+	//Default geometry
+	/*Model cube;
+	cube.loadCubeModel();
+	scene.addModel(cube);*/
+	//Default light
+	/**/
+
 }
 #pragma endregion

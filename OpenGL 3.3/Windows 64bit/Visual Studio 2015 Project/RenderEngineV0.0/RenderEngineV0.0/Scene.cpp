@@ -25,3 +25,15 @@ void Scene::setSelectedCamera(Camera camera)
 	this->selected_camera = camera;
 }
 #pragma endregion
+
+#pragma region Other methods
+/// <summary>
+/// This method generate the final image to render on this frame.
+/// </summary>  
+void Scene::render()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glutSwapBuffers();
+}
+#pragma endregion

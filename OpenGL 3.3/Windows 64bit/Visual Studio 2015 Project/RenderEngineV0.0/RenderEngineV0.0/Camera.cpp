@@ -26,3 +26,23 @@ Camera::~Camera()
 {
 }
 #pragma endregion
+
+#pragma region Other methods
+/// <summary>
+/// This method update values of projection matrix (frustrum).
+/// <param name="r">Right limit of frustrum.</param> 
+/// <param name="l">Left limit of frustrum.</param> 
+/// <param name="t">Top limit of frustrum.</param> 
+/// <param name="b">Bottom limit of frustrum.</param> 
+/// </summary>
+void Camera::updateProjectionMatrix(float r, float l, float t, float b)
+{
+	this->projection_matrix[0].x = (2*near_plane) / (r-l);
+	this->projection_matrix[1].y = (2*near_plane) / (t-b);
+	this->projection_matrix[2].x = (r+l) / (r-l);
+	this->projection_matrix[2].y = (t+b) / (t-b);
+	this->projection_matrix[2].z = -(far_plane+near_plane) / (far_plane-near_plane);
+	this->projection_matrix[2].w = -1.0f;
+	this->projection_matrix[3].z = (-2*far_plane*near_plane) / (far_plane-near_plane);
+}
+#pragma endregion
