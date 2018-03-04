@@ -66,21 +66,37 @@ public:
 
 	#pragma region Default shaders
 	/// <summary>
-	/// This method load a vertex shader for classic Phong ilumination method.
+	/// This method load a vertex shader for classic Phong shading method.
 	/// </summary>
 	void loadPhongVertexShader();
 	/// <summary>
-	/// This method load a fragment shader for classic Phong ilumination method.
+	/// This method load a fragment shader for classic Phong shading method.
 	/// </summary>
 	void loadPhongFragmentShader();
 	/// <summary>
-	/// This method load a vertex shader for Blinn-Phong ilumination method.
+	/// This method load a vertex shader for a bumped Phong shading method.
+	/// </summary>
+	void loadPhongBumpVertexShader();
+	/// <summary>
+	/// This method load a fragment shader for a bumped Phong shading method.
+	/// </summary>
+	void loadPhongBumpFragmentShader();
+	/// <summary>
+	/// This method load a vertex shader for Blinn-Phong shading method.
 	/// </summary>
 	void loadBlinnPhongVertexShader();
 	/// <summary>
-	/// This method load a fragment shader for Blinn-Phong ilumination method.
+	/// This method load a fragment shader for Blinn-Phong shading method.
 	/// </summary>
 	void loadBlinnPhongFragmentShader();
+	/// <summary>
+	/// This method load a vertex shader for a toon shading method.
+	/// </summary>
+	void loadToonVertexShader();
+	/// <summary>
+	/// This method load a fragment shader for a toon shading method.
+	/// </summary>
+	void loadToonFragmentShader();
 	#pragma endregion
 
 #pragma endregion

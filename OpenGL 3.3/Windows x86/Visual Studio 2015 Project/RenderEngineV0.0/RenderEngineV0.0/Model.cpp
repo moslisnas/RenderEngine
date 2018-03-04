@@ -171,7 +171,7 @@ void Model::bind()
 /// <summary>
 /// This method generate a cube with default parameters.
 /// </summary>
-void Model::loadDefaultCubeModel()
+void Model::loadDefaultCubeModel(int shade)
 {
 	//Initialization of cube model
 	this->n_vertices = cubeNVertex;
@@ -203,8 +203,23 @@ void Model::loadDefaultCubeModel()
 	this->specular_texture_file = "../resources/img/specMap.png";
 	this->normal_texture_file = "../resources/img/normal.png";
 	//Shaders
-	vertex_shader.loadPhongVertexShader();
-	fragment_shader.loadPhongFragmentShader();
+	switch(shade){
+		case 0:
+			vertex_shader.loadPhongVertexShader();
+			fragment_shader.loadPhongFragmentShader();
+			break;
+		case 1:
+			vertex_shader.loadPhongBumpVertexShader();
+			fragment_shader.loadPhongBumpFragmentShader();
+			break;
+		case 2:
+			/*vertex_shader.loadPhongBumpVertexShader();
+			fragment_shader.loadPhongBumpFragmentShader();*/
+			vertex_shader.loadToonVertexShader();
+			fragment_shader.loadToonFragmentShader();
+			break;
+	}
+
 }
 /// <summary>
 /// This method create OpenGL texture from a file.

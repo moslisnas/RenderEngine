@@ -88,7 +88,7 @@ void Shader::loadCommonUniformsFragment()
 
 #pragma region Default shaders
 /// <summary>
-/// This method load a vertex shader for classic Phong ilumination method.
+/// This method load a vertex shader for classic Phong shading method.
 /// </summary>
 void Shader::loadPhongVertexShader()
 {
@@ -98,11 +98,49 @@ void Shader::loadPhongVertexShader()
 	loadCommonAttributesVertex();
 }
 /// <summary>
-/// This method load a fragment shader for classic Phong ilumination method.
+/// This method load a fragment shader for classic Phong shading method.
 /// </summary>
 void Shader::loadPhongFragmentShader()
 {
 	this->file_path = "../resources/shaders/default/Phong.frag";
+	this->type = GL_FRAGMENT_SHADER;
+	loadCommonUniformsFragment();
+}
+/// <summary>
+/// This method load a vertex shader for a bumped Phong shading method.
+/// </summary>
+void Shader::loadPhongBumpVertexShader()
+{
+	this->file_path = "../resources/shaders/default/PhongBump.vert";
+	this->type = GL_VERTEX_SHADER;
+	loadCommonUniformsVertex();
+	loadCommonAttributesVertex();
+}
+/// <summary>
+/// This method load a fragment shader for a bumped Phong shading method.
+/// </summary>
+void Shader::loadPhongBumpFragmentShader()
+{
+	this->file_path = "../resources/shaders/default/PhongBump.frag";
+	this->type = GL_FRAGMENT_SHADER;
+	loadCommonUniformsFragment();
+}
+/// <summary>
+/// This method load a vertex shader for a toon shading method.
+/// </summary>
+void Shader::loadToonVertexShader()
+{
+	this->file_path = "../resources/shaders/default/Toon.vert";
+	this->type = GL_VERTEX_SHADER;
+	loadCommonUniformsVertex();
+	loadCommonAttributesVertex();
+}
+/// <summary>
+/// This method load a fragment shader for a toon shading method.
+/// </summary>
+void Shader::loadToonFragmentShader()
+{
+	this->file_path = "../resources/shaders/default/Toon.frag";
 	this->type = GL_FRAGMENT_SHADER;
 	loadCommonUniformsFragment();
 }

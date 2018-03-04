@@ -206,6 +206,8 @@ void SceneEngine::loadDefaultSceneRender()
 	scene.setSelectedCamera(camera);
 	//Default geometry.
 	scene.createCubeModel();
+	scene.createCubeModel();
+	scene.createCubeModel();
 	//Default light.
 	scene.createDirectionalLight();
 

@@ -151,6 +151,14 @@
     <ClInclude Include="SceneEngine.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\resources\shaders\default\Phong.frag" />
+    <None Include="..\resources\shaders\default\Phong.vert" />
+    <None Include="..\resources\shaders\default\PhongBump.frag" />
+    <None Include="..\resources\shaders\default\PhongBump.vert" />
+    <None Include="..\resources\shaders\default\Toon.frag" />
+    <None Include="..\resources\shaders\default\Toon.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

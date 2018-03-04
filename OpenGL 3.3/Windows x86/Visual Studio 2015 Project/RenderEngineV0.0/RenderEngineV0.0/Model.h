@@ -118,7 +118,7 @@ public:
 	/// <summary>
 	/// This method generate a cube with default parameters.
 	/// </summary>
-	void loadDefaultCubeModel();
+	void loadDefaultCubeModel(int shade);
 	/// <summary>
 	/// This method create OpenGL texture from a file.
 	/// <param name="fileName">Path of the file.</param>  
