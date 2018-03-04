@@ -201,17 +201,17 @@ void SceneEngine::initRender()
 #pragma region Other methods
 void SceneEngine::loadDefaultSceneRender()
 {
-	//Default camera.
+	//Default camera
 	Camera camera;
 	scene.setSelectedCamera(camera);
-	//Default geometry.
+	//Default geometry
 	scene.createCubeModel();
 	scene.createCubeModel();
-	scene.createCubeModel();
-	//Default light.
+	scene.createAssimpModel("../resources/models/ToonTorus.obj");
+	//Default light
 	scene.createDirectionalLight();
 
-	//Creating scene for rendering.
+	//Creating scene for rendering
 	scene.create();
 }
 #pragma endregion

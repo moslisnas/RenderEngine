@@ -212,6 +212,15 @@ void Scene::createCubeModel()
 	this->addModel(cube);
 }
 /// <summary>
+/// This method generate a model from a file and add it to the scene.
+/// </summary>
+void Scene::createAssimpModel(char * filePath)
+{
+	Model assimp_model;
+	assimp_model.loadAssimpModel(filePath);
+	this->addModel(assimp_model);
+}
+/// <summary>
 /// This method generate a directional light and add it to the scene.
 /// </summary>
 void Scene::createDirectionalLight()

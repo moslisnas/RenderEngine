@@ -21,6 +21,9 @@ const float NUMBER_PI = (float)atan(1) * 4;
 #include "Shader.h"
 #include "BOX.h"
 #include "FileStreamLoad.h"
+#include <Assimp/Importer.hpp>
+#include <Assimp/scene.h>
+#include <Assimp/postprocess.h>
 
 /// <summary>
 /// Class for models of the scene, store information about vertices, normals, etc.
@@ -119,6 +122,10 @@ public:
 	/// This method generate a cube with default parameters.
 	/// </summary>
 	void loadDefaultCubeModel(int shade);
+	/// <summary>
+	/// This method generate an imported model with default parameters.
+	/// </summary>
+	void loadAssimpModel(char* filePath);
 	/// <summary>
 	/// This method create OpenGL texture from a file.
 	/// <param name="fileName">Path of the file.</param>  

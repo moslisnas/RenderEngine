@@ -103,6 +103,10 @@ public:
 	/// </summary>
 	void createCubeModel();
 	/// <summary>
+	/// This method generate a model from a file and add it to the scene.
+	/// </summary>
+	void createAssimpModel(char * filePath);
+	/// <summary>
 	/// This method generate a directional light and add it to the scene.
 	/// </summary>
 	void createDirectionalLight();

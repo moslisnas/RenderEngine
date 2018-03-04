@@ -212,14 +212,59 @@ void Model::loadDefaultCubeModel(int shade)
 			vertex_shader.loadPhongBumpVertexShader();
 			fragment_shader.loadPhongBumpFragmentShader();
 			break;
-		case 2:
-			/*vertex_shader.loadPhongBumpVertexShader();
-			fragment_shader.loadPhongBumpFragmentShader();*/
-			vertex_shader.loadToonVertexShader();
-			fragment_shader.loadToonFragmentShader();
-			break;
 	}
 
+}
+/// <summary>
+/// This method generate an imported model with default parameters.
+/// </summary>
+void Model::loadAssimpModel(char* filePath)
+{
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(filePath, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
+	//If importation fails we notify it
+	if (!scene)
+		std::cout << "Error importing the file: " << (importer.GetErrorString());
+	else {
+		if (scene->HasMeshes()) {
+			aiMesh* myImportedModel = scene->mMeshes[0];
+			std::cout << "Model name: " << &myImportedModel->mName.data[2] << std::endl;
+			std::cout << "NumFaces: " << myImportedModel->mNumFaces << ", num vertices: " << myImportedModel->mNumVertices << ", num indices(per face): " << myImportedModel->mFaces->mNumIndices << std::endl;
+			//Memory reserve for model
+			this->n_vertices = myImportedModel->mNumVertices;
+			this->n_triangles = myImportedModel->mNumFaces;
+			this->coordinates = new float[myImportedModel->mNumVertices * 3];
+			this->triangle_indices = new unsigned int[myImportedModel->mNumFaces * 3];
+			this->normals = new float[myImportedModel->mNumVertices * 3];
+			this->colors = new float[myImportedModel->mNumVertices * 3];
+			this->tangents = new float[myImportedModel->mNumVertices * 3];
+			this->tex_coords = new float[myImportedModel->mNumVertices * 2];
+			//Vertices coordinates & normals
+			for (unsigned int i = 0; i<myImportedModel->mNumVertices; i++) {
+				this->coordinates[i * 3] = myImportedModel->mVertices[i].x;
+				this->coordinates[(i * 3) + 1] = myImportedModel->mVertices[i].y;
+				this->coordinates[(i * 3) + 2] = myImportedModel->mVertices[i].z;
+				this->normals[i * 3] = myImportedModel->mNormals[i].x;
+				this->normals[(i * 3) + 1] = myImportedModel->mNormals[i].y;
+				this->normals[(i * 3) + 2] = myImportedModel->mNormals[i].z;
+			}
+			//Indices
+			for (unsigned int i = 0; i<myImportedModel->mNumFaces; i++) {
+				this->triangle_indices[i * 3] = myImportedModel->mFaces[i].mIndices[0];
+				this->triangle_indices[(i * 3) + 1] = myImportedModel->mFaces[i].mIndices[1];
+				this->triangle_indices[(i * 3) + 2] = myImportedModel->mFaces[i].mIndices[2];
+			}
+			//Textures
+			this->color_texture_on = false;
+			this->emissive_texture_on = false;
+			this->specular_texture_on = false;
+			this->normal_texture_on = false;
+		}
+	}
+
+	//Shaders
+	vertex_shader.loadToonVertexShader();
+	fragment_shader.loadToonFragmentShader();
 }
 /// <summary>
 /// This method create OpenGL texture from a file.
