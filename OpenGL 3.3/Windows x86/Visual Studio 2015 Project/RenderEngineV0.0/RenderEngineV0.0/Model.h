@@ -14,8 +14,13 @@ Purpose: Header of Model class
 #include <glm/gtc/matrix_transform.hpp>
 const float NUMBER_PI = (float)atan(1) * 4;
 #endif
+#ifndef IOSTREAM
+#define IOSTREAM
+#include <iostream>
+#endif
 #include "Shader.h"
 #include "BOX.h"
+#include "FileStreamLoad.h"
 
 /// <summary>
 /// Class for models of the scene, store information about vertices, normals, etc.
@@ -40,7 +45,16 @@ private:
 	/// This method bind the VBOs of this model.
 	/// </summary>
 	void bindVBOs();
+	/// <summary>
+	/// This method create textures and store OpenGL textures id.
+	/// </summary>
+	void createTextures();
+	/// <summary>
+	/// This method bind the textures of this model.
+	/// </summary>
+	void bindTextures();
 #pragma endregion
+
 public:
 #pragma region Variables
 	glm::mat4 model_matrix;
@@ -55,6 +69,17 @@ public:
 	Shader vertex_shader;
 	Shader fragment_shader;
 
+	#pragma region Textures
+	bool color_texture_on;
+	bool emissive_texture_on;
+	bool specular_texture_on;
+	bool normal_texture_on;
+	char *color_texture_file;
+	char *emissive_texture_file;
+	char *specular_texture_file;
+	char *normal_texture_file;
+	#pragma endregion
+
 	#pragma region OpenGL id variables
 	unsigned int vao_id;
 	unsigned int posVBO_id;
@@ -63,6 +88,10 @@ public:
 	unsigned int tangentVBO_id;
 	unsigned int tex_coordVBO_id;
 	unsigned int triangle_indexVBO_id;
+	unsigned int color_texture_id;
+	unsigned int emissive_texture_id;
+	unsigned int specular_texture_id;
+	unsigned int normal_texture_id;
 	#pragma endregion
 
 #pragma endregion
@@ -90,5 +119,11 @@ public:
 	/// This method generate a cube with default parameters.
 	/// </summary>
 	void loadDefaultCubeModel();
+	/// <summary>
+	/// This method create OpenGL texture from a file.
+	/// <param name="fileName">Path of the file.</param>  
+	/// <returns>OpenGL texture id.</returns> 
+	/// </summary>
+	unsigned int loadTex(const char *fileName);
 #pragma endregion
 };

@@ -1,5 +1,29 @@
 #include "Model.h"
 
+#pragma region Constructor & destructor
+/// <summary>
+/// Constructor of <c>Model</c> class.
+/// </summary>
+Model::Model()
+{
+	this->n_vertices = 0;
+	this->n_triangles = 0;
+	this->model_matrix = glm::mat4(1.0f);
+	//Ids
+	this->vao_id = -1;
+	//Textures
+	this->color_texture_on = true;
+	this->emissive_texture_on = true;
+	this->specular_texture_on = true;
+	this->normal_texture_on = true;
+}
+/// <summary>
+/// Destructor of <c>Model</c> class.
+/// </summary>
+Model::~Model()
+{
+}
+#pragma endregion
 
 #pragma region Intialization methods (private)
 /// <summary>
@@ -73,25 +97,56 @@ void Model::bindVBOs()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangle_indexVBO_id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_triangles * sizeof(unsigned int) * 3, triangle_indices, GL_STATIC_DRAW);
 }
-#pragma endregion
-
-#pragma region Constructor & destructor
 /// <summary>
-/// Constructor of <c>Model</c> class.
+/// This method create textures and store OpenGL textures id.
 /// </summary>
-Model::Model()
-{
-	this->n_vertices = 0;
-	this->n_triangles = 0;
-	this->model_matrix = glm::mat4(1.0f);
-	//Ids
-	this->vao_id = -1;
+void Model::createTextures() {
+	if (color_texture_on)
+		color_texture_id = loadTex(color_texture_file);
+	if (emissive_texture_on)
+		emissive_texture_id = loadTex(emissive_texture_file);
+	if (specular_texture_on)
+		specular_texture_id = loadTex(specular_texture_file);
+	if (normal_texture_on)
+		normal_texture_id = loadTex(normal_texture_file);
 }
 /// <summary>
-/// Destructor of <c>Model</c> class.
+/// This method bind the textures of this model.
 /// </summary>
-Model::~Model()
+void Model::bindTextures()
 {
+	if (color_texture_on) {
+		glBindTexture(GL_TEXTURE_2D, color_texture_id);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	}
+	if (emissive_texture_on) {
+		glBindTexture(GL_TEXTURE_2D, emissive_texture_id);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	}
+	if (specular_texture_on) {
+		glBindTexture(GL_TEXTURE_2D, specular_texture_id);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	}
+	if (normal_texture_on) {
+		glBindTexture(GL_TEXTURE_2D, normal_texture_id);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	}
 }
 #pragma endregion
 
@@ -104,13 +159,15 @@ void Model::bind()
 	if (this->vao_id == -1) {
 		this->createVAO();
 		this->createVBOs();
+		this->createTextures();
 	}
 	this->bindVAO();
 	this->bindVBOs();
+	this->bindTextures();
 }
 #pragma endregion
 
-#pragma region Other methods POR HACER--> Texturas y shaders del modelo cubo
+#pragma region Other methods
 /// <summary>
 /// This method generate a cube with default parameters.
 /// </summary>
@@ -137,8 +194,47 @@ void Model::loadDefaultCubeModel()
 	for(unsigned int i=0; i<n_triangles*3; i++)
 		this->triangle_indices[i] = cubeTriangleIndex[i];
 	//Textures
+	this->color_texture_on = true;
+	this->emissive_texture_on = true;
+	this->specular_texture_on = true;
+	this->normal_texture_on = true;
+	this->color_texture_file = "../resources/img/color2.png";
+	this->emissive_texture_file = "../resources/img/emissive.png";
+	this->specular_texture_file = "../resources/img/specMap.png";
+	this->normal_texture_file = "../resources/img/normal.png";
 	//Shaders
 	vertex_shader.loadPhongVertexShader();
 	fragment_shader.loadPhongFragmentShader();
+}
+/// <summary>
+/// This method create OpenGL texture from a file.
+/// <param name="fileName">Path of the file.</param>  
+/// <returns>OpenGL texture id.</returns> 
+/// </summary>
+unsigned int Model::loadTex(const char *fileName) {
+	unsigned char *map;
+	unsigned int w, h;
+	map = loadTexture(fileName, w, h);
+	if (!map)
+	{
+		std::cout << "Error loading texture file: " << fileName << std::endl;
+		exit(-1);
+	}
+
+	//Creating texture.
+	unsigned int texId;
+	glGenTextures(1, &texId);
+	glBindTexture(GL_TEXTURE_2D, texId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)map);
+
+	delete[] map;
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+
+	return texId;
 }
 #pragma endregion

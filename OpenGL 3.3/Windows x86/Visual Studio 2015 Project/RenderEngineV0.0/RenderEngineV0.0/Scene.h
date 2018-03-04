@@ -25,6 +25,7 @@ Purpose: Header of Scene class
 #include "Camera.h"
 #include "Model.h"
 #include "FileStreamLoad.h"
+#include "DirectionalLight.h"
 
 /// <summary>
 /// Class with all scene elements to show in final render.
@@ -38,12 +39,18 @@ private:
 	/// <param name="model">The model that will be added.</param>  
 	/// </summary>
 	void addModel(Model model);
+	/// <summary>
+	/// This method add a directional light to the scene.
+	/// <param name="light">The directional light that will be added.</param>  
+	/// </summary>
+	void addDirectionalLight(DirectionalLight light);
 #pragma endregion
 
 public:
 #pragma region Variables
 	Camera selected_camera;
 	std::vector<Model> models;
+	std::vector<DirectionalLight> directional_lights;
 	unsigned int num_programs;
 	unsigned int *programs;
 #pragma endregion
@@ -88,9 +95,17 @@ public:
 	/// </summary>  
 	void render();
 	/// <summary>
+	/// This method update elements properties.
+	/// </summary>  
+	void animate();
+	/// <summary>
 	/// This method generate a cube and add it to the scene.
 	/// </summary>
-	void generateCubeModel();
+	void createCubeModel();
+	/// <summary>
+	/// This method generate a directional light and add it to the scene.
+	/// </summary>
+	void createDirectionalLight();
 #pragma endregion
 
 #pragma region Loading methods

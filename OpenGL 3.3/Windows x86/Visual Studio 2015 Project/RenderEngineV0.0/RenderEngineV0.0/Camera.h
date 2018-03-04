@@ -16,7 +16,7 @@ const float NUMBER_PI = (float)atan(1) * 4;
 #endif
 
 /// <summary>
-/// Class to define the camera, view and projection (frustrum & pespective).
+/// Class to define the camera, view and projection (frustrum and pespective).
 /// </summary>
 class Camera
 {

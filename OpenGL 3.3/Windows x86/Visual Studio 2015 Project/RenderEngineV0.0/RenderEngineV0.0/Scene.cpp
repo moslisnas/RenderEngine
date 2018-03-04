@@ -103,6 +103,14 @@ void Scene::addModel(Model model)
 {
 	this->models.push_back(model);
 }
+/// <summary>
+/// This method add a directional light to the scene.
+/// <param name="light">The directional light that will be added.</param>  
+/// </summary>
+void Scene::addDirectionalLight(DirectionalLight light)
+{
+	this->directional_lights.push_back(light);
+}
 #pragma endregion
 
 #pragma region Other methods
@@ -128,8 +136,43 @@ void Scene::render()
 			glUniformMatrix4fv(models[i].vertex_shader.uniform_ids[1], 1, GL_FALSE, &(model_view_projection[0][0]));
 		if (models[i].vertex_shader.uniform_ids[2] != -1)
 			glUniformMatrix4fv(models[i].vertex_shader.uniform_ids[2], 1, GL_FALSE, &(normal[0][0]));
-
 		//Textures
+		//POR HACER-->Bucle FOR
+		if (models[i].color_texture_on && models[i].fragment_shader.uniform_ids[9] != -1){
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, models[i].color_texture_id);
+			glUniform1i(models[i].fragment_shader.uniform_ids[9], 0);
+		}
+		if (models[i].emissive_texture_on && models[i].fragment_shader.uniform_ids[10] != -1){
+			glActiveTexture(GL_TEXTURE0 + 1);
+			glBindTexture(GL_TEXTURE_2D, models[i].emissive_texture_id);
+			glUniform1i(models[i].fragment_shader.uniform_ids[10], 1);
+		}
+		if (models[i].specular_texture_on && models[i].fragment_shader.uniform_ids[11] != -1){
+			glActiveTexture(GL_TEXTURE0 + 2);
+			glBindTexture(GL_TEXTURE_2D, models[i].specular_texture_id);
+			glUniform1i(models[i].fragment_shader.uniform_ids[11], 2);
+		}
+		if (models[i].normal_texture_on && models[i].fragment_shader.uniform_ids[12] != -1){
+			glActiveTexture(GL_TEXTURE0 + 3);
+			glBindTexture(GL_TEXTURE_2D, models[i].normal_texture_id);
+			glUniform1i(models[i].fragment_shader.uniform_ids[12], 3);
+		}
+		//Lights
+		for (unsigned int j=0; j<directional_lights.size(); j++) {
+			glm::mat4 light_view = selected_camera.view_matrix * directional_lights[j].light_matrix;
+			//POR HACER-->Bucle FOR
+			if (models[i].fragment_shader.uniform_ids[0] != -1)
+				glUniformMatrix4fv(models[i].fragment_shader.uniform_ids[0], 1, GL_FALSE, &(light_view[0][0]));
+			if (models[i].fragment_shader.uniform_ids[5] != -1)
+				glUniform3fv(models[i].fragment_shader.uniform_ids[5], 1, &(directional_lights[j].direction[0]));
+			if (models[i].fragment_shader.uniform_ids[6] != -1)
+				glUniform3fv(models[i].fragment_shader.uniform_ids[6], 1, &(directional_lights[j].ambiental_intensity[0]));
+			if (models[i].fragment_shader.uniform_ids[7] != -1)
+				glUniform3fv(models[i].fragment_shader.uniform_ids[7], 1, &(directional_lights[j].diffuse_intensity[0]));
+			if (models[i].fragment_shader.uniform_ids[8] != -1)
+				glUniform3fv(models[i].fragment_shader.uniform_ids[8], 1, &(directional_lights[j].specular_intensity[0]));
+		}
 
 		glDrawElements(GL_TRIANGLES, models[i].n_triangles * 3, GL_UNSIGNED_INT, (void*)0);
 	}
@@ -137,13 +180,38 @@ void Scene::render()
 	glutSwapBuffers();
 }
 /// <summary>
+/// This method update element properties.
+/// </summary>  
+void Scene::animate()
+{
+	static float angle = 0.0f;
+	angle = (angle > 3.141592f * 2.0f) ? 0 : angle + 0.01f;
+	//Animation cube 1
+	models[0].model_matrix = glm::mat4(1.0f);
+	//models[0].model_matrix = glm::translate(models[0].model_matrix, glm::vec3(-3.0f, 0.0f, 0.0f));
+	models[0].model_matrix = glm::rotate(models[0].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
+
+	//Render
+	glutPostRedisplay();
+}
+/// <summary>
 /// This method generate a cube and add it to the scene.
 /// </summary>
-void Scene::generateCubeModel()
+void Scene::createCubeModel()
 {
 	Model cube;
 	cube.loadDefaultCubeModel();
 	this->addModel(cube);
+}
+/// <summary>
+/// This method generate a directional light and add it to the scene.
+/// </summary>
+void Scene::createDirectionalLight()
+{
+	DirectionalLight directional_light;
+	//directional_light.setType(DIRECTIONAL_LIGHT);
+	directional_light.loadDefault();
+	this->addDirectionalLight(directional_light);
 }
 #pragma endregion
 

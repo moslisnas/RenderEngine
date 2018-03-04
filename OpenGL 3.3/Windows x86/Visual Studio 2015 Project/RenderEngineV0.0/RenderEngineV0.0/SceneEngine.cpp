@@ -30,7 +30,7 @@ void renderFunc() {
 /// OS event function for idle time.
 /// </summary>  
 void idleFunc() {
-	//scene.animate();
+	scene.animate();
 }
 /// <summary>
 /// OS event function for window resizing.
@@ -201,15 +201,15 @@ void SceneEngine::initRender()
 #pragma region Other methods
 void SceneEngine::loadDefaultSceneRender()
 {
-	//Default camera
+	//Default camera.
 	Camera camera;
 	scene.setSelectedCamera(camera);
-	//Default geometry
-	scene.generateCubeModel();
-	//Default light
+	//Default geometry.
+	scene.createCubeModel();
+	//Default light.
+	scene.createDirectionalLight();
 
-	//
+	//Creating scene for rendering.
 	scene.create();
-
 }
 #pragma endregion
