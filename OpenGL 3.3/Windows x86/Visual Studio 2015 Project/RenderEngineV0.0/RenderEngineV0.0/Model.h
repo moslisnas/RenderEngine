@@ -22,6 +22,25 @@ const float NUMBER_PI = (float)atan(1) * 4;
 /// </summary>
 class Model
 {
+private:
+#pragma region Intialization methods
+	/// <summary>
+	/// This method create VAO and store OpenGL VAO id.
+	/// </summary>
+	void createVAO();
+	/// <summary>
+	/// This method create VBOs and store OpenGL VBOs id.
+	/// </summary>
+	void createVBOs();
+	/// <summary>
+	/// This method bind the VAO of this model.
+	/// </summary>
+	void bindVAO();
+	/// <summary>
+	/// This method bind the VBOs of this model.
+	/// </summary>
+	void bindVBOs();
+#pragma endregion
 public:
 #pragma region Variables
 	glm::mat4 model_matrix;
@@ -35,14 +54,17 @@ public:
 	float *tex_coords;
 	Shader vertex_shader;
 	Shader fragment_shader;
-#pragma endregion
-#pragma region OpenGL id variables
+
+	#pragma region OpenGL id variables
 	unsigned int vao_id;
 	unsigned int posVBO_id;
 	unsigned int colorVBO_id;
 	unsigned int normalVBO_id;
 	unsigned int tangentVBO_id;
-	unsigned int texCoordVBO_id;
+	unsigned int tex_coordVBO_id;
+	unsigned int triangle_indexVBO_id;
+	#pragma endregion
+
 #pragma endregion
 
 #pragma region Constructor & destructor
@@ -54,6 +76,13 @@ public:
 	/// Destructor of <c>Model</c> class.
 	/// </summary>
 	~Model();
+#pragma endregion
+
+#pragma region Intialization methods
+	/// <summary>
+	/// This method generate OpenGL variables used for render the model.
+	/// </summary>
+	void bind();
 #pragma endregion
 
 #pragma region Other methods

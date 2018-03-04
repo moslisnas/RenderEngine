@@ -18,10 +18,13 @@ Purpose: Header of Scene class
 #define IOSTREAM
 #include <iostream>
 #endif
+#ifndef VECTOR
+#define VECTOR
 #include <vector>
+#endif
 #include "Camera.h"
 #include "Model.h"
-//#include "FileStreamLoad.h"
+#include "FileStreamLoad.h"
 
 /// <summary>
 /// Class with all scene elements to show in final render.
@@ -36,11 +39,13 @@ private:
 	/// </summary>
 	void addModel(Model model);
 #pragma endregion
+
 public:
 #pragma region Variables
 	Camera selected_camera;
 	std::vector<Model> models;
-	unsigned int numPrograms;
+	unsigned int num_programs;
+	unsigned int *programs;
 #pragma endregion
 
 #pragma region Constructor & destructor
@@ -74,7 +79,7 @@ public:
 	/// <summary>
 	/// This method compile and link all model programs.
 	/// </summary>
-	void compileProgram();
+	void compilePrograms();
 #pragma endregion
 
 #pragma region Other methods
