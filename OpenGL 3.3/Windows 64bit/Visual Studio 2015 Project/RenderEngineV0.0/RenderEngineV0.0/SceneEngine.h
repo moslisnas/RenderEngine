@@ -13,7 +13,10 @@ Purpose: Header of SceneEngine class
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #endif
+#ifndef IOSTREAM
+#define IOSTREAM
 #include <iostream>
+#endif
 #include "Scene.h"
 
 /// <summary>

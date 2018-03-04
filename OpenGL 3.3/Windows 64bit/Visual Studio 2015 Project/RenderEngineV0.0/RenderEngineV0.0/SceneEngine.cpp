@@ -208,5 +208,8 @@ void SceneEngine::loadDefaultSceneRender()
 	scene.generateCubeModel();
 	//Default light
 
+	//
+	scene.create();
+
 }
 #pragma endregion

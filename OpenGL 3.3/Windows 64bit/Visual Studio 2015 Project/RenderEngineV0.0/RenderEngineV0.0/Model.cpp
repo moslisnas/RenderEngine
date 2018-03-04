@@ -48,5 +48,7 @@ void Model::loadDefaultCubeModel()
 		this->triangle_indices[i] = cubeTriangleIndex[i];
 	//Textures
 	//Shaders
+	vertex_shader.loadPhongVertexShader();
+	fragment_shader.loadPhongFragmentShader();
 }
 #pragma endregion

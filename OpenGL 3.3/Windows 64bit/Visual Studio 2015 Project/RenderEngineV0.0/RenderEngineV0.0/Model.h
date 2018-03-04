@@ -14,6 +14,7 @@ Purpose: Header of Model class
 #include <glm/gtc/matrix_transform.hpp>
 const float NUMBER_PI = (float)atan(1) * 4;
 #endif
+#include "Shader.h"
 #include "BOX.h"
 
 /// <summary>
@@ -32,6 +33,8 @@ public:
 	float *colors;
 	float *tangents;
 	float *tex_coords;
+	Shader vertex_shader;
+	Shader fragment_shader;
 #pragma endregion
 #pragma region OpenGL id variables
 	unsigned int vao_id;

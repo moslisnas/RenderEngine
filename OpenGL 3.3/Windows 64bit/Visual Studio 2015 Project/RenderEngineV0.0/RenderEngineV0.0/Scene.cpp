@@ -26,6 +26,41 @@ void Scene::setSelectedCamera(Camera camera)
 }
 #pragma endregion
 
+#pragma region Initialization methods
+/// <summary>
+/// This method generate full scene to be rendered.
+/// </summary>
+void Scene::create()
+{
+	this->compileShaders();
+	this->compileProgram();
+}
+/// <summary>
+/// This method compile all model vertex/fragment shaders.
+/// </summary>
+void Scene::compileShaders()
+{
+	this->numPrograms = models.size();
+	//POR HACER--> We use same program for diferent models with same shaders 
+	/*for (unsigned int i=0; i<numModels-1; i++) {
+	for (int j = i; j < numModels; j++)
+	if (models[i].vertexShader.filePath == models[i].vertexShader.filePath)
+	numPrograms--;
+	}*/
+	/*for (unsigned int i = 0; i<numPrograms; i++) {
+		this->models[i].vertex_shader.id = loadShader(models[i].vertex_shader.filePath, models[i].vertex_shader.type);
+		this->models[i].fragment_shader.id = loadShader(models[i].fragment_shader.filePath, models[i].fragment_shader.type);
+	}*/
+}
+/// <summary>
+/// This method compile and link all model programs.
+/// </summary>
+void Scene::compileProgram()
+{
+
+}
+#pragma endregion
+
 #pragma region Adding methods
 /// <summary>
 /// This method add a model to the scene.
@@ -55,5 +90,43 @@ void Scene::generateCubeModel()
 	Model cube;
 	cube.loadDefaultCubeModel();
 	this->addModel(cube);
+}
+#pragma endregion
+
+#pragma region Loading methods
+/// <summary>
+/// This method compile OpenGL shader from a file.
+/// <param name="fileName">Path of the file.</param>  
+/// <param name="type">Type os shader (vertices or fragments).</param>
+/// <returns>OpenGL shader id.</returns> 
+/// </summary>
+GLuint Scene::loadShader(const char *fileName, GLenum type)
+{
+	/*unsigned int fileLen;
+	char *source = loadStringFromFile(fileName, fileLen);
+	//Creation and compilation of the shader.
+	GLuint shader;
+	shader = glCreateShader(type);
+	glShaderSource(shader, 1, (const GLchar **)&source, (const GLint *)&fileLen);
+	glCompileShader(shader);
+	delete[] source;
+
+	//Error checks.
+	GLint compiled;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+	if (!compiled)
+	{
+		GLint logLen;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
+		char *logString = new char[logLen];
+		glGetShaderInfoLog(shader, logLen, NULL, logString);
+		std::cout << "Error: " << logString << std::endl;
+		delete[] logString;
+		glDeleteShader(shader);
+		exit(-1);
+	}
+
+	return shader;*/
+	return 0;
 }
 #pragma endregion
