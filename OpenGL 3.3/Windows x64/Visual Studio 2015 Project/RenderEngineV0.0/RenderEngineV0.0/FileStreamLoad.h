@@ -10,7 +10,7 @@ Purpose: Header of Model class
 
 #include <windows.h>
 #include <fstream>
-//#include <FreeImage.h>
+#include <FreeImage.h>
 #define _CRT_SECURE_DEPRECATE_MEMORY
 #include <memory.h>
 
@@ -23,4 +23,4 @@ char *loadStringFromFile(const char *fileName, unsigned int &fileLen);
 /// This function convert the content of an image into an unsigned char array.
 /// <returns>The unsigned char array.</returns> 
 /// </summary>
-//unsigned char *loadTexture(const char* fileName, unsigned int &w, unsigned int &h);
+unsigned char *loadTexture(const char* fileName, unsigned int &w, unsigned int &h);

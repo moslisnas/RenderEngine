@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Archivos de recursos\shaders">
+      <UniqueIdentifier>{864cebc9-d6e9-455e-acac-c8aba0bc400d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -36,6 +39,9 @@
     <ClCompile Include="FileStreamLoad.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
+    <ClCompile Include="DirectionalLight.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceneEngine.h">
@@ -56,5 +62,28 @@
     <ClInclude Include="FileStreamLoad.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\resources\shaders\default\Phong.frag">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
+    <None Include="..\resources\shaders\default\Phong.vert">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
+    <None Include="..\resources\shaders\default\PhongBump.frag">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
+    <None Include="..\resources\shaders\default\PhongBump.vert">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
+    <None Include="..\resources\shaders\default\Toon.frag">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
+    <None Include="..\resources\shaders\default\Toon.vert">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

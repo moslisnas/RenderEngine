@@ -32,7 +32,7 @@ char *loadStringFromFile(const char *fileName, unsigned int &fileLen)
 /// This function convert the content of an image into an unsigned char array.
 /// <returns>The unsigned char array.</returns> 
 /// </summary>
-/*unsigned char *loadTexture(const char* fileName, unsigned int &w, unsigned int &h)
+unsigned char *loadTexture(const char* fileName, unsigned int &w, unsigned int &h)
 {
 	FreeImage_Initialise(TRUE);
 
@@ -66,4 +66,4 @@ char *loadStringFromFile(const char *fileName, unsigned int &fileLen)
 	FreeImage_DeInitialise();
 
 	return map;
-}*/
+}

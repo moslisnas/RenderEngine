@@ -18,10 +18,14 @@ Purpose: Header of Scene class
 #define IOSTREAM
 #include <iostream>
 #endif
+#ifndef VECTOR
+#define VECTOR
 #include <vector>
+#endif
 #include "Camera.h"
 #include "Model.h"
-//#include "FileStreamLoad.h"
+#include "FileStreamLoad.h"
+#include "DirectionalLight.h"
 
 /// <summary>
 /// Class with all scene elements to show in final render.
@@ -35,12 +39,20 @@ private:
 	/// <param name="model">The model that will be added.</param>  
 	/// </summary>
 	void addModel(Model model);
+	/// <summary>
+	/// This method add a directional light to the scene.
+	/// <param name="light">The directional light that will be added.</param>  
+	/// </summary>
+	void addDirectionalLight(DirectionalLight light);
 #pragma endregion
+
 public:
 #pragma region Variables
 	Camera selected_camera;
 	std::vector<Model> models;
-	unsigned int numPrograms;
+	std::vector<DirectionalLight> directional_lights;
+	unsigned int num_programs;
+	unsigned int *programs;
 #pragma endregion
 
 #pragma region Constructor & destructor
@@ -74,7 +86,7 @@ public:
 	/// <summary>
 	/// This method compile and link all model programs.
 	/// </summary>
-	void compileProgram();
+	void compilePrograms();
 #pragma endregion
 
 #pragma region Other methods
@@ -83,9 +95,21 @@ public:
 	/// </summary>  
 	void render();
 	/// <summary>
+	/// This method update elements properties.
+	/// </summary>  
+	void animate();
+	/// <summary>
 	/// This method generate a cube and add it to the scene.
 	/// </summary>
-	void generateCubeModel();
+	void createCubeModel();
+	/// <summary>
+	/// This method generate a model from a file and add it to the scene.
+	/// </summary>
+	void createAssimpModel(char * filePath);
+	/// <summary>
+	/// This method generate a directional light and add it to the scene.
+	/// </summary>
+	void createDirectionalLight();
 #pragma endregion
 
 #pragma region Loading methods

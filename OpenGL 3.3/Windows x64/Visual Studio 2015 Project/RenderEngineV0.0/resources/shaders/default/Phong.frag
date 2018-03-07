@@ -7,10 +7,12 @@ in vec3 pos;
 in vec3 norm;
 in vec2 texCoord;
 
+//Textures
 uniform sampler2D colorTex;
 uniform sampler2D emiTex;
 uniform sampler2D specularTex;
-//Luces
+
+//Lights
 uniform mat4 lightView;
 uniform vec3 lPos;
 uniform vec3 lIntA;
@@ -22,7 +24,7 @@ uniform vec3 lIntA2;
 uniform vec3 lIntD2;
 uniform vec3 lIntS2;
 
-//Propiedades del objeto
+//Object properties
 vec3 Ka;
 vec3 Kd;
 vec3 Ks;
@@ -70,7 +72,6 @@ void main()
 {
 	Ka = texture(colorTex, texCoord).rgb;
 	Kd = Ka;
-	Ks = vec3 (1.0);
 	Ks = texture(specularTex, texCoord).rgb;
 	Ke = texture(emiTex, texCoord).rgb;
 

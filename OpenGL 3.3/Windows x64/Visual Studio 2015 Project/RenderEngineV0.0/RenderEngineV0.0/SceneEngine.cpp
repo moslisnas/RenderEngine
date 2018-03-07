@@ -30,7 +30,7 @@ void renderFunc() {
 /// OS event function for idle time.
 /// </summary>  
 void idleFunc() {
-	//scene.animate();
+	scene.animate();
 }
 /// <summary>
 /// OS event function for window resizing.
@@ -205,11 +205,13 @@ void SceneEngine::loadDefaultSceneRender()
 	Camera camera;
 	scene.setSelectedCamera(camera);
 	//Default geometry
-	scene.generateCubeModel();
+	scene.createCubeModel();
+	scene.createCubeModel();
+	scene.createAssimpModel("../resources/models/ToonTorus.obj");
 	//Default light
+	scene.createDirectionalLight();
 
-	//
+	//Creating scene for rendering
 	scene.create();
-
 }
 #pragma endregion
