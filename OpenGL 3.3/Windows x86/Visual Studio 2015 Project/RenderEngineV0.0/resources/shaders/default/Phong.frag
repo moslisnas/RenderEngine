@@ -13,6 +13,12 @@ uniform sampler2D emiTex;
 uniform sampler2D specularTex;
 
 //Lights
+/*layout (std140) uniform PointLight{
+	vec3 point_light_position;
+	vec3 point_light_ambient_intensity;
+	vec3 point_light_diffuse_intensity;
+	vec3 point_light_specular_intensity;
+}*/
 uniform mat4 lightView;
 uniform vec3 lPos;
 uniform vec3 lIntA;

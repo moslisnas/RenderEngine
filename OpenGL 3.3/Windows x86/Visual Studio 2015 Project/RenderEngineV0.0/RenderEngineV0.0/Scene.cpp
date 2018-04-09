@@ -1,4 +1,4 @@
-#include "Scene.h"
+﻿#include "Scene.h"
 
 #pragma region Constructor & destructor
 /// <summary>
@@ -34,6 +34,36 @@ void Scene::create()
 {
 	this->compileShaders();
 	this->compilePrograms();
+}
+/// <summary>
+/// This method create Uniform Buffer Objects.
+/// <param name="programId">Program where we create the Uniform Buffer Object.</param> 
+/// </summary>
+void Scene::createUBOs(int programId)
+{
+	glGenBuffers(1, &buffer_directional_lights_id);
+	glBindBuffer(GL_UNIFORM_BUFFER, buffer_directional_lights_id);
+	//Cargar data desde el vector de lights
+	float* lights_data = new float[directional_lights.size()*12];
+	for(unsigned int i=0; i<directional_lights.size(); i++){
+		lights_data[i*12] = directional_lights[i].direction[0];
+		lights_data[i*12+1] = directional_lights[i].direction[1];
+		lights_data[i*12+2] = directional_lights[i].direction[2];
+		lights_data[i*12+3] = directional_lights[i].ambiental_intensity[0];
+		lights_data[i*12+4] = directional_lights[i].ambiental_intensity[1];
+		lights_data[i*12+5] = directional_lights[i].ambiental_intensity[2];
+		lights_data[i*12+6] = directional_lights[i].diffuse_intensity[0];
+		lights_data[i*12+7] = directional_lights[i].diffuse_intensity[1];
+		lights_data[i*12+8] = directional_lights[i].diffuse_intensity[2];
+		lights_data[i*12+9] = directional_lights[i].specular_intensity[0];
+		lights_data[i*12+10] = directional_lights[i].specular_intensity[1];
+		lights_data[i*12+11] = directional_lights[i].specular_intensity[2];
+	}
+	/*glBufferData(GL_UNIFORM_BUFFER, sizeof(shader_data), &shader_data, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	//GLuint glGetUniformBlockIndex(GLuint program​, const char *uniformBlockName​);
+	buffer_point_lights_id = glGetUniformBlockIndex(programs[programId], "pointLighs");
+	buffer_directional_lights_id = glGetUniformBlockIndex(programs[programId], "directionalLighs");*/
 }
 /// <summary>
 /// This method compile all model vertex/fragment shaders.
@@ -81,6 +111,7 @@ void Scene::compilePrograms()
 			programs[i] = 0;
 			exit(-1);
 		}
+		createUBOs(programs[i]);
 		models[i].loadUniforms(programs[i]);
 		models[i].loadAttributes(programs[i]);
 	}
@@ -160,6 +191,8 @@ void Scene::render()
 			glUniform1i(models[i].fragment_shader.uniform_ids[12], 3);
 		}
 		//Lights
+		//void glUniformBlockBinding(GLuint program​, GLuint uniformBlockIndex​, GLuint uniformBlockBinding​);
+		//glUniformBlockBinding(programs[i], buffer_directional_lights_id, );
 		for (unsigned int j = 0; j<directional_lights.size(); j++) {
 			glm::mat4 light_view = selected_camera.view_matrix * directional_lights[j].light_matrix;
 			//POR HACER-->Bucle FOR
@@ -291,6 +324,5 @@ GLuint Scene::loadShader(const char *fileName, GLenum type)
 	}
 
 	return shader;
-	return 0;
 }
 #pragma endregion
