@@ -1,11 +1,11 @@
 #pragma once
 /**
 C++ DirectionalLight.h
-Purpose: Header of DirectionalLight class
+Purpose: Header of PointLight class
 
 @author Alejandro Molina Quesada
 @version 1.0
-@date 04/03/2018
+@date 08/04/2018
 */
 
 #ifndef GLM
@@ -16,44 +16,43 @@ const float NUMBER_PI = (float)atan(1) * 4;
 #endif
 
 /// <summary>
-/// Class for directional lights of the scene, store information about direction, intensity and color.
+/// Class for point lights of the scene, store information about position, intensity and color.
 /// </summary>
-class DirectionalLight
+class PointLight
 {
 public:
 #pragma region Variables POR HACER--> Clase Light de la cual heredan las 3 componentes de Phong de la luz.
 	glm::mat4 light_matrix;
-	float direction[3];
+	float position[3];
 	//LightType type;
 	float ambiental_intensity[3];
 	float diffuse_intensity[3];
 	float specular_intensity[3];
 #pragma endregion
-
 #pragma region Constructor & destructor
 	/// <summary>
-	/// Constructor of <c>DirectionalLight</c> class.
+	/// Constructor of <c>PointLight</c> class.
 	/// </summary>
-	DirectionalLight();
+	PointLight();
 	/// <summary>
-	/// Destructor of <c>DirectionalLight</c> class.
+	/// Destructor of <c>PointLight</c> class.
 	/// </summary>
-	~DirectionalLight();
+	~PointLight();
 #pragma endregion
 
 #pragma region Setter methods
 	/// <summary>
-	/// Setter of direction.
-	/// <param name="xyz">The direction vector with same values at 3 components.</param>
+	/// Setter of position.
+	/// <param name="xyz">The position vector with same values at 3 components.</param>
 	/// </summary>
-	void setDirection(float xyz);
+	void setPosition(float xyz);
 	/// <summary>
-	/// Setter of direction.
-	/// <param name="x">The component X of the direction vector.</param>
-	/// <param name="y">The component Y of the direction vector.</param> 
-	/// <param name="z">The component Z of the direction vector.</param> 
+	/// Setter of position.
+	/// <param name="x">The component X of the position vector.</param>
+	/// <param name="y">The component Y of the position vector.</param> 
+	/// <param name="z">The component Z of the position vector.</param> 
 	/// </summary>
-	void setDirection(float x, float y, float z);
+	void setPosition(float x, float y, float z);
 	/// <summary>
 	/// Setter of ambiental intensity.
 	/// <param name="rgb">The color intensity with same values at 3 components.</param>
@@ -94,7 +93,7 @@ public:
 
 #pragma region Other methods
 	/// <summary>
-	/// This method generate a directional light with default parameters (White and -Z direction).
+	/// This method generate a point light with default parameters (White and 0,0,0 position).
 	/// </summary>
 	void loadDefault();
 #pragma endregion

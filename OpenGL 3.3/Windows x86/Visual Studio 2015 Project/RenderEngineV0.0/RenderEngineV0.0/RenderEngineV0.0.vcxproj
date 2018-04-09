@@ -141,6 +141,7 @@
     <ClCompile Include="FileStreamLoad.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneEngine.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="FileStreamLoad.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="PointLight.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneEngine.h" />
     <ClInclude Include="Shader.h" />

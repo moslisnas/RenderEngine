@@ -169,7 +169,26 @@ void Model::bind()
 
 #pragma region Other methods
 /// <summary>
+/// This method obtain uniform locations and store them.
+	/// <param name="programId">Id of the program which contains this variables.</param>  
+/// </summary>
+void Model::loadUniforms(int programId) {
+	for(unsigned int j=0; j<vertex_shader.num_uniforms; j++)
+		this->vertex_shader.uniform_ids[j] = glGetUniformLocation(programId, vertex_shader.uniform_names[j]);
+	for(unsigned int j=0; j<fragment_shader.num_uniforms; j++)
+		this->fragment_shader.uniform_ids[j] = glGetUniformLocation(programId, fragment_shader.uniform_names[j]);
+}
+/// <summary>
+/// This method obtain attribute locations and store them.
+	/// <param name="programId">Id of the program which contains this variables.</param>  
+/// </summary>
+void Model::loadAttributes(int programId) {
+	for(unsigned int j = 0; j<vertex_shader.num_attribs; j++)
+		vertex_shader.attrib_ids[j] = glGetAttribLocation(programId, vertex_shader.attrib_names[j]);
+}
+/// <summary>
 /// This method generate a cube with default parameters.
+/// POR HACER --> FALTA COMENTAR PARAMETROS DE ESTE METODO
 /// </summary>
 void Model::loadDefaultCubeModel(int shade)
 {
@@ -209,14 +228,17 @@ void Model::loadDefaultCubeModel(int shade)
 			fragment_shader.loadPhongFragmentShader();
 			break;
 		case 1:
-			vertex_shader.loadPhongBumpVertexShader();
-			fragment_shader.loadPhongBumpFragmentShader();
+			vertex_shader.loadPhongVertexShader();
+			fragment_shader.loadPhongFragmentShader();
+			/*vertex_shader.loadPhongBumpVertexShader();
+			fragment_shader.loadPhongBumpFragmentShader();*/
 			break;
 	}
 
 }
 /// <summary>
 /// This method generate an imported model with default parameters.
+/// <param name="filePath">Path of the model.</param>  
 /// </summary>
 void Model::loadAssimpModel(char* filePath)
 {
@@ -263,8 +285,10 @@ void Model::loadAssimpModel(char* filePath)
 	}
 
 	//Shaders
-	vertex_shader.loadToonVertexShader();
-	fragment_shader.loadToonFragmentShader();
+	vertex_shader.loadPhongVertexShader();
+	fragment_shader.loadPhongFragmentShader();
+	/*vertex_shader.loadToonVertexShader();
+	fragment_shader.loadToonFragmentShader();*/
 }
 /// <summary>
 /// This method create OpenGL texture from a file.

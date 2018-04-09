@@ -26,7 +26,7 @@ void Scene::setSelectedCamera(Camera camera)
 }
 #pragma endregion
 
-#pragma region Initialization methods POR HACER --> Añadir a la clase model la carga de uniforms y atributos.
+#pragma region Initialization methods
 /// <summary>
 /// This method generate full scene to be rendered.
 /// </summary>
@@ -81,15 +81,8 @@ void Scene::compilePrograms()
 			programs[i] = 0;
 			exit(-1);
 		}
-
-		//Uniform variables POR HACER --> Añadir a la clase model
-		for (unsigned int j = 0; j<models[i].vertex_shader.num_uniforms; j++)
-			models[i].vertex_shader.uniform_ids[j] = glGetUniformLocation(programs[i], models[i].vertex_shader.uniform_names[j]);
-		for (unsigned int j = 0; j<models[i].fragment_shader.num_uniforms; j++)
-			models[i].fragment_shader.uniform_ids[j] = glGetUniformLocation(programs[i], models[i].fragment_shader.uniform_names[j]);
-		//Basic attributes
-		for (unsigned int j = 0; j<models[i].vertex_shader.num_attribs; j++)
-			models[i].vertex_shader.attrib_ids[j] = glGetAttribLocation(programs[i], models[i].vertex_shader.attrib_names[j]);
+		models[i].loadUniforms(programs[i]);
+		models[i].loadAttributes(programs[i]);
 	}
 }
 #pragma endregion
@@ -102,6 +95,14 @@ void Scene::compilePrograms()
 void Scene::addModel(Model model)
 {
 	this->models.push_back(model);
+}
+/// <summary>
+/// This method add a point light to the scene.
+/// <param name="light">The point light that will be added.</param>  
+/// </summary>
+void Scene::addPointLight(PointLight light)
+{
+	this->point_lights.push_back(light);
 }
 /// <summary>
 /// This method add a directional light to the scene.
@@ -159,6 +160,20 @@ void Scene::render()
 			glUniform1i(models[i].fragment_shader.uniform_ids[12], 3);
 		}
 		//Lights
+		for (unsigned int j = 0; j<directional_lights.size(); j++) {
+			glm::mat4 light_view = selected_camera.view_matrix * directional_lights[j].light_matrix;
+			//POR HACER-->Bucle FOR
+			if (models[i].fragment_shader.uniform_ids[0] != -1)
+				glUniformMatrix4fv(models[i].fragment_shader.uniform_ids[0], 1, GL_FALSE, &(light_view[0][0]));
+			if (models[i].fragment_shader.uniform_ids[1] != -1)
+				glUniform3fv(models[i].fragment_shader.uniform_ids[1], 1, &(point_lights[j].position[0]));
+			if (models[i].fragment_shader.uniform_ids[2] != -1)
+				glUniform3fv(models[i].fragment_shader.uniform_ids[2], 1, &(point_lights[j].ambiental_intensity[0]));
+			if (models[i].fragment_shader.uniform_ids[3] != -1)
+				glUniform3fv(models[i].fragment_shader.uniform_ids[3], 1, &(point_lights[j].diffuse_intensity[0]));
+			if (models[i].fragment_shader.uniform_ids[4] != -1)
+				glUniform3fv(models[i].fragment_shader.uniform_ids[4], 1, &(point_lights[j].specular_intensity[0]));
+		}
 		for (unsigned int j=0; j<directional_lights.size(); j++) {
 			glm::mat4 light_view = selected_camera.view_matrix * directional_lights[j].light_matrix;
 			//POR HACER-->Bucle FOR
@@ -191,13 +206,13 @@ void Scene::animate()
 	models[0].model_matrix = glm::translate(models[0].model_matrix, glm::vec3(-1.5f, -1.25f, 0.0f));
 	models[0].model_matrix = glm::rotate(models[0].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
 	//Animation cube 2
-	models[1].model_matrix = glm::mat4(1.0f);
+	/*models[1].model_matrix = glm::mat4(1.0f);
 	models[1].model_matrix = glm::translate(models[1].model_matrix, glm::vec3(1.5f, -1.25f, 0.0f));
 	models[1].model_matrix = glm::rotate(models[1].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
 	//Animation cube 3
 	models[2].model_matrix = glm::mat4(1.0f);
 	models[2].model_matrix = glm::translate(models[2].model_matrix, glm::vec3(0.0f, 1.25f, 0.0f));
-	models[2].model_matrix = glm::rotate(models[2].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
+	models[2].model_matrix = glm::rotate(models[2].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));*/
 
 	//Render
 	glutPostRedisplay();
@@ -219,6 +234,16 @@ void Scene::createAssimpModel(char * filePath)
 	Model assimp_model;
 	assimp_model.loadAssimpModel(filePath);
 	this->addModel(assimp_model);
+}
+/// <summary>
+/// This method generate a point light and add it to the scene.
+/// </summary>
+void Scene::createPointLight()
+{
+	PointLight point_light;
+	//point_light.setType(POINT_LIGHT);
+	point_light.loadDefault();
+	this->addPointLight(point_light);
 }
 /// <summary>
 /// This method generate a directional light and add it to the scene.

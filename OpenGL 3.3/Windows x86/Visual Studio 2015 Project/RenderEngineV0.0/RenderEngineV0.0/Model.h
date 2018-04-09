@@ -119,11 +119,23 @@ public:
 
 #pragma region Other methods
 	/// <summary>
+	/// This method obtain uniform locations and store them.
+	/// <param name="programId">Id of the program which contains this variables.</param>  
+	/// </summary>
+	void loadUniforms(int programId);
+	/// <summary>
+	/// This method obtain attribute locations and store them.
+	/// <param name="programId">Id of the program which contains this variables.</param>  
+	/// </summary>
+	void loadAttributes(int programId);
+	/// <summary>
 	/// This method generate a cube with default parameters.
+	/// POR HACER --> FALTA COMENTAR PARAMETROS DE ESTE METODO
 	/// </summary>
 	void loadDefaultCubeModel(int shade);
 	/// <summary>
 	/// This method generate an imported model with default parameters.
+	/// <param name="filePath">Path of the model.</param>  
 	/// </summary>
 	void loadAssimpModel(char* filePath);
 	/// <summary>

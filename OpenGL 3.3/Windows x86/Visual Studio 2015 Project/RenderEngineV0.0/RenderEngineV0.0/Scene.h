@@ -25,6 +25,7 @@ Purpose: Header of Scene class
 #include "Camera.h"
 #include "Model.h"
 #include "FileStreamLoad.h"
+#include "PointLight.h"
 #include "DirectionalLight.h"
 
 /// <summary>
@@ -40,6 +41,11 @@ private:
 	/// </summary>
 	void addModel(Model model);
 	/// <summary>
+	/// This method add a point light to the scene.
+	/// <param name="light">The point light that will be added.</param>  
+	/// </summary>
+	void addPointLight(PointLight light);
+	/// <summary>
 	/// This method add a directional light to the scene.
 	/// <param name="light">The directional light that will be added.</param>  
 	/// </summary>
@@ -51,6 +57,7 @@ public:
 	Camera selected_camera;
 	std::vector<Model> models;
 	std::vector<DirectionalLight> directional_lights;
+	std::vector<PointLight> point_lights;
 	unsigned int num_programs;
 	unsigned int *programs;
 #pragma endregion
@@ -106,6 +113,10 @@ public:
 	/// This method generate a model from a file and add it to the scene.
 	/// </summary>
 	void createAssimpModel(char * filePath);
+	/// <summary>
+	/// This method generate a point light and add it to the scene.
+	/// </summary>
+	void createPointLight();
 	/// <summary>
 	/// This method generate a directional light and add it to the scene.
 	/// </summary>
