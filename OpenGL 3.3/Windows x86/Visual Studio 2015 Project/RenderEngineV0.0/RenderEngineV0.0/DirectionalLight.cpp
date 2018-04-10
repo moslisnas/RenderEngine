@@ -116,7 +116,7 @@ void DirectionalLight::setSpecularIntensity(float r, float g, float b)
 /// </summary>
 void DirectionalLight::loadDefault()
 {
-	this->setDirection(0.0f, 0.0f, 1.0f);
+	this->setDirection(1.0f, 0.0f, 0.0f);
 	this->setAmbientalIntensity(0.3f);
 	this->setDiffuseIntensity(1.0f);
 	this->setSpecularIntensity(1.0f);

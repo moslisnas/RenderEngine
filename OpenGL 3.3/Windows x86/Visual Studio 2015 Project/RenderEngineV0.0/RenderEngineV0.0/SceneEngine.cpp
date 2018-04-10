@@ -209,9 +209,11 @@ void SceneEngine::loadDefaultSceneRender()
 	//scene.createCubeModel();
 	//scene.createAssimpModel("../resources/models/ToonTorus.obj");
 	//Default light
-	scene.createPointLight();
-	scene.point_lights[0].setPosition(-2.0f, 0.0f, 0.0f);
+	/*scene.createPointLight();
+	scene.point_lights[0].setPosition(-2.0f, 0.0f, 0.0f);*/
 	scene.createDirectionalLight();
+	scene.directional_lights[0].setDirection(-1.0f, 0.0f, 0.0f);
+	//scene.createDirectionalLight();
 
 	//Creating scene for rendering
 	scene.create();

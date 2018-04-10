@@ -1,5 +1,7 @@
 #version 330 core
+#extension GL_ARB_shader_storage_buffer_object: enable
 
+#define MAX_NUM_TOTAL_LIGHTS 100
 out vec4 outColor;
 
 in vec3 color;
@@ -13,12 +15,28 @@ uniform sampler2D emiTex;
 uniform sampler2D specularTex;
 
 //Lights
-/*layout (std140) uniform PointLight{
-	vec3 point_light_position;
-	vec3 point_light_ambient_intensity;
-	vec3 point_light_diffuse_intensity;
-	vec3 point_light_specular_intensity;
-}*/
+/*layout (std140) uniform pointLights{ //binding=0 OpenGL 4.3
+	vec3 light_position;
+	vec3 light_ambient_intensity;
+	vec3 light_diffuse_intensity;
+	vec3 light_specular_intensity;
+};*/
+/*struct DirectionalLight{
+	vec3 light_direction;
+	vec3 light_ambient_intensity;
+	vec3 light_diffuse_intensity;
+	vec3 light_specular_intensity;
+};
+layout(std140) uniform directionalLights{ //binding=1 OpenGL 4.3
+	DirectionalLight d_lights[MAX_NUM_TOTAL_LIGHTS];
+};*/
+
+layout(std140, binding=4) uniform directionalLights{ //binding=1 OpenGL 4.3
+	vec3 value;
+};
+uniform int numPointLights;
+uniform int numDirectionalLights;
+uniform int numFocalLights;
 uniform mat4 lightView;
 uniform vec3 lPos;
 uniform vec3 lIntA;
@@ -43,7 +61,7 @@ vec3 shade()
 	vec3 c = vec3(0.0);
 
 	//Luz 1
-	c = lIntA * Ka;
+	/*c = lIntA * Ka;
 	vec3 lightPosition = vec3(1.0);
 	//lightPosition = (vec4(lPos, 1.0)).xyz; //Luz se desplaza con la cámara
 	lightPosition = (lightView * vec4(lPos, 1.0)).xyz; //Luz con posición invariante
@@ -55,10 +73,33 @@ vec3 shade()
 	vec3 R = normalize (reflect (-L,N));
 	float factor = max (dot (R,V), 0.01);
 	vec3 specular = lIntS*Ks*pow(factor,alpha);
-	c += clamp(specular, 0.0, 1.0);
+	c += clamp(specular, 0.0, 1.0);*/
+
+	/*//Point Lights
+	*/
+
+	//Directional Lights
+	//for(int i=0; i<numDirectionalLights; i++){
+		//Ambient and diffuse
+		vec3 ambient = vec3(value.r, value.g, value.b);
+		c +=  ambient * Ka;
+		/*vec3 L2 = normalize(d_lights[0].light_direction);
+		vec3 diffuse2 = d_lights[0].light_diffuse_intensity * Kd * dot(L2,N);
+		c += clamp(diffuse2, 0.0, 1.0);
+
+		//Specular
+		vec3 V2 = normalize (-pos);
+		vec3 R2 = normalize (reflect (-L2,N));
+		float factor2 = max (dot (R2,V2), 0.01);
+		vec3 specular2 = d_lights[0].light_specular_intensity * Ks * pow(factor2,alpha);
+		c += clamp(specular2, 0.0, 1.0);*/
+	//}
+
+	/*//Focal Lights
+	*/
 
 	//Luz 2
-	c += lIntA2 * Ka;
+	//c += lIntA2 * Ka;
 	vec3 L2 = normalize (lDir);
 	vec3 diffuse2 = lIntD2 * Kd * dot (L2,N);
 	c += clamp(diffuse2, 0.0, 1.0);

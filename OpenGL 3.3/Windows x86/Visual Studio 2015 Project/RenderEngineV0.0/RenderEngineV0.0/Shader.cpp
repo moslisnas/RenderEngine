@@ -18,7 +18,7 @@ Shader::~Shader()
 }
 #pragma endregion
 
-#pragma region Shaders loading methods POR HACER-->ARREGLAR LO DE VARIAS LUCES
+#pragma region Shaders loading methods
 /// <summary>
 /// This method load more usual uniform variables for vertex shader.
 /// </summary>
@@ -56,9 +56,15 @@ void Shader::loadCommonAttributesVertex()
 /// </summary>
 void Shader::loadCommonUniformsFragment()
 {
-	this->num_uniforms = 13;
+	this->num_uniforms = 16;
 	this->uniform_ids = new unsigned int[num_uniforms];
 	char* aux = new char[9]; aux = "lightView";
+	this->uniform_names.push_back(aux);
+	aux = new char[14]; aux = "numPointLights";
+	this->uniform_names.push_back(aux);
+	aux = new char[19]; aux = "numDirectionalLights";
+	this->uniform_names.push_back(aux);
+	aux = new char[14]; aux = "numFocalLights";
 	this->uniform_names.push_back(aux);
 	aux = new char[4]; aux = "lPos";
 	this->uniform_names.push_back(aux);

@@ -90,9 +90,8 @@ public:
 	void create();
 	/// <summary>
 	/// This method create Uniform Buffer Objects.
-	/// <param name="programId">Program where we create the Uniform Buffer Object.</param> 
 	/// </summary>
-	void createUBOs(int programId);
+	void createUBOs();
 	/// <summary>
 	/// This method compile all model vertex/fragment shaders.
 	/// </summary>
@@ -113,11 +112,17 @@ public:
 	/// </summary>  
 	void animate();
 	/// <summary>
+	/// This method bind the Uniform Buffers Objects used on shaders.
+	/// <param name="programId">Program where we create the Uniform Buffer Object.</param> 
+	/// </summary>  
+	void bindUBOs(int programId);
+	/// <summary>
 	/// This method generate a cube and add it to the scene.
 	/// </summary>
 	void createCubeModel();
 	/// <summary>
 	/// This method generate a model from a file and add it to the scene.
+	/// <param name="filePath">Path of the model file.</param>  
 	/// </summary>
 	void createAssimpModel(char * filePath);
 	/// <summary>
