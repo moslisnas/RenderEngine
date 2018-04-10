@@ -39,10 +39,11 @@ void Scene::create()
 /// This method create Uniform Buffer Objects.
 /// <param name="programId">Program where we create the Uniform Buffer Object.</param> 
 /// </summary>
-void Scene::createUBOs()
+void Scene::createUBOs(int programId)
 {
+	glUniformBlockBinding(programId, block_directional_lights_id, 4);
 	//Loading from light vectors
-	float lights_data[3] = { 1.0f, 1.0f, 1.0f };
+	float lights_data[3] = { 0.3f, 0.3f, 0.3f };
 	/*float* lights_data = new float[directional_lights.size()*12];
 	for(unsigned int i=0; i<directional_lights.size(); i++){
 		lights_data[i*12] = 1.0f;//directional_lights[i].direction[0];
@@ -62,14 +63,13 @@ void Scene::createUBOs()
 	std::cout << "buffer_directional_lights_id: " << buffer_directional_lights_id << "\n";
 	glBindBuffer(GL_UNIFORM_BUFFER, buffer_directional_lights_id);
 	std::cout << "sizeof(data): " << sizeof(lights_data); // sizeof(float) * directional_lights.size() * 12;
-	//glNamedBufferData(buffer_directional_lights_id, sizeof(float)*directional_lights.size() * 12, &lights_data, GL_DYNAMIC_DRAW);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(lights_data) , &lights_data, GL_DYNAMIC_DRAW); //sizeof(float)*directional_lights.size()*12
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBuffer(GL_UNIFORM_BUFFER, buffer_directional_lights_id);
+	/*glBindBuffer(GL_UNIFORM_BUFFER, buffer_directional_lights_id);
 	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 	memcpy(p, &lights_data, sizeof(lights_data));//sizeof(float) * directional_lights.size() * 12
-	glUnmapBuffer(GL_UNIFORM_BUFFER);
+	glUnmapBuffer(GL_UNIFORM_BUFFER);*/
 }
 /// <summary>
 /// This method compile all model vertex/fragment shaders.
@@ -96,8 +96,6 @@ void Scene::compilePrograms()
 	this->programs = new unsigned int[num_programs];
 	for (unsigned int i = 0; i<num_programs; i++) {
 		this->programs[i] = glCreateProgram();
-		//Uniform Buffer Objects creation
-		createUBOs();
 		//Deprecated attrib binding
 		/*for (unsigned int j=0; j<models[i].vertexShader.numAttribs; j++)
 		glBindAttribLocation(programs[i], j, models[i].vertexShader.attribNames[j]);*/
@@ -119,9 +117,9 @@ void Scene::compilePrograms()
 			programs[i] = 0;
 			exit(-1);
 		}
-		//GLuint glGetUniformBlockIndex(GLuint program​, const char *uniformBlockName​);
-		//buffer_point_lights_id = glGetUniformBlockIndex(programs[programId], "pointLights");
-		buffer_directional_lights_id = glGetUniformBlockIndex(programs[i], "directionalLights");
+		block_directional_lights_id = glGetUniformBlockIndex(programs[i], "directionalLights");
+		//Uniform Buffer Objects creation
+		createUBOs(programs[i]);
 		models[i].loadUniforms(programs[i]);
 		models[i].loadAttributes(programs[i]);
 	}
@@ -165,9 +163,9 @@ void Scene::render()
 
 	//Models
 	for(unsigned int i=0; i<models.size(); i++){
+		bindUBOs(programs[i]);
 		glUseProgram(programs[i]);
 		models[i].bind();
-		bindUBOs(programs[i]);
 		glBindVertexArray(models[i].vao_id);
 
 		glm::mat4 model_view = selected_camera.view_matrix * models[i].model_matrix;
@@ -260,7 +258,6 @@ void Scene::animate()
 void Scene::bindUBOs(int programId)
 {
 	glBindBufferBase(GL_UNIFORM_BUFFER, 4, buffer_directional_lights_id);
-	glUniformBlockBinding(programId, buffer_directional_lights_id, 4);
 }
 /// <summary>
 /// This method generate a cube and add it to the scene.

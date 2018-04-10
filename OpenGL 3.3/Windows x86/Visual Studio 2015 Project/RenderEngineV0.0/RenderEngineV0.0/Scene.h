@@ -57,8 +57,10 @@ public:
 	Camera selected_camera;
 	std::vector<Model> models;
 	GLuint buffer_point_lights_id;
+	GLuint block_point_lights_id;
 	std::vector<PointLight> point_lights;
 	GLuint buffer_directional_lights_id;
+	GLuint block_directional_lights_id;
 	std::vector<DirectionalLight> directional_lights;
 	unsigned int num_programs;
 	unsigned int *programs;
@@ -90,8 +92,9 @@ public:
 	void create();
 	/// <summary>
 	/// This method create Uniform Buffer Objects.
+	/// <param name="programId">Program where we create the Uniform Buffer Object.</param> 
 	/// </summary>
-	void createUBOs();
+	void createUBOs(int programId);
 	/// <summary>
 	/// This method compile all model vertex/fragment shaders.
 	/// </summary>
