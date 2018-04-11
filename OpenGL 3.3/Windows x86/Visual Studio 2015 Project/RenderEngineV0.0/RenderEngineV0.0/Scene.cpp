@@ -24,6 +24,16 @@ void Scene::setSelectedCamera(Camera camera)
 {
 	this->selected_camera = camera;
 }
+/// <summary>
+/// Setter of <c>ambient_lighting</c> variable.
+/// <param name="lighting">Value used for lighting ambient component on the scene.</param> 
+/// </summary>
+void Scene::setAmbientLighting(float lighting)
+{
+	this->ambient_lighting[0] = lighting;
+	this->ambient_lighting[1] = lighting;
+	this->ambient_lighting[2] = lighting;
+}
 #pragma endregion
 
 #pragma region Initialization methods
@@ -36,40 +46,36 @@ void Scene::create()
 	this->compilePrograms();
 }
 /// <summary>
-/// This method create Uniform Buffer Objects.
-/// <param name="programId">Program where we create the Uniform Buffer Object.</param> 
+/// This method create and assign Uniform Buffer Objects to a program.
+/// <param name="programId">Program where we create the Uniform Buffer Objects.</param> 
 /// </summary>
 void Scene::createUBOs(int programId)
 {
-	glUniformBlockBinding(programId, block_directional_lights_id, 4);
-	//Loading from light vectors
-	float lights_data[3] = { 0.3f, 0.3f, 0.3f };
-	/*float* lights_data = new float[directional_lights.size()*12];
-	for(unsigned int i=0; i<directional_lights.size(); i++){
-		lights_data[i*12] = 1.0f;//directional_lights[i].direction[0];
-		lights_data[i*12+1] = 1.0f;//directional_lights[i].direction[1];
-		lights_data[i*12+2] = 1.0f;//directional_lights[i].direction[2];
-		lights_data[i*12+3] = directional_lights[i].ambiental_intensity[0];
-		lights_data[i*12+4] = directional_lights[i].ambiental_intensity[1];
-		lights_data[i*12+5] = directional_lights[i].ambiental_intensity[2];
-		lights_data[i*12+6] = directional_lights[i].diffuse_intensity[0];
-		lights_data[i*12+7] = directional_lights[i].diffuse_intensity[1];
-		lights_data[i*12+8] = directional_lights[i].diffuse_intensity[2];
-		lights_data[i*12+9] = directional_lights[i].specular_intensity[0];
-		lights_data[i*12+10] = directional_lights[i].specular_intensity[1];
-		lights_data[i*12+11] = directional_lights[i].specular_intensity[2];
-	}*/
-	glGenBuffers(1, &buffer_directional_lights_id);
-	std::cout << "buffer_directional_lights_id: " << buffer_directional_lights_id << "\n";
-	glBindBuffer(GL_UNIFORM_BUFFER, buffer_directional_lights_id);
-	std::cout << "sizeof(data): " << sizeof(lights_data); // sizeof(float) * directional_lights.size() * 12;
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(lights_data) , &lights_data, GL_DYNAMIC_DRAW); //sizeof(float)*directional_lights.size()*12
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	block_point_lights_id = glGetUniformBlockIndex(programId, "pointLights");
+	block_directional_lights_id = glGetUniformBlockIndex(programId, "directionalLights");
+	block_focal_lights_id = glGetUniformBlockIndex(programId, "focalLights");
 
-	/*glBindBuffer(GL_UNIFORM_BUFFER, buffer_directional_lights_id);
-	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-	memcpy(p, &lights_data, sizeof(lights_data));//sizeof(float) * directional_lights.size() * 12
-	glUnmapBuffer(GL_UNIFORM_BUFFER);*/
+	if (block_directional_lights_id != -1) {
+		glUniformBlockBinding(programId, block_directional_lights_id, 1);
+		//POR HACER --> Enviar varias luces al shader
+		//Loading from light vectors
+		glGenBuffers(1, &buffer_directional_lights_id);
+		//std::cout << "buffer_directional_lights_id: " << buffer_directional_lights_id << "\n";
+		glBindBuffer(GL_UNIFORM_BUFFER, buffer_directional_lights_id);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * directional_lights.size() * 9 , 0, GL_DYNAMIC_DRAW);
+		std::cout << "sizeof(data): " << sizeof(float) * directional_lights.size() * 9 << "\n";
+		int offset = 0;
+		for (unsigned int i=0; i<directional_lights.size(); i++) {
+			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float)*3, directional_lights[i].direction);
+			offset += 16;
+			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float)*3, directional_lights[i].diffuse_intensity);
+			offset += 16;
+			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float)*3, directional_lights[i].specular_intensity);
+			offset += 16;
+			std::cout << "d_light[" << i << "]: dir(x)=" << directional_lights[i].direction[0] << ", dif(g)=" << directional_lights[i].diffuse_intensity[1] << ", spe(g)=" << directional_lights[i].specular_intensity[1] << "\n";
+		}
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
 }
 /// <summary>
 /// This method compile all model vertex/fragment shaders.
@@ -117,7 +123,6 @@ void Scene::compilePrograms()
 			programs[i] = 0;
 			exit(-1);
 		}
-		block_directional_lights_id = glGetUniformBlockIndex(programs[i], "directionalLights");
 		//Uniform Buffer Objects creation
 		createUBOs(programs[i]);
 		models[i].loadUniforms(programs[i]);
@@ -179,46 +184,39 @@ void Scene::render()
 			glUniformMatrix4fv(models[i].vertex_shader.uniform_ids[2], 1, GL_FALSE, &(normal[0][0]));
 		//Textures
 		//POR HACER-->Bucle FOR
-		if (models[i].color_texture_on && models[i].fragment_shader.uniform_ids[12] != -1){
+		if (models[i].color_texture_on && models[i].fragment_shader.uniform_ids[9] != -1){
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, models[i].color_texture_id);
-			glUniform1i(models[i].fragment_shader.uniform_ids[12], 0);
+			glUniform1i(models[i].fragment_shader.uniform_ids[9], 0);
 		}
-		if (models[i].emissive_texture_on && models[i].fragment_shader.uniform_ids[13] != -1){
+		if (models[i].emissive_texture_on && models[i].fragment_shader.uniform_ids[10] != -1){
 			glActiveTexture(GL_TEXTURE0 + 1);
 			glBindTexture(GL_TEXTURE_2D, models[i].emissive_texture_id);
-			glUniform1i(models[i].fragment_shader.uniform_ids[13], 1);
+			glUniform1i(models[i].fragment_shader.uniform_ids[10], 1);
 		}
-		if (models[i].specular_texture_on && models[i].fragment_shader.uniform_ids[14] != -1){
+		if (models[i].specular_texture_on && models[i].fragment_shader.uniform_ids[11] != -1){
 			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, models[i].specular_texture_id);
-			glUniform1i(models[i].fragment_shader.uniform_ids[14], 2);
+			glUniform1i(models[i].fragment_shader.uniform_ids[11], 2);
 		}
-		if (models[i].normal_texture_on && models[i].fragment_shader.uniform_ids[15] != -1){
+		if (models[i].normal_texture_on && models[i].fragment_shader.uniform_ids[12] != -1){
 			glActiveTexture(GL_TEXTURE0 + 3);
 			glBindTexture(GL_TEXTURE_2D, models[i].normal_texture_id);
-			glUniform1i(models[i].fragment_shader.uniform_ids[15], 3);
+			glUniform1i(models[i].fragment_shader.uniform_ids[12], 3);
 		}
 		//Lights
+		glUniform3fv(models[i].fragment_shader.uniform_ids[0], 1, &ambient_lighting[0]);
 		//Points--> POR HACER
 
 		//Directional
 		for (unsigned int j=0; j<directional_lights.size(); j++) {
 			glm::mat4 light_view = selected_camera.view_matrix * directional_lights[j].light_matrix;
 			//POR HACER-->Bucle FOR
-			if (models[i].fragment_shader.uniform_ids[0] != -1)
-				glUniformMatrix4fv(models[i].fragment_shader.uniform_ids[0], 1, GL_FALSE, &(light_view[0][0]));
-			glUniform1i(models[i].fragment_shader.uniform_ids[1], point_lights.size());
-			glUniform1i(models[i].fragment_shader.uniform_ids[2], directional_lights.size());
-			//glUniform1i(models[i].fragment_shader.uniform_ids[3], directional_lights.size());
-			if (models[i].fragment_shader.uniform_ids[8] != -1)
-				glUniform3fv(models[i].fragment_shader.uniform_ids[8], 1, &(directional_lights[j].direction[0]));
-			if (models[i].fragment_shader.uniform_ids[9] != -1)
-				glUniform3fv(models[i].fragment_shader.uniform_ids[9], 1, &(directional_lights[j].ambiental_intensity[0]));
-			if (models[i].fragment_shader.uniform_ids[10] != -1)
-				glUniform3fv(models[i].fragment_shader.uniform_ids[10], 1, &(directional_lights[j].diffuse_intensity[0]));
-			if (models[i].fragment_shader.uniform_ids[11] != -1)
-				glUniform3fv(models[i].fragment_shader.uniform_ids[11], 1, &(directional_lights[j].specular_intensity[0]));
+			if (models[i].fragment_shader.uniform_ids[1] != -1)
+				glUniformMatrix4fv(models[i].fragment_shader.uniform_ids[1], 1, GL_FALSE, &(light_view[0][0]));
+			glUniform1i(models[i].fragment_shader.uniform_ids[2], point_lights.size());
+			glUniform1i(models[i].fragment_shader.uniform_ids[3], directional_lights.size());
+			//glUniform1i(models[i].fragment_shader.uniform_ids[4], focal_lights.size());
 		}
 
 		//Focal--> POR HACER
@@ -257,7 +255,7 @@ void Scene::animate()
 /// </summary>  
 void Scene::bindUBOs(int programId)
 {
-	glBindBufferBase(GL_UNIFORM_BUFFER, 4, buffer_directional_lights_id);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, buffer_directional_lights_id);
 }
 /// <summary>
 /// This method generate a cube and add it to the scene.

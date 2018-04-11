@@ -43,28 +43,6 @@ void DirectionalLight::setDirection(float x, float y, float z)
 	this->direction[2] = z;
 }
 /// <summary>
-/// Setter of ambiental intensity.
-/// <param name="rgb">The color intensity with same values at 3 components.</param>
-/// </summary>
-void DirectionalLight::setAmbientalIntensity(float rgb)
-{
-	this->ambiental_intensity[0] = rgb;
-	this->ambiental_intensity[1] = rgb;
-	this->ambiental_intensity[2] = rgb;
-}
-/// <summary>
-/// Setter of ambiental intensity.
-/// <param name="r">The component R of the color intensity.</param>
-/// <param name="g">The component G of the color intensity.</param> 
-/// <param name="b">The component B of the color intensity.</param> 
-/// </summary>
-void DirectionalLight::setAmbientalIntensity(float r, float g, float b)
-{
-	this->ambiental_intensity[0] = r;
-	this->ambiental_intensity[1] = g;
-	this->ambiental_intensity[2] = b;
-}
-/// <summary>
 /// Setter of diffuse intensity.
 /// <param name="rgb">The color intensity with same values at 3 components.</param>
 /// </summary>
@@ -117,7 +95,6 @@ void DirectionalLight::setSpecularIntensity(float r, float g, float b)
 void DirectionalLight::loadDefault()
 {
 	this->setDirection(1.0f, 0.0f, 0.0f);
-	this->setAmbientalIntensity(0.3f);
 	this->setDiffuseIntensity(1.0f);
 	this->setSpecularIntensity(1.0f);
 }

@@ -56,9 +56,11 @@ void Shader::loadCommonAttributesVertex()
 /// </summary>
 void Shader::loadCommonUniformsFragment()
 {
-	this->num_uniforms = 16;
+	this->num_uniforms = 13;
 	this->uniform_ids = new unsigned int[num_uniforms];
-	char* aux = new char[9]; aux = "lightView";
+	char* aux = new char[16]; aux = "ambientIntensity";
+	this->uniform_names.push_back(aux);
+	aux = new char[9]; aux = "lightView";
 	this->uniform_names.push_back(aux);
 	aux = new char[14]; aux = "numPointLights";
 	this->uniform_names.push_back(aux);
@@ -73,14 +75,6 @@ void Shader::loadCommonUniformsFragment()
 	aux = new char[5]; aux = "lIntD";
 	this->uniform_names.push_back(aux);
 	aux = new char[5]; aux = "lIntS";
-	this->uniform_names.push_back(aux);
-	aux = new char[4]; aux = "lDir";
-	this->uniform_names.push_back(aux);
-	aux = new char[6]; aux = "lIntA2";
-	this->uniform_names.push_back(aux);
-	aux = new char[6]; aux = "lIntD2";
-	this->uniform_names.push_back(aux);
-	aux = new char[6]; aux = "lIntS2";
 	this->uniform_names.push_back(aux);
 	aux = new char[8]; aux = "colorTex";
 	this->uniform_names.push_back(aux);

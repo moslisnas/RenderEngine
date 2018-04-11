@@ -54,14 +54,22 @@ private:
 
 public:
 #pragma region Variables
+	//Camera
 	Camera selected_camera;
+	//Models
 	std::vector<Model> models;
+	//Ligths
+	float ambient_lighting[3];
 	GLuint buffer_point_lights_id;
 	GLuint block_point_lights_id;
 	std::vector<PointLight> point_lights;
 	GLuint buffer_directional_lights_id;
 	GLuint block_directional_lights_id;
 	std::vector<DirectionalLight> directional_lights;
+	GLuint buffer_focal_lights_id;
+	GLuint block_focal_lights_id;
+	std::vector<DirectionalLight> focal_lights;
+	//Programs
 	unsigned int num_programs;
 	unsigned int *programs;
 #pragma endregion
@@ -77,12 +85,17 @@ public:
 	~Scene();
 #pragma endregion
 
-#pragma region Setters
+#pragma region Setters //POR HACER-->Añadir método con 3 parámetros RGB Para ambient lighting
 	/// <summary>
 	/// Setter of <c>selected_camera</c> variable.
 	/// <param name="camera">Camera we want use to render scene.</param> 
 	/// </summary>
 	void setSelectedCamera(Camera camera);
+	/// <summary>
+	/// Setter of <c>ambient_lighting</c> variable.
+	/// <param name="lighting">Value used for lighting ambient component on the scene.</param> 
+	/// </summary>
+	void setAmbientLighting(float lighting);
 #pragma endregion
 
 #pragma region Initialization methods
