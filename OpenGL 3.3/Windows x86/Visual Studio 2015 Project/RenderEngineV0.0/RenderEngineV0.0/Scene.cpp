@@ -120,9 +120,9 @@ void Scene::createUBOs(int programId)
 			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float) * 3, focal_lights[i].diffuse_intensity);
 			offset += 16;
 			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float) * 3, focal_lights[i].specular_intensity);
-			offset += 16;
+			offset += 12;
 			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float), &focal_lights[i].apperture_angle);
-			offset += 16;
+			offset += 4;
 			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float), &focal_lights[i].attenuation);
 			offset += 16;
 		}
@@ -308,9 +308,9 @@ void Scene::animate()
 	models[0].model_matrix = glm::translate(models[0].model_matrix, glm::vec3(-1.5f, -1.25f, 0.0f));
 	models[0].model_matrix = glm::rotate(models[0].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
 	//Animation cube 2
-	/*models[1].model_matrix = glm::mat4(1.0f);
+	models[1].model_matrix = glm::mat4(1.0f);
 	models[1].model_matrix = glm::translate(models[1].model_matrix, glm::vec3(1.5f, -1.25f, 0.0f));
-	models[1].model_matrix = glm::rotate(models[1].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));*/
+	models[1].model_matrix = glm::rotate(models[1].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
 	//Animation cube 3
 	/*models[2].model_matrix = glm::mat4(1.0f);
 	models[2].model_matrix = glm::translate(models[2].model_matrix, glm::vec3(0.0f, 1.25f, 0.0f));
