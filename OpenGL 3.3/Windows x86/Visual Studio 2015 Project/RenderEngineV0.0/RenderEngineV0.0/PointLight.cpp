@@ -27,38 +27,16 @@ void PointLight::setPosition(float xyz)
 	this->position[2] = xyz;
 }
 /// <summary>
-/// Setter of direction.
-/// <param name="x">The component X of the direction vector.</param>
-/// <param name="y">The component Y of the direction vector.</param> 
-/// <param name="z">The component Z of the direction vector.</param> 
+/// Setter of position.
+/// <param name="x">The component X of the position vector.</param>
+/// <param name="y">The component Y of the position vector.</param> 
+/// <param name="z">The component Z of the position vector.</param> 
 /// </summary>
 void PointLight::setPosition(float x, float y, float z)
 {
 	this->position[0] = x;
 	this->position[1] = y;
 	this->position[2] = z;
-}
-/// <summary>
-/// Setter of ambiental intensity.
-/// <param name="rgb">The color intensity with same values at 3 components.</param>
-/// </summary>
-void PointLight::setAmbientalIntensity(float rgb)
-{
-	this->ambiental_intensity[0] = rgb;
-	this->ambiental_intensity[1] = rgb;
-	this->ambiental_intensity[2] = rgb;
-}
-/// <summary>
-/// Setter of ambiental intensity.
-/// <param name="r">The component R of the color intensity.</param>
-/// <param name="g">The component G of the color intensity.</param> 
-/// <param name="b">The component B of the color intensity.</param> 
-/// </summary>
-void PointLight::setAmbientalIntensity(float r, float g, float b)
-{
-	this->ambiental_intensity[0] = r;
-	this->ambiental_intensity[1] = g;
-	this->ambiental_intensity[2] = b;
 }
 /// <summary>
 /// Setter of diffuse intensity.
@@ -113,8 +91,7 @@ void PointLight::setSpecularIntensity(float r, float g, float b)
 void PointLight::loadDefault()
 {
 	this->setPosition(0.0f, 0.0f, 0.0f);
-	this->setAmbientalIntensity(0.3f, 0.0f, 0.0f);
-	this->setDiffuseIntensity(0.3f, 0.0f, 0.0f);
-	this->setSpecularIntensity(0.3f, 0.0f, 0.0f);
+	this->setDiffuseIntensity(1.0f);
+	this->setSpecularIntensity(1.0f);
 }
 #pragma endregion

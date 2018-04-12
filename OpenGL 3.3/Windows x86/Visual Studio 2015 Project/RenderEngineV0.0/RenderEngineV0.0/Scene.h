@@ -27,6 +27,7 @@ Purpose: Header of Scene class
 #include "FileStreamLoad.h"
 #include "PointLight.h"
 #include "DirectionalLight.h"
+#include "FocalLight.h"
 
 /// <summary>
 /// Class with all scene elements to show in final render.
@@ -50,6 +51,11 @@ private:
 	/// <param name="light">The directional light that will be added.</param>  
 	/// </summary>
 	void addDirectionalLight(DirectionalLight light);
+	/// <summary>
+	/// This method add a focal light to the scene.
+	/// <param name="light">The focal light that will be added.</param>  
+	/// </summary>
+	void addFocalLight(FocalLight light);
 #pragma endregion
 
 public:
@@ -68,7 +74,7 @@ public:
 	std::vector<DirectionalLight> directional_lights;
 	GLuint buffer_focal_lights_id;
 	GLuint block_focal_lights_id;
-	std::vector<DirectionalLight> focal_lights;
+	std::vector<FocalLight> focal_lights;
 	//Programs
 	unsigned int num_programs;
 	unsigned int *programs;
@@ -85,7 +91,7 @@ public:
 	~Scene();
 #pragma endregion
 
-#pragma region Setters //POR HACER-->Añadir método con 3 parámetros RGB Para ambient lighting
+#pragma region Setters
 	/// <summary>
 	/// Setter of <c>selected_camera</c> variable.
 	/// <param name="camera">Camera we want use to render scene.</param> 
@@ -93,9 +99,16 @@ public:
 	void setSelectedCamera(Camera camera);
 	/// <summary>
 	/// Setter of <c>ambient_lighting</c> variable.
-	/// <param name="lighting">Value used for lighting ambient component on the scene.</param> 
+	/// <param name="rgb">Value used for lighting ambient component on the scene.</param> 
 	/// </summary>
-	void setAmbientLighting(float lighting);
+	void setAmbientLighting(float rgb);
+	/// <summary>
+	/// Setter of <c>ambient_lighting</c> variable.
+	/// <param name="r">The component R of the color intensity.</param>
+	/// <param name="g">The component G of the color intensity.</param> 
+	/// <param name="b">The component B of the color intensity.</param> 
+	/// </summary>
+	void setAmbientLighting(float r, float g, float b);
 #pragma endregion
 
 #pragma region Initialization methods
@@ -149,6 +162,10 @@ public:
 	/// This method generate a directional light and add it to the scene.
 	/// </summary>
 	void createDirectionalLight();
+	/// <summary>
+	/// This method generate a focal light and add it to the scene.
+	/// </summary>
+	void createFocalLight();
 #pragma endregion
 
 #pragma region Loading methods

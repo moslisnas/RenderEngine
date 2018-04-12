@@ -139,6 +139,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="FileStreamLoad.cpp" />
+    <ClCompile Include="FocalLight.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="FileStreamLoad.h" />
+    <ClInclude Include="FocalLight.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Scene.h" />

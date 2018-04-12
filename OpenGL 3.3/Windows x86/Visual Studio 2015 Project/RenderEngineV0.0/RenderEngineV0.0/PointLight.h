@@ -1,6 +1,6 @@
 #pragma once
 /**
-C++ DirectionalLight.h
+C++ PointLight.h
 Purpose: Header of PointLight class
 
 @author Alejandro Molina Quesada
@@ -21,14 +21,14 @@ const float NUMBER_PI = (float)atan(1) * 4;
 class PointLight
 {
 public:
-#pragma region Variables POR HACER--> Clase Light de la cual heredan las 3 componentes de Phong de la luz.
+#pragma region Variables POR HACER--> Clase Light de la cual heredan las componentes difusa y especular.
 	glm::mat4 light_matrix;
 	float position[3];
 	//LightType type;
-	float ambiental_intensity[3];
 	float diffuse_intensity[3];
 	float specular_intensity[3];
 #pragma endregion
+
 #pragma region Constructor & destructor
 	/// <summary>
 	/// Constructor of <c>PointLight</c> class.
@@ -53,18 +53,6 @@ public:
 	/// <param name="z">The component Z of the position vector.</param> 
 	/// </summary>
 	void setPosition(float x, float y, float z);
-	/// <summary>
-	/// Setter of ambiental intensity.
-	/// <param name="rgb">The color intensity with same values at 3 components.</param>
-	/// </summary>
-	void setAmbientalIntensity(float rgb);
-	/// <summary>
-	/// Setter of ambiental intensity.
-	/// <param name="r">The component R of the color intensity.</param>
-	/// <param name="g">The component G of the color intensity.</param> 
-	/// <param name="b">The component B of the color intensity.</param> 
-	/// </summary>
-	void setAmbientalIntensity(float r, float g, float b);
 	/// <summary>
 	/// Setter of diffuse intensity.
 	/// <param name="rgb">The color intensity with same values at 3 components.</param>
