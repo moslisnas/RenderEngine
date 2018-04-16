@@ -297,10 +297,10 @@ void Scene::animate()
 	models[1].model_matrix = glm::mat4(1.0f);
 	models[1].model_matrix = glm::translate(models[1].model_matrix, glm::vec3(1.5f, -1.25f, 0.0f));
 	models[1].model_matrix = glm::rotate(models[1].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
-	//Animation cube 3
-	/*models[2].model_matrix = glm::mat4(1.0f);
+	//Animation assimp model
+	models[2].model_matrix = glm::mat4(1.0f);
 	models[2].model_matrix = glm::translate(models[2].model_matrix, glm::vec3(0.0f, 1.25f, 0.0f));
-	models[2].model_matrix = glm::rotate(models[2].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));*/
+	models[2].model_matrix = glm::rotate(models[2].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
 
 	//Render
 	glutPostRedisplay();

@@ -1,5 +1,6 @@
 #version 330
 
+#define MAX_NUM_TOTAL_LIGHTS 100 //Total of 300: 100 points + 100 directionals + 100 focals
 out vec4 outColor;
 
 in vec3 color;
@@ -12,20 +13,42 @@ uniform sampler2D colorTex;
 uniform sampler2D emiTex;
 uniform sampler2D specularTex;
 
-//Luces
+//Lights
+struct PointLight{
+	vec3 p_light_position;
+	vec3 p_light_diffuse_intensity;
+	vec3 p_light_specular_intensity;
+};
+layout (std140) uniform pointLights{ //binding=0 OpenGL 4.3
+	PointLight p_lights[MAX_NUM_TOTAL_LIGHTS];
+};
+struct DirectionalLight{
+	vec3 d_light_direction;
+	vec3 d_light_diffuse_intensity;
+	vec3 d_light_specular_intensity;
+};
+layout(std140) uniform directionalLights{ //binding=1 OpenGL 4.3
+	DirectionalLight d_lights[MAX_NUM_TOTAL_LIGHTS];
+};
+struct FocalLight{
+	vec3 f_light_position;
+	vec3 f_light_direction;
+	vec3 f_light_diffuse_intensity;
+	vec3 f_light_specular_intensity;
+	float f_apperture_angle;
+	float f_attenuation;
+};
+layout(std140) uniform focalLights{ //binding=2 OpenGL 4.3
+	FocalLight f_lights[MAX_NUM_TOTAL_LIGHTS];
+};
+
+uniform vec3 ambientIntensity;
+uniform int numPointLights;
+uniform int numDirectionalLights;
+uniform int numFocalLights;
 uniform mat4 lightView;
-uniform vec3 lPos;
-uniform vec3 lIntA;
-uniform vec3 lIntD;
-uniform vec3 lIntS;
-uniform mat4 lightView2;
-uniform vec3 lDir;
-uniform vec3 lIntA2;
-uniform vec3 lIntD2;
-uniform vec3 lIntS2;
 
 //Vectors
-vec3 N;
 vec3 V;
 vec3 L;
 
@@ -33,8 +56,9 @@ vec3 L;
 vec3 Ka;
 vec3 Kd;
 vec3 Ks;
+vec3 N;
+float alpha = 5000.0;
 vec3 Ke;
-float nSpecular;
 
 int colorLOD = 6;
 float shapeThickness = 0.3;
@@ -58,7 +82,7 @@ vec3 shade()
 	vec3 Is2 = vec3(specular*specMask);
 	c = lIntA2*Ka + Id2 + Is2;
 
-	//Silueta.
+	//Shape.
 	float nDotv = dot(N,V);
 	float nMod = dot(N,N);
 	float vMod = dot(V,V);
@@ -72,7 +96,6 @@ vec3 shade()
 void main()
 {
 	//Vectors
-	N = normalize(norm);
 	V = normalize(-pos);
 	L = normalize(lDir);
 	
@@ -80,6 +103,8 @@ void main()
 	Ka = vec3(1.0, 0.0, 0.0);
 	Kd = Ka;
 	Ks = vec3(0.2);
+
+	N = normalize(norm);
 
 	outColor = vec4(shade(), 1.0);
 }

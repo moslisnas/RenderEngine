@@ -242,10 +242,8 @@ void Model::loadAssimpModel(char* filePath)
 	}
 
 	//Shaders
-	vertex_shader.loadPhongVertexShader();
-	fragment_shader.loadPhongFragmentShader();
-	/*vertex_shader.loadToonVertexShader();
-	fragment_shader.loadToonFragmentShader();*/
+	vertex_shader.loadToonVertexShader();
+	fragment_shader.loadToonFragmentShader();
 }
 /// <summary>
 /// This method generate default textures for a cube.

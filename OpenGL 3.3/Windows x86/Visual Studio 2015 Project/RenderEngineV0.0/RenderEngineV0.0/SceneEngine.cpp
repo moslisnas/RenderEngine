@@ -208,7 +208,7 @@ void SceneEngine::loadDefaultSceneRender()
 	//Default geometry
 	scene.createCubeModel();
 	scene.createCubeModel();
-	//scene.createAssimpModel("../resources/models/ToonTorus.obj");
+	scene.createAssimpModel("../resources/models/ToonTorus.obj");
 
 	//Default lights
 	scene.createPointLight();
