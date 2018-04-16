@@ -21,11 +21,10 @@ const float NUMBER_PI = (float)atan(1) * 4;
 class FocalLight
 {
 public:
-#pragma region Variables POR HACER--> Clase Light de la cual heredan las componentes difusa y especular.
+#pragma region Variables
 	glm::mat4 light_matrix;
 	float position[3];
 	float direction[3];
-	//LightType type;
 	float diffuse_intensity[3];
 	float specular_intensity[3];
 	float apperture_angle;

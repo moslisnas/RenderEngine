@@ -62,8 +62,8 @@ void resizeFunc(int width, int height) {
 /// <summary>
 /// OS event function for keyboard actions.
 /// <param name="key">Character of the pressed key.</param>  
-/// <param name="x">.</param>  POR HACER
-/// <param name="y">.</param>  POR HACER
+/// <param name="x">X position of the mouse cursor when button was pressed.</param>
+/// <param name="y">Y position of the mouse cursor when button was pressed.</param>
 /// </summary>  
 void keyboardFunc(unsigned char key, int x, int y) {
 	/*scene.keyboardCameraInteraction(key, x, y);
@@ -212,7 +212,7 @@ void SceneEngine::loadDefaultSceneRender()
 
 	//Default lights
 	scene.createPointLight();
-	scene.createDirectionalLight();
+	/*scene.createDirectionalLight();
 	scene.directional_lights[0].setDirection(-1.0f, 0.0f, 0.0f);
 	scene.createDirectionalLight();
 	scene.directional_lights[1].setDirection(1.0f, 0.0f, 0.0f);
@@ -231,7 +231,7 @@ void SceneEngine::loadDefaultSceneRender()
 	scene.focal_lights[1].setDiffuseIntensity(1.0f, 1.0f, 0.2f);
 	scene.focal_lights[1].setSpecularIntensity(1.0f, 1.0f, 0.2f);
 	scene.focal_lights[1].setAppertureAngle(7.5f, false);
-	scene.focal_lights[1].setAttenuation(0.5f);
+	scene.focal_lights[1].setAttenuation(0.5f);*/
 
 	//Creating scene for rendering
 	scene.create();

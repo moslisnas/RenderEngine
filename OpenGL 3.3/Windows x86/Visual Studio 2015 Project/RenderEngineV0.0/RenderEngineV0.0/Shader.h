@@ -30,6 +30,7 @@ public:
 	char* file_path;
 	unsigned int type;
 	#pragma region Uniforms and attributes
+	unsigned int texture_start_index;
 	unsigned int num_uniforms;
 	unsigned int* uniform_ids;
 	std::vector<char*> uniform_names;

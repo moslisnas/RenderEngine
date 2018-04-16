@@ -18,6 +18,7 @@ const float NUMBER_PI = (float)atan(1) * 4;
 #define IOSTREAM
 #include <iostream>
 #endif
+#include "Texture.h"
 #include "Shader.h"
 #include "BOX.h"
 #include "FileStreamLoad.h"
@@ -71,17 +72,7 @@ public:
 	float *tex_coords;
 	Shader vertex_shader;
 	Shader fragment_shader;
-
-	#pragma region Textures
-	bool color_texture_on;
-	bool emissive_texture_on;
-	bool specular_texture_on;
-	bool normal_texture_on;
-	char *color_texture_file;
-	char *emissive_texture_file;
-	char *specular_texture_file;
-	char *normal_texture_file;
-	#pragma endregion
+	std::vector<Texture> textures;
 
 	#pragma region OpenGL id variables
 	unsigned int vao_id;
@@ -138,6 +129,14 @@ public:
 	/// <param name="filePath">Path of the model.</param>  
 	/// </summary>
 	void loadAssimpModel(char* filePath);
+	/// <summary>
+	/// This method generate default textures for a cube.
+	/// </summary>
+	void loadDefaultCubeTextures();
+	/// <summary>
+	/// This method generate default textures for an Assimp model.
+	/// </summary>
+	void loadDefaultAssimpModelTextures();
 	/// <summary>
 	/// This method create OpenGL texture from a file.
 	/// <param name="fileName">Path of the file.</param>  

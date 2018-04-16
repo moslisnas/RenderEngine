@@ -60,6 +60,7 @@ void Shader::loadCommonUniformsFragment()
 	this->uniform_ids = new unsigned int[num_uniforms];
 	char* aux = new char[16]; aux = "ambientIntensity";
 	this->uniform_names.push_back(aux);
+	//Lights
 	aux = new char[9]; aux = "lightView";
 	this->uniform_names.push_back(aux);
 	aux = new char[14]; aux = "numPointLights";
@@ -68,6 +69,8 @@ void Shader::loadCommonUniformsFragment()
 	this->uniform_names.push_back(aux);
 	aux = new char[14]; aux = "numFocalLights";
 	this->uniform_names.push_back(aux);
+	//Textures
+	this->texture_start_index = uniform_names.size();
 	aux = new char[8]; aux = "colorTex";
 	this->uniform_names.push_back(aux);
 	aux = new char[6]; aux = "emiTex";

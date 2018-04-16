@@ -11,11 +11,6 @@ Model::Model()
 	this->model_matrix = glm::mat4(1.0f);
 	//Ids
 	this->vao_id = -1;
-	//Textures
-	this->color_texture_on = true;
-	this->emissive_texture_on = true;
-	this->specular_texture_on = true;
-	this->normal_texture_on = true;
 }
 /// <summary>
 /// Destructor of <c>Model</c> class.
@@ -101,51 +96,25 @@ void Model::bindVBOs()
 /// This method create textures and store OpenGL textures id.
 /// </summary>
 void Model::createTextures() {
-	if (color_texture_on)
-		color_texture_id = loadTex(color_texture_file);
-	if (emissive_texture_on)
-		emissive_texture_id = loadTex(emissive_texture_file);
-	if (specular_texture_on)
-		specular_texture_id = loadTex(specular_texture_file);
-	if (normal_texture_on)
-		normal_texture_id = loadTex(normal_texture_file);
+	for(unsigned int i=0; i<textures.size(); i++){
+		if(textures[i].texture_on)
+			this->textures[i].texture_id = loadTex(textures[i].texture_file);
+	}
 }
 /// <summary>
 /// This method bind the textures of this model.
 /// </summary>
 void Model::bindTextures()
 {
-	if (color_texture_on) {
-		glBindTexture(GL_TEXTURE_2D, color_texture_id);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	}
-	if (emissive_texture_on) {
-		glBindTexture(GL_TEXTURE_2D, emissive_texture_id);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	}
-	if (specular_texture_on) {
-		glBindTexture(GL_TEXTURE_2D, specular_texture_id);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	}
-	if (normal_texture_on) {
-		glBindTexture(GL_TEXTURE_2D, normal_texture_id);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	for(unsigned int i=0; i<textures.size(); i++){
+		if(textures[i].texture_on){
+			glBindTexture(GL_TEXTURE_2D, textures[i].texture_id);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		}
 	}
 }
 #pragma endregion
@@ -173,10 +142,10 @@ void Model::bind()
 	/// <param name="programId">Id of the program which contains this variables.</param>  
 /// </summary>
 void Model::loadUniforms(int programId) {
-	for(unsigned int j=0; j<vertex_shader.num_uniforms; j++)
-		this->vertex_shader.uniform_ids[j] = glGetUniformLocation(programId, vertex_shader.uniform_names[j]);
-	for(unsigned int j=0; j<fragment_shader.num_uniforms; j++)
-		this->fragment_shader.uniform_ids[j] = glGetUniformLocation(programId, fragment_shader.uniform_names[j]);
+	for(unsigned int i=0; i<vertex_shader.num_uniforms; i++)
+		this->vertex_shader.uniform_ids[i] = glGetUniformLocation(programId, vertex_shader.uniform_names[i]);
+	for(unsigned int i=0; i<fragment_shader.num_uniforms; i++)
+		this->fragment_shader.uniform_ids[i] = glGetUniformLocation(programId, fragment_shader.uniform_names[i]);
 }
 /// <summary>
 /// This method obtain attribute locations and store them.
@@ -213,14 +182,7 @@ void Model::loadDefaultCubeModel(int shade)
 	for(unsigned int i=0; i<n_triangles*3; i++)
 		this->triangle_indices[i] = cubeTriangleIndex[i];
 	//Textures
-	this->color_texture_on = true;
-	this->emissive_texture_on = true;
-	this->specular_texture_on = true;
-	this->normal_texture_on = true;
-	this->color_texture_file = "../resources/img/color2.png";
-	this->emissive_texture_file = "../resources/img/emissive.png";
-	this->specular_texture_file = "../resources/img/specMap.png";
-	this->normal_texture_file = "../resources/img/normal.png";
+	this->loadDefaultCubeTextures();
 	//Shaders
 	switch(shade){
 		case 0:
@@ -277,10 +239,7 @@ void Model::loadAssimpModel(char* filePath)
 				this->triangle_indices[(i * 3) + 2] = myImportedModel->mFaces[i].mIndices[2];
 			}
 			//Textures
-			this->color_texture_on = false;
-			this->emissive_texture_on = false;
-			this->specular_texture_on = false;
-			this->normal_texture_on = false;
+			this->loadDefaultAssimpModelTextures();
 		}
 	}
 
@@ -289,6 +248,26 @@ void Model::loadAssimpModel(char* filePath)
 	fragment_shader.loadPhongFragmentShader();
 	/*vertex_shader.loadToonVertexShader();
 	fragment_shader.loadToonFragmentShader();*/
+}
+/// <summary>
+/// This method generate default textures for a cube.
+/// </summary>
+void Model::loadDefaultCubeTextures() {
+	this->textures.resize(4);
+	for(unsigned int i=0; i<textures.size(); i++)
+		this->textures[i].texture_on = true;
+	this->textures[0].texture_file = "../resources/img/color2.png";
+	this->textures[1].texture_file = "../resources/img/emissive.png";
+	this->textures[2].texture_file = "../resources/img/specMap.png";
+	this->textures[3].texture_file = "../resources/img/normal.png";
+}
+/// <summary>
+/// This method generate default textures for an Assimp model.
+/// </summary>
+void Model::loadDefaultAssimpModelTextures() {
+	this->textures.resize(4);
+	for (unsigned int i = 0; i<textures.size(); i++)
+		this->textures[i].texture_on = false;
 }
 /// <summary>
 /// This method create OpenGL texture from a file.

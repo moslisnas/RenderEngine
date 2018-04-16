@@ -1,17 +1,55 @@
 #version 330 core
 
+#define MAX_NUM_TOTAL_LIGHTS 100 //Total of 300: 100 points + 100 directionals + 100 focals
 out vec4 outColor;
 
 in vec3 color;
 in vec3 pos;
 in vec3 norm;
-in mat3 tbn;
 in vec2 texCoord;
+in mat3 tbn;
 
 uniform sampler2D colorTex;
 uniform sampler2D emiTex;
 uniform sampler2D specularTex;
 uniform sampler2D normTex;
+
+//Lights
+struct PointLight{
+	vec3 p_light_position;
+	vec3 p_light_diffuse_intensity;
+	vec3 p_light_specular_intensity;
+};
+layout (std140) uniform pointLights{ //binding=0 OpenGL 4.3
+	PointLight p_lights[MAX_NUM_TOTAL_LIGHTS];
+};
+struct DirectionalLight{
+	vec3 d_light_direction;
+	vec3 d_light_diffuse_intensity;
+	vec3 d_light_specular_intensity;
+};
+layout(std140) uniform directionalLights{ //binding=1 OpenGL 4.3
+	DirectionalLight d_lights[MAX_NUM_TOTAL_LIGHTS];
+};
+struct FocalLight{
+	vec3 f_light_position;
+	vec3 f_light_direction;
+	vec3 f_light_diffuse_intensity;
+	vec3 f_light_specular_intensity;
+	float f_apperture_angle;
+	float f_attenuation;
+};
+layout(std140) uniform focalLights{ //binding=2 OpenGL 4.3
+	FocalLight f_lights[MAX_NUM_TOTAL_LIGHTS];
+};
+
+uniform vec3 ambientIntensity;
+uniform int numPointLights;
+uniform int numDirectionalLights;
+uniform int numFocalLights;
+uniform mat4 lightView;
+
+
 //Luces
 uniform mat4 lightView;
 uniform vec3 lPos;
@@ -24,7 +62,7 @@ uniform vec3 lIntA2;
 uniform vec3 lIntD2;
 uniform vec3 lIntS2;
 
-//Propiedades del objeto
+//Object properties
 vec3 Ka;
 vec3 Kd;
 vec3 Ks;
@@ -72,12 +110,12 @@ vec3 shade()
 
 void main()
 {
-	N = normalize(texture(normTex, texCoord).rgb*2.0 - 1.0);
 	Ka = texture(colorTex, texCoord).rgb;
 	Kd = Ka;
 	Ks = texture(specularTex, texCoord).rgb;
 	Ke = texture(emiTex, texCoord).rgb;
-
+	
+	N = normalize(texture(normTex, texCoord).rgb*2.0 - 1.0);
 	
 	outColor = vec4(shade(), 1.0);
 }

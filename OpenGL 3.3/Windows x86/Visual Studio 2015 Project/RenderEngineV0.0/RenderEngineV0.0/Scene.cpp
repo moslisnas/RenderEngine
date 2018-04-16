@@ -92,7 +92,6 @@ void Scene::createUBOs(int programId)
 		glGenBuffers(1, &buffer_directional_lights_id);
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer_directional_lights_id);
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 12 * directional_lights.size() , 0, GL_DYNAMIC_DRAW);
-		//std::cout << "sizeof(data): " << sizeof(float) * 12 * directional_lights.size() << "\n";
 		int offset = 0;
 		for (unsigned int i=0; i<directional_lights.size(); i++) {
 			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float)*3, directional_lights[i].direction);
@@ -101,8 +100,6 @@ void Scene::createUBOs(int programId)
 			offset += 16;
 			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float)*3, directional_lights[i].specular_intensity);
 			offset += 16;
-			//std::cout << "d_light[" << i << "]: dir(x)=" << directional_lights[i].direction[0] << ", dif(g)=" << directional_lights[i].diffuse_intensity[1] << ", spe(g)=" << directional_lights[i].specular_intensity[1] << "\n";
-			//std::cout << "offset: " << offset << "\n";
 		}
 	}
 	if(block_focal_lights_id != -1) {
@@ -141,7 +138,7 @@ void Scene::compileShaders()
 	if (models[i].vertexShader.filePath == models[i].vertexShader.filePath)
 	numPrograms--;
 	}*/
-	for (unsigned int i = 0; i<num_programs; i++) {
+	for (unsigned int i=0; i<num_programs; i++) {
 		this->models[i].vertex_shader.id = loadShader(models[i].vertex_shader.file_path, models[i].vertex_shader.type);
 		this->models[i].fragment_shader.id = loadShader(models[i].fragment_shader.file_path, models[i].fragment_shader.type);
 	}
@@ -222,7 +219,7 @@ void Scene::addFocalLight(FocalLight light)
 /// <summary>
 /// This method generate the final image to render on this frame.
 /// </summary>  
-void Scene::render()//POR HACER-->Bucle FOR Textures (clase Textura)
+void Scene::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -242,28 +239,17 @@ void Scene::render()//POR HACER-->Bucle FOR Textures (clase Textura)
 			glUniformMatrix4fv(models[i].vertex_shader.uniform_ids[1], 1, GL_FALSE, &(model_view_projection[0][0]));
 		if (models[i].vertex_shader.uniform_ids[2] != -1)
 			glUniformMatrix4fv(models[i].vertex_shader.uniform_ids[2], 1, GL_FALSE, &(normal[0][0]));
+
 		//Textures
-		//POR HACER-->Bucle FOR
-		if (models[i].color_texture_on && models[i].fragment_shader.uniform_ids[5] != -1){
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, models[i].color_texture_id);
-			glUniform1i(models[i].fragment_shader.uniform_ids[5], 0);
+		int uniform_texture_index = models[i].fragment_shader.texture_start_index;
+		for (unsigned int j=0; j<models[i].textures.size(); j++) {
+			if (models[i].textures[j].texture_on && models[i].fragment_shader.uniform_ids[uniform_texture_index + j] != -1) {
+				glActiveTexture(GL_TEXTURE0 + j);
+				glBindTexture(GL_TEXTURE_2D, models[i].textures[j].texture_id);
+				glUniform1i(models[i].fragment_shader.uniform_ids[uniform_texture_index + j], j);
+			}
 		}
-		if (models[i].emissive_texture_on && models[i].fragment_shader.uniform_ids[6] != -1){
-			glActiveTexture(GL_TEXTURE0 + 1);
-			glBindTexture(GL_TEXTURE_2D, models[i].emissive_texture_id);
-			glUniform1i(models[i].fragment_shader.uniform_ids[6], 1);
-		}
-		if (models[i].specular_texture_on && models[i].fragment_shader.uniform_ids[7] != -1){
-			glActiveTexture(GL_TEXTURE0 + 2);
-			glBindTexture(GL_TEXTURE_2D, models[i].specular_texture_id);
-			glUniform1i(models[i].fragment_shader.uniform_ids[7], 2);
-		}
-		if (models[i].normal_texture_on && models[i].fragment_shader.uniform_ids[8] != -1){
-			glActiveTexture(GL_TEXTURE0 + 3);
-			glBindTexture(GL_TEXTURE_2D, models[i].normal_texture_id);
-			glUniform1i(models[i].fragment_shader.uniform_ids[8], 3);
-		}
+
 		//Lights
 		glUniform3fv(models[i].fragment_shader.uniform_ids[0], 1, &ambient_lighting[0]);
 		//Points
@@ -354,7 +340,6 @@ void Scene::createAssimpModel(char * filePath)
 void Scene::createPointLight()
 {
 	PointLight point_light;
-	//point_light.setType(POINT_LIGHT);
 	point_light.loadDefault();
 	this->addPointLight(point_light);
 }
@@ -364,7 +349,6 @@ void Scene::createPointLight()
 void Scene::createDirectionalLight()
 {
 	DirectionalLight directional_light;
-	//directional_light.setType(DIRECTIONAL_LIGHT);
 	directional_light.loadDefault();
 	this->addDirectionalLight(directional_light);
 }
@@ -374,7 +358,6 @@ void Scene::createDirectionalLight()
 void Scene::createFocalLight()
 {
 	FocalLight focal_light;
-	//focal_light.setType(FOCAL_LIGHT);
 	focal_light.loadDefault();
 	this->addFocalLight(focal_light);
 }
