@@ -49,19 +49,6 @@ uniform int numDirectionalLights;
 uniform int numFocalLights;
 uniform mat4 lightView;
 
-
-//Luces
-uniform mat4 lightView;
-uniform vec3 lPos;
-uniform vec3 lIntA;
-uniform vec3 lIntD;
-uniform vec3 lIntS;
-uniform mat4 lightView2;
-uniform vec3 lDir;
-uniform vec3 lIntA2;
-uniform vec3 lIntD2;
-uniform vec3 lIntS2;
-
 //Object properties
 vec3 Ka;
 vec3 Kd;
@@ -73,36 +60,69 @@ vec3 Ke;
 vec3 shade()
 {
 	vec3 c = vec3(0.0);
-	
-    vec3 EyeDirection_tangentspace = normalize(tbn * (-pos));
-	//Luz 1
-	c = lIntA * Ka;
-	vec3 lightPosition = vec3(1.0);
-	lightPosition = (lightView * vec4(lPos, 1.0)).xyz; //Luz con posición invariante
-	vec3 LightPosition_tangentspace = normalize(tbn * lightPosition);
-	vec3 L = normalize (lightPosition - pos);
-	vec3 diffuse = lIntD * Kd * dot (L,N);
-	c += clamp(diffuse, 0.0, 1.0);
-	
-	vec3 V = normalize (-pos);
-	vec3 R = normalize (reflect (-L,N));
-	float factor = max (dot (R,V), 0.01);
-	vec3 specular = lIntS*Ks*pow(factor,alpha);
-	c += clamp(specular, 0.0, 1.0);
 
-	//Luz 2
-	c += lIntA2 * Ka;
-	vec3 LightDirection_tangentspace = normalize(tbn * lDir);
-	vec3 L2 = normalize (LightDirection_tangentspace);
-	vec3 diffuse2 = lIntD2 * Kd * dot (L2,N);
-	c += clamp(diffuse2, 0.0, 1.0);
-	
-	vec3 V2 = normalize (EyeDirection_tangentspace);
-	vec3 R2 = normalize (reflect (-L2,N));
-	float factor2 = max (dot (R2,V2), 0.01);
-	vec3 specular2 = lIntS2*Ks*pow(factor2,alpha);
-	c += clamp(specular2, 0.0, 1.0);
+	//Ambient
+	c += ambientIntensity * Ka;
 
+	vec3 EyeDirection_tangentspace = normalize(tbn * (-pos));
+
+	//Point Lights
+	for(int i=0; i<numPointLights; i++){
+		//Position
+		vec3 lightPosition = vec3(1.0);
+		lightPosition = (lightView * vec4(p_lights[i].p_light_position, 1.0)).xyz; //Luz con posición invariante
+		vec3 LightDirection_tangentspace = normalize(tbn * (lightPosition-pos));
+		//Diffuse
+		vec3 L = normalize (LightDirection_tangentspace);
+		vec3 diffuse = p_lights[i].p_light_diffuse_intensity * Kd * dot (L,N);
+		c += clamp(diffuse, 0.0, 1.0);
+		//Specular
+		vec3 V = normalize (EyeDirection_tangentspace);
+		vec3 R = normalize (reflect (-L,N));
+		float factor = max (dot (R,V), 0.01);
+		vec3 specular = p_lights[i].p_light_specular_intensity * Ks * pow(factor,alpha);
+		c += clamp(specular, 0.0, 1.0);
+	}
+	
+	//Directional Lights
+	for(int i=0; i<numDirectionalLights; i++){
+		vec3 LightDirection_tangentspace = normalize(tbn * d_lights[i].d_light_direction);
+		//Diffuse
+		vec3 L = normalize(LightDirection_tangentspace);
+		vec3 diffuse = d_lights[i].d_light_diffuse_intensity * Kd * dot(L,N);
+		c += clamp(diffuse, 0.0, 1.0);
+		//Specular
+		vec3 V = normalize (EyeDirection_tangentspace);
+		vec3 R = normalize (reflect (-L,N));
+		float factor = max (dot (R,V), 0.01);
+		vec3 specular = d_lights[i].d_light_specular_intensity * Ks * pow(factor,alpha);
+		c += clamp(specular, 0.0, 1.0);
+	}
+	
+	//Focal Lights
+	for(int i=0; i<numFocalLights; i++){
+		//Position
+		vec3 lightPosition = vec3(1.0);
+		lightPosition = (lightView * vec4(f_lights[i].f_light_position, 1.0)).xyz; //Luz con posición invariante
+		vec3 LightDirection_tangentspace = normalize(tbn * (lightPosition-pos));
+		//Diffuse
+		vec3 L = normalize (LightDirection_tangentspace);
+		vec3 diffuse = f_lights[i].f_light_diffuse_intensity * Kd * dot (L,N);
+		float Ip = 0;
+		float cosineAngle = cos(f_lights[i].f_apperture_angle);
+		if(dot(f_lights[0].f_light_direction,-normalize (lightPosition - pos)) > cosineAngle){
+			Ip = pow((dot(f_lights[0].f_light_direction, -normalize (lightPosition - pos)) - cosineAngle) / (1-cosineAngle), 0.5);
+		}
+		c += clamp(Ip*diffuse, 0.0, 1.0);
+		//Specular
+		vec3 V = normalize (EyeDirection_tangentspace);
+		vec3 R = normalize (reflect (-L,N));
+		float factor = max (dot (R,V), 0.01);
+		vec3 specular = f_lights[i].f_light_specular_intensity * Ks * pow(factor,alpha);
+		c += clamp(Ip*specular, 0.0, 1.0);
+	}
+	
+	//Emissive
 	c+=Ke;
 	
 	return c;

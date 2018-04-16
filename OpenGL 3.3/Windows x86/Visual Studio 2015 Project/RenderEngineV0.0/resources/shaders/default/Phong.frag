@@ -104,10 +104,8 @@ vec3 shade()
 		//Diffuse
 		vec3 L = normalize (lightPosition - pos);
 		vec3 diffuse = f_lights[i].f_light_diffuse_intensity * Kd * dot (L,N);
-		//c += clamp(diffuse, 0.0, 1.0);
 		float Ip = 0;
 		float cosineAngle = cos(f_lights[i].f_apperture_angle);
-		//float cosineAngle = cos(0.13089);
 		if(dot(f_lights[0].f_light_direction,-L) > cosineAngle){
 			Ip = pow((dot(f_lights[0].f_light_direction, -L) - cosineAngle) / (1-cosineAngle), 0.5);
 		}

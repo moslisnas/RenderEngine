@@ -18,10 +18,10 @@ out mat3 tbn;
 
 void main()
 {
-	pos = (modelView * vec4(inPos, 1.0)).xyz;
 	color = inColor;
 	texCoord = inTexCoord;
 	norm = normalize((normal * vec4(inNormal,0.0)).xyz);
+	pos = (modelView * vec4(inPos, 1.0)).xyz;
 
 	vec3 tang =  normalize((modelView * vec4(inTangent,0.0)).xyz);
 	vec3 biTang = normalize(cross(norm, tang));
