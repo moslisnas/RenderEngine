@@ -65,19 +65,19 @@ vec3 shade()
 	c += ambientIntensity * Ka;
 
 	vec3 EyeDirection_tangentspace = normalize(tbn * (-pos));
+	vec3 V = normalize (EyeDirection_tangentspace);
 
 	//Point Lights
 	for(int i=0; i<numPointLights; i++){
 		//Position
 		vec3 lightPosition = vec3(1.0);
-		lightPosition = (lightView * vec4(p_lights[i].p_light_position, 1.0)).xyz; //Luz con posición invariante
+		lightPosition = (lightView * vec4(p_lights[i].p_light_position, 1.0)).xyz;
 		vec3 LightDirection_tangentspace = normalize(tbn * (lightPosition-pos));
 		//Diffuse
 		vec3 L = normalize (LightDirection_tangentspace);
 		vec3 diffuse = p_lights[i].p_light_diffuse_intensity * Kd * dot (L,N);
 		c += clamp(diffuse, 0.0, 1.0);
 		//Specular
-		vec3 V = normalize (EyeDirection_tangentspace);
 		vec3 R = normalize (reflect (-L,N));
 		float factor = max (dot (R,V), 0.01);
 		vec3 specular = p_lights[i].p_light_specular_intensity * Ks * pow(factor,alpha);
@@ -92,7 +92,6 @@ vec3 shade()
 		vec3 diffuse = d_lights[i].d_light_diffuse_intensity * Kd * dot(L,N);
 		c += clamp(diffuse, 0.0, 1.0);
 		//Specular
-		vec3 V = normalize (EyeDirection_tangentspace);
 		vec3 R = normalize (reflect (-L,N));
 		float factor = max (dot (R,V), 0.01);
 		vec3 specular = d_lights[i].d_light_specular_intensity * Ks * pow(factor,alpha);
@@ -103,7 +102,7 @@ vec3 shade()
 	for(int i=0; i<numFocalLights; i++){
 		//Position
 		vec3 lightPosition = vec3(1.0);
-		lightPosition = (lightView * vec4(f_lights[i].f_light_position, 1.0)).xyz; //Luz con posición invariante
+		lightPosition = (lightView * vec4(f_lights[i].f_light_position, 1.0)).xyz;
 		vec3 LightDirection_tangentspace = normalize(tbn * (lightPosition-pos));
 		//Diffuse
 		vec3 L = normalize (LightDirection_tangentspace);
@@ -115,7 +114,6 @@ vec3 shade()
 		}
 		c += clamp(Ip*diffuse, 0.0, 1.0);
 		//Specular
-		vec3 V = normalize (EyeDirection_tangentspace);
 		vec3 R = normalize (reflect (-L,N));
 		float factor = max (dot (R,V), 0.01);
 		vec3 specular = f_lights[i].f_light_specular_intensity * Ks * pow(factor,alpha);

@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 #define MAX_NUM_TOTAL_LIGHTS 100 //Total of 300: 100 points + 100 directionals + 100 focals
 out vec4 outColor;
@@ -48,16 +48,12 @@ uniform int numDirectionalLights;
 uniform int numFocalLights;
 uniform mat4 lightView;
 
-//Vectors
-vec3 V;
-vec3 L;
-
 //Object properties
 vec3 Ka;
 vec3 Kd;
 vec3 Ks;
 vec3 N;
-float alpha = 5000.0;
+float alpha = 50.0;
 vec3 Ke;
 
 int colorLOD = 6;
@@ -68,19 +64,74 @@ vec3 shade()
 {
 	vec3 c = vec3(0.0);
 
-	//Color discretization
-	float diffuse = max(0.0, dot(L,N));
-	float specular = 0.0;
-	float specMask;
-	vec3 Id2 = lIntD2 * Kd * floor(diffuse*colorLOD) * scaleFactor;
+	//Ambient
+	c += ambientIntensity * Ka;
+	vec3 V = normalize (-pos);
 
-	vec3 R = reflect (-L,N);
-	if(dot(N,L) > 0.0)
-		specular = dot(Ks,Ks) * pow(max(0.0, dot(R,V)), nSpecular);
-	specMask = (pow(dot(R,V), nSpecular) > 0.4) ? 1 : 0;
+	//Point Lights
+	for(int i=0; i<numPointLights; i++){
+		//Position
+		vec3 lightPosition = vec3(1.0);
+		lightPosition = (lightView * vec4(p_lights[i].p_light_position, 1.0)).xyz;
+		//Diffuse
+		vec3 L = normalize (lightPosition - pos);
+		float diffuse = max(0.0, dot(L,N));
+		float specular = 0.0;
+		float specMask;
+		vec3 Id = p_lights[i].p_light_diffuse_intensity * Kd * floor(diffuse*colorLOD) * scaleFactor;
+		//Specular
+		vec3 R = reflect (-L,N);
+		if(dot(N,L) > 0.0)
+			specular = dot(p_lights[i].p_light_specular_intensity,p_lights[i].p_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
+		specMask = (pow(dot(R,V), alpha) > 0.4) ? 1 : 0;
+		vec3 Is = vec3(specular*specMask);
+		c += Id + Is;
+	}
 
-	vec3 Is2 = vec3(specular*specMask);
-	c = lIntA2*Ka + Id2 + Is2;
+	//Directional Lights
+	for(int i=0; i<numDirectionalLights; i++){
+		//Diffuse
+		vec3 L = normalize(d_lights[i].d_light_direction);
+		float diffuse = max(0.0, dot(L,N));
+		float specular = 0.0;
+		float specMask;
+		vec3 Id = d_lights[i].d_light_diffuse_intensity * Kd * floor(diffuse*colorLOD) * scaleFactor;
+		//Specular
+		vec3 R = reflect (-L,N);
+		if(dot(N,L) > 0.0)
+			specular = dot(d_lights[i].d_light_specular_intensity,d_lights[i].d_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
+		specMask = (pow(dot(R,V), alpha) > 0.4) ? 1 : 0;
+		vec3 Is = vec3(specular*specMask);
+		c += Id + Is;
+	}
+
+	//Focal Lights
+	for(int i=0; i<numFocalLights; i++){
+		//Position
+		vec3 lightPosition = vec3(1.0);
+		lightPosition = (lightView * vec4(f_lights[i].f_light_position, 1.0)).xyz;
+
+		//Diffuse
+		vec3 L = normalize (lightPosition - pos);
+		float diffuse = max(0.0, dot(L,N));
+		float specular = 0.0;
+		float specMask;
+		vec3 Id = f_lights[i].f_light_diffuse_intensity * Kd * max(0.0, dot(L,N)) * floor(diffuse*colorLOD) * scaleFactor;
+		float Ip = 0;
+		float cosineAngle = cos(f_lights[i].f_apperture_angle);
+		if(dot(f_lights[0].f_light_direction,-L) > cosineAngle){
+			Ip = pow((dot(f_lights[0].f_light_direction, -L) - cosineAngle) / (1-cosineAngle), 0.5);
+		}
+		Id = clamp(Ip*Id, 0.0, 1.0);
+
+		//Specular
+		vec3 R = reflect (-L,N);
+		if(dot(N,L) > 0.0)
+			specular = dot(f_lights[i].f_light_specular_intensity,f_lights[i].f_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
+		specMask = (pow(dot(R,V), alpha) > 0.4) ? 1 : 0;
+		vec3 Is = vec3(Ip*specular*specMask);
+		c += Id + Is;
+	}
 
 	//Shape.
 	float nDotv = dot(N,V);
@@ -94,11 +145,7 @@ vec3 shade()
 }
 
 void main()
-{
-	//Vectors
-	V = normalize(-pos);
-	L = normalize(lDir);
-	
+{	
 	//Object properties
 	Ka = vec3(1.0, 0.0, 0.0);
 	Kd = Ka;
