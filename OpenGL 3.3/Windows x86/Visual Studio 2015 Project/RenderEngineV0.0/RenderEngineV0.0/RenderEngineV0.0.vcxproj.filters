@@ -83,6 +83,9 @@
     <ClInclude Include="Texture.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\resources\shaders\default\Phong.frag">
@@ -101,6 +104,12 @@
       <Filter>Archivos de recursos\shaders</Filter>
     </None>
     <None Include="..\resources\shaders\default\Toon.vert">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
+    <None Include="..\resources\shaders\default\BlinnPhong.frag">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
+    <None Include="..\resources\shaders\default\BlinnPhong.vert">
       <Filter>Archivos de recursos\shaders</Filter>
     </None>
   </ItemGroup>

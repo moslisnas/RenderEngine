@@ -155,12 +155,15 @@
     <ClInclude Include="FocalLight.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneEngine.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\resources\shaders\default\BlinnPhong.frag" />
+    <None Include="..\resources\shaders\default\BlinnPhong.vert" />
     <None Include="..\resources\shaders\default\Phong.frag" />
     <None Include="..\resources\shaders\default\Phong.vert" />
     <None Include="..\resources\shaders\default\PhongBump.frag" />

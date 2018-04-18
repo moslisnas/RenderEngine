@@ -190,8 +190,16 @@ void Model::loadDefaultCubeModel(int shade)
 			fragment_shader.loadPhongFragmentShader();
 			break;
 		case 1:
+			vertex_shader.loadBlinnPhongVertexShader();
+			fragment_shader.loadBlinnPhongFragmentShader();
+			break;
+		case 2:
 			vertex_shader.loadPhongBumpVertexShader();
 			fragment_shader.loadPhongBumpFragmentShader();
+			break;
+		default:
+			vertex_shader.loadPhongVertexShader();
+			fragment_shader.loadPhongFragmentShader();
 			break;
 	}
 

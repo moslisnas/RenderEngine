@@ -75,14 +75,6 @@ public:
 	/// </summary>
 	void loadPhongFragmentShader();
 	/// <summary>
-	/// This method load a vertex shader for a bumped Phong shading method.
-	/// </summary>
-	void loadPhongBumpVertexShader();
-	/// <summary>
-	/// This method load a fragment shader for a bumped Phong shading method.
-	/// </summary>
-	void loadPhongBumpFragmentShader();
-	/// <summary>
 	/// This method load a vertex shader for Blinn-Phong shading method.
 	/// </summary>
 	void loadBlinnPhongVertexShader();
@@ -90,6 +82,14 @@ public:
 	/// This method load a fragment shader for Blinn-Phong shading method.
 	/// </summary>
 	void loadBlinnPhongFragmentShader();
+	/// <summary>
+	/// This method load a vertex shader for a bumped Phong shading method.
+	/// </summary>
+	void loadPhongBumpVertexShader();
+	/// <summary>
+	/// This method load a fragment shader for a bumped Phong shading method.
+	/// </summary>
+	void loadPhongBumpFragmentShader();
 	/// <summary>
 	/// This method load a vertex shader for a toon shading method.
 	/// </summary>

@@ -102,6 +102,25 @@ void Shader::loadPhongFragmentShader()
 	loadCommonUniformsFragment();
 }
 /// <summary>
+/// This method load a vertex shader for Blinn-Phong shading method.
+/// </summary>
+void Shader::loadBlinnPhongVertexShader()
+{
+	this->file_path = "../resources/shaders/default/BlinnPhong.vert";
+	this->type = GL_VERTEX_SHADER;
+	loadCommonUniformsVertex();
+	loadCommonAttributesVertex();
+}
+/// <summary>
+/// This method load a fragment shader for Blinn-Phong shading method.
+/// </summary>
+void Shader::loadBlinnPhongFragmentShader()
+{
+	this->file_path = "../resources/shaders/default/BlinnPhong.frag";
+	this->type = GL_FRAGMENT_SHADER;
+	loadCommonUniformsFragment();
+}
+/// <summary>
 /// This method load a vertex shader for a bumped Phong shading method.
 /// </summary>
 void Shader::loadPhongBumpVertexShader()
