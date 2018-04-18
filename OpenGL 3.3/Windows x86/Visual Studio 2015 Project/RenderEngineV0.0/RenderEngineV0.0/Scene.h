@@ -147,13 +147,15 @@ public:
 	void bindUBOs(int programId);
 	/// <summary>
 	/// This method generate a cube and add it to the scene.
+	/// <param name="shade_mode">Shade mode.</param>
 	/// </summary>
-	void createCubeModel();
+	void createCubeModel(Shade shade_mode=PHONG);
 	/// <summary>
 	/// This method generate a model from a file and add it to the scene.
-	/// <param name="filePath">Path of the model file.</param>  
+	/// <param name="filePath">Path of the model file.</param>
+	/// <param name="shade_mode">Shade mode.</param>
 	/// </summary>
-	void createAssimpModel(char * filePath);
+	void createAssimpModel(char * filePath, Shade shade_mode=TOON);
 	/// <summary>
 	/// This method generate a point light and add it to the scene.
 	/// </summary>

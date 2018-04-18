@@ -139,7 +139,7 @@ void Model::bind()
 #pragma region Other methods
 /// <summary>
 /// This method obtain uniform locations and store them.
-	/// <param name="programId">Id of the program which contains this variables.</param>  
+/// <param name="programId">Id of the program which contains this variables.</param>  
 /// </summary>
 void Model::loadUniforms(int programId) {
 	for(unsigned int i=0; i<vertex_shader.num_uniforms; i++)
@@ -149,7 +149,7 @@ void Model::loadUniforms(int programId) {
 }
 /// <summary>
 /// This method obtain attribute locations and store them.
-	/// <param name="programId">Id of the program which contains this variables.</param>  
+/// <param name="programId">Id of the program which contains this variables.</param>  
 /// </summary>
 void Model::loadAttributes(int programId) {
 	for(unsigned int j = 0; j<vertex_shader.num_attribs; j++)
@@ -157,9 +157,9 @@ void Model::loadAttributes(int programId) {
 }
 /// <summary>
 /// This method generate a cube with default parameters.
-/// POR HACER --> FALTA COMENTAR PARAMETROS DE ESTE METODO
+/// <param name="shade_mode">Shade mode.</param>  
 /// </summary>
-void Model::loadDefaultCubeModel(int shade)
+void Model::loadDefaultCubeModel(Shade shade_mode)
 {
 	//Initialization of cube model
 	this->n_vertices = cubeNVertex;
@@ -171,44 +171,44 @@ void Model::loadDefaultCubeModel(int shade)
 	this->tangents = new float[n_vertices * 3];
 	this->tex_coords = new float[n_vertices * 2];
 	//Fill of cube data
-	for(unsigned int i=0; i<n_vertices*3; i++){
+	for (unsigned int i = 0; i<n_vertices * 3; i++) {
 		this->coordinates[i] = cubeVertexPos[i];
 		this->normals[i] = cubeVertexNormal[i];
 		this->colors[i] = cubeVertexColor[i];
 		this->tangents[i] = cubeVertexTangent[i];
 	}
-	for(unsigned int i=0; i<n_vertices*2; i++)
+	for (unsigned int i = 0; i<n_vertices * 2; i++)
 		this->tex_coords[i] = cubeVertexTexCoord[i];
-	for(unsigned int i=0; i<n_triangles*3; i++)
+	for (unsigned int i = 0; i<n_triangles * 3; i++)
 		this->triangle_indices[i] = cubeTriangleIndex[i];
 	//Textures
 	this->loadDefaultCubeTextures();
 	//Shaders
-	switch(shade){
-		case 0:
+	switch(shade_mode){
+		case PHONG:
 			vertex_shader.loadPhongVertexShader();
 			fragment_shader.loadPhongFragmentShader();
 			break;
-		case 1:
+		case BLINN_PHONG:
 			vertex_shader.loadBlinnPhongVertexShader();
 			fragment_shader.loadBlinnPhongFragmentShader();
 			break;
-		case 2:
+		case BUMP:
 			vertex_shader.loadPhongBumpVertexShader();
 			fragment_shader.loadPhongBumpFragmentShader();
 			break;
-		default:
-			vertex_shader.loadPhongVertexShader();
-			fragment_shader.loadPhongFragmentShader();
+		case TOON:
+			vertex_shader.loadToonVertexShader();
+			fragment_shader.loadToonFragmentShader();
 			break;
 	}
-
 }
 /// <summary>
 /// This method generate an imported model with default parameters.
 /// <param name="filePath">Path of the model.</param>  
+/// <param name="shade_mode">Shade mode.</param>  
 /// </summary>
-void Model::loadAssimpModel(char* filePath)
+void Model::loadAssimpModel(char* filePath, Shade shade_mode)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
@@ -250,8 +250,28 @@ void Model::loadAssimpModel(char* filePath)
 	}
 
 	//Shaders
-	vertex_shader.loadToonVertexShader();
-	fragment_shader.loadToonFragmentShader();
+	switch (shade_mode) {
+	/*case PHONG:
+		vertex_shader.loadPhongVertexShader();
+		fragment_shader.loadPhongFragmentShader();
+		break;
+	case BLINN_PHONG:
+		vertex_shader.loadBlinnPhongVertexShader();
+		fragment_shader.loadBlinnPhongFragmentShader();
+		break;
+	case BUMP:
+		vertex_shader.loadPhongBumpVertexShader();
+		fragment_shader.loadPhongBumpFragmentShader();
+		break;*/
+	case TOON:
+		vertex_shader.loadToonVertexShader();
+		fragment_shader.loadToonFragmentShader();
+		break;
+	default:
+		vertex_shader.loadToonVertexShader();
+		fragment_shader.loadToonFragmentShader();
+		break;
+	}
 }
 /// <summary>
 /// This method generate default textures for a cube.

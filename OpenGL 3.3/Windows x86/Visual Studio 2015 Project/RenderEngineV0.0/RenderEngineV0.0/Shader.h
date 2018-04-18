@@ -19,6 +19,7 @@ Purpose: Header of Shader class
 #include <vector>
 #endif
 
+enum Shade{ PHONG, BLINN_PHONG, BUMP, TOON};
 /// <summary>
 /// Class for shaders of the models, store information about uniform variables and attributes.
 /// </summary>

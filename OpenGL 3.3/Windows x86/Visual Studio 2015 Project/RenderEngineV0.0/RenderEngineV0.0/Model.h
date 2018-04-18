@@ -121,14 +121,15 @@ public:
 	void loadAttributes(int programId);
 	/// <summary>
 	/// This method generate a cube with default parameters.
-	/// POR HACER --> FALTA COMENTAR PARAMETROS DE ESTE METODO
+	/// <param name="shade_mode">Shade mode.</param>  
 	/// </summary>
-	void loadDefaultCubeModel(int shade);
+	void loadDefaultCubeModel(Shade shade_mode=PHONG);
 	/// <summary>
 	/// This method generate an imported model with default parameters.
 	/// <param name="filePath">Path of the model.</param>  
+	/// <param name="shade_mode">Shade mode.</param>  
 	/// </summary>
-	void loadAssimpModel(char* filePath);
+	void loadAssimpModel(char* filePath, Shade shade_mode=TOON);
 	/// <summary>
 	/// This method generate default textures for a cube.
 	/// </summary>

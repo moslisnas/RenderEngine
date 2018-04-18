@@ -321,21 +321,23 @@ void Scene::bindUBOs(int programId)
 }
 /// <summary>
 /// This method generate a cube and add it to the scene.
+/// <param name="shade_mode">Shade mode.</param>
 /// </summary>
-void Scene::createCubeModel()
+void Scene::createCubeModel(Shade shade_mode)
 {
 	Model cube;
-	cube.loadDefaultCubeModel(models.size());
+	cube.loadDefaultCubeModel(shade_mode);
 	this->addModel(cube);
 }
 /// <summary>
 /// This method generate a model from a file and add it to the scene.
-/// <param name="filePath">Path of the model file.</param>  
+/// <param name="filePath">Path of the model file.</param>
+/// <param name="shade_mode">Shade mode.</param>
 /// </summary>
-void Scene::createAssimpModel(char * filePath)
+void Scene::createAssimpModel(char * filePath, Shade shade_mode)
 {
 	Model assimp_model;
-	assimp_model.loadAssimpModel(filePath);
+	assimp_model.loadAssimpModel(filePath, shade_mode);
 	this->addModel(assimp_model);
 }
 /// <summary>
