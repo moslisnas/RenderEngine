@@ -136,6 +136,21 @@ void Model::bind()
 }
 #pragma endregion
 
+#pragma region Setters
+/// <summary>
+/// Setter of model position.
+/// <param name="x">The x component of position.</param>
+/// <param name="y">The y component of position.</param>
+/// <param name="z">The z component of position.</param>
+/// </summary>
+void Model::setPosition(float x, float y, float z)
+{
+	this->position.x = x;
+	this->position.y = y;
+	this->position.z = z;
+}
+#pragma endregion
+
 #pragma region Other methods
 /// <summary>
 /// This method obtain uniform locations and store them.
@@ -329,6 +344,6 @@ unsigned int Model::loadTex(const char *fileName) {
 /// </summary>
 void Model::animate()
 {
-
+	anim.loadDefaultAnimation();
 }
 #pragma endregion

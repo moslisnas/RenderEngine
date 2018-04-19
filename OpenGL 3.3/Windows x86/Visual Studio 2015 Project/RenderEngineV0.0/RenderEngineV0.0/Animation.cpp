@@ -14,3 +14,10 @@ Animation::~Animation()
 {
 }
 #pragma endregion
+
+#pragma region Other methods
+void Animation::loadDefaultAnimation()
+{
+	rotateItself();
+}
+#pragma endregion

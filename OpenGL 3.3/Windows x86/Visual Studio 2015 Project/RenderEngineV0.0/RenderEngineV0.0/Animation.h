@@ -34,5 +34,15 @@ public:
 	/// </summary>
 	~Animation();
 #pragma endregion
+
+#pragma region Other methods
+
+	void rotateItself();
+
+	void loadDefaultAnimation()
+	{
+		rotateItself();
+	}
+#pragma endregion
 };
 

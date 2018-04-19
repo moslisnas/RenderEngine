@@ -63,6 +63,7 @@ private:
 public:
 #pragma region Variables
 	glm::mat4 model_matrix;
+	glm::vec3 position;
 	unsigned int n_vertices;
 	unsigned int n_triangles;
 	float *coordinates;
@@ -101,6 +102,16 @@ public:
 	/// Destructor of <c>Model</c> class.
 	/// </summary>
 	~Model();
+#pragma endregion
+
+#pragma region Setters
+	/// <summary>
+	/// Setter of model position.
+	/// <param name="x">The x component of position.</param>
+	/// <param name="y">The y component of position.</param>
+	/// <param name="z">The z component of position.</param>
+	/// </summary>
+	void setPosition(float x, float y, float z);
 #pragma endregion
 
 #pragma region Intialization methods

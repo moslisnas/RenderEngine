@@ -201,10 +201,13 @@ void SceneEngine::loadDefaultSceneRender()
 
 	//Default geometry
 	scene.createCubeModel();
-	scene.models[0].setPosition();
+	scene.models[0].setPosition(-1.5f, -1.5f, 0.0f);
 	scene.createCubeModel(BLINN_PHONG);
+	scene.models[1].setPosition(1.5f, -1.5f, 0.0f);
 	scene.createCubeModel(BUMP);
+	scene.models[2].setPosition(-1.5f, 1.5f, 0.0f);
 	scene.createAssimpModel("../resources/models/ToonTorus.obj");
+	scene.models[3].setPosition(1.5f, 1.5f, 0.0f);
 
 	//Default lights
 	scene.createPointLight();
