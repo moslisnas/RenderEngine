@@ -289,12 +289,15 @@ void Scene::animate()
 {
 	static float angle = 0.0f;
 	angle = (angle > 3.141592f * 2.0f) ? 0 : angle + 0.01f;
+	for(unsigned int i=0; i<models.size(); i++){
+		models[i].animate();
+	}
 	//Animation cube 1
 	models[0].model_matrix = glm::mat4(1.0f);
 	models[0].model_matrix = glm::translate(models[0].model_matrix, glm::vec3(-1.5f, -1.5f, 0.0f));
 	models[0].model_matrix = glm::rotate(models[0].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
 	//Animation cube 2
-	models[1].model_matrix = glm::mat4(1.0f);
+	//models[1].model_matrix = glm::mat4(1.0f);
 	models[1].model_matrix = glm::translate(models[1].model_matrix, glm::vec3(1.5f, -1.5f, 0.0f));
 	models[1].model_matrix = glm::rotate(models[1].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
 	//Animation cube 3

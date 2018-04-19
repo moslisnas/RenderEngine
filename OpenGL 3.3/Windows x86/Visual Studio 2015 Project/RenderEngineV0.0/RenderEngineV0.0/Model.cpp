@@ -324,4 +324,11 @@ unsigned int Model::loadTex(const char *fileName) {
 
 	return texId;
 }
+/// <summary>
+/// This method update animation.
+/// </summary>
+void Model::animate()
+{
+
+}
 #pragma endregion

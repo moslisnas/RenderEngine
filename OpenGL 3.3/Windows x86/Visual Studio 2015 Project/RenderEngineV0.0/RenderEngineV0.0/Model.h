@@ -18,8 +18,9 @@ const float NUMBER_PI = (float)atan(1) * 4;
 #define IOSTREAM
 #include <iostream>
 #endif
-#include "Texture.h"
 #include "Shader.h"
+#include "Texture.h"
+#include "Animation.h"
 #include "BOX.h"
 #include "FileStreamLoad.h"
 #include <Assimp/Importer.hpp>
@@ -73,6 +74,7 @@ public:
 	Shader vertex_shader;
 	Shader fragment_shader;
 	std::vector<Texture> textures;
+	Animation anim;
 
 	#pragma region OpenGL id variables
 	unsigned int vao_id;
@@ -144,5 +146,9 @@ public:
 	/// <returns>OpenGL texture id.</returns> 
 	/// </summary>
 	unsigned int loadTex(const char *fileName);
+	/// <summary>
+	/// This method update animation.
+	/// </summary>
+	void animate();
 #pragma endregion
 };

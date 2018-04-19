@@ -201,6 +201,7 @@ void SceneEngine::loadDefaultSceneRender()
 
 	//Default geometry
 	scene.createCubeModel();
+	scene.models[0].setPosition();
 	scene.createCubeModel(BLINN_PHONG);
 	scene.createCubeModel(BUMP);
 	scene.createAssimpModel("../resources/models/ToonTorus.obj");
