@@ -1,6 +1,5 @@
 #include "SceneEngine.h"
 
-//POR HACER--> Array de Scenes
 Scene scene;
 
 #pragma region Constructor & destructor
@@ -25,7 +24,7 @@ void renderFunc() {
 	scene.render();
 }
 
-#pragma region OS Event callbacks POR HACER-->Interacciones, varias cámaras
+#pragma region OS Event callbacks
 /// <summary>
 /// OS event function for idle time.
 /// </summary>  
@@ -66,10 +65,10 @@ void resizeFunc(int width, int height) {
 /// <param name="y">Y position of the mouse cursor when button was pressed.</param>
 /// </summary>  
 void keyboardFunc(unsigned char key, int x, int y) {
-	/*scene.keyboardCameraInteraction(key, x, y);
+	scene.keyboardInteraction(key, x, y);
 
 	//Render
-	glutPostRedisplay();*/
+	glutPostRedisplay();
 }
 /// <summary>
 /// OS event function for mouse action (when a button is pressed).
@@ -97,7 +96,7 @@ void mouseMotionFunc(int x, int y)
 }
 #pragma endregion
 
-#pragma region Initialization methods (private) POR HACER-->Cambiar contexto y parametros a partir de argc y argv (o enumerads)
+#pragma region Initialization methods (private)
 /// <summary>
 /// Initialize OpenGL context: context version, context profile, framebuffer and window.
 /// </summary>
@@ -108,7 +107,6 @@ void SceneEngine::initContext()
 	initFrameBuffer();
 	initWindow();
 }
-
 /// <summary>
 /// This method init the default OpenGL FrameBuffer.
 /// </summary>
@@ -116,7 +114,6 @@ void SceneEngine::initFrameBuffer()
 {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 }
-
 /// <summary>
 /// This method init the window for rendering.
 /// <param name="width">Window size width, default value = 500px.</param>  
@@ -131,7 +128,6 @@ void SceneEngine::initWindow(int width, int height, int x_position, int y_positi
 	glutInitWindowPosition(x_position, y_position);
 	glutCreateWindow(title);
 }
-
 /// <summary>
 /// This method init the OpenGL extension manager.
 /// </summary>
@@ -147,7 +143,6 @@ void SceneEngine::initExtensions()
 	const GLubyte *oglVersion = glGetString(GL_VERSION);
 	std::cout << "This system supports OpenGL Version: " << oglVersion << std::endl;
 }
-
 /// <summary>
 /// This method asociate OS event functions to OpenGL window.
 /// </summary>
@@ -160,7 +155,6 @@ void SceneEngine::initOSEvents()
 	glutMouseFunc(mouseFunc);
 	glutMotionFunc(mouseMotionFunc);
 }
-
 /// <summary>
 /// This method configure graphics pipeline and rendering with several values.
 /// </summary>
@@ -174,7 +168,7 @@ void SceneEngine::initPipelineConfiguration()
 }
 #pragma endregion
 
-#pragma region Initialization methods (public) POR HACER--> Cambiar para poder cargar más escenas, ventanas o varias zonas de render.
+#pragma region Initialization methods (public)
 /// <summary>
 /// Initialize local variables and OpenGL.
 /// <param name="argc">Number of our main parameters.</param>  
@@ -209,7 +203,7 @@ void SceneEngine::loadDefaultSceneRender()
 	scene.createCubeModel();
 	scene.createCubeModel(BLINN_PHONG);
 	scene.createCubeModel(BUMP);
-	/*scene.createAssimpModel("../resources/models/ToonTorus.obj");*/
+	scene.createAssimpModel("../resources/models/ToonTorus.obj");
 
 	//Default lights
 	scene.createPointLight();

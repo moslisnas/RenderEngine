@@ -1,6 +1,6 @@
 #pragma once
 /**
-C++ Scene.h
+C++ Camera.h
 Purpose: Header of Camera class
 
 @author Alejandro Molina Quesada

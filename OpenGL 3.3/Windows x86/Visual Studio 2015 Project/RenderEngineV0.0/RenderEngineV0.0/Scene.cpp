@@ -132,11 +132,11 @@ void Scene::createUBOs(int programId)
 void Scene::compileShaders()
 {
 	this->num_programs = models.size();
-	//POR HACER--> We use same program for diferent models with same shaders 
+	//We use same program for diferent models with same shaders 
 	/*for (unsigned int i=0; i<numModels-1; i++) {
-	for (int j = i; j < numModels; j++)
-	if (models[i].vertexShader.filePath == models[i].vertexShader.filePath)
-	numPrograms--;
+		for (int j = i; j < numModels; j++)
+			if (models[i].vertexShader.filePath == models[i].vertexShader.filePath)
+				numPrograms--;
 	}*/
 	for (unsigned int i=0; i<num_programs; i++) {
 		this->models[i].vertex_shader.id = loadShader(models[i].vertex_shader.file_path, models[i].vertex_shader.type);
@@ -310,9 +310,69 @@ void Scene::animate()
 	glutPostRedisplay();
 }
 /// <summary>
+/// This method update scene elements when a key of the keyboard is pressed.
+/// <param name="key">Character of the pressed key.</param>  
+/// <param name="x">X position of the mouse cursor when button was pressed.</param>
+/// <param name="y">Y position of the mouse cursor when button was pressed.</param>
+/// </summary>  
+void Scene::keyboardInteraction(unsigned char key, int x, int y) {
+	float keyboardAngle = NUMBER_PI / 12.0f;
+	//Traslation keys
+	if (key == 'w') {
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, selected_camera.rotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.view_matrix = glm::translate(selected_camera.view_matrix, glm::vec3(0.0f, 0.0f, 1.0f));
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, -selected_camera.rotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.position[2] -= 1.0f * cos(selected_camera.rotation[1]);
+		selected_camera.position[0] -= 1.0f * sin(selected_camera.rotation[1]);
+	}
+	else if (key == 's') {
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, selected_camera.rotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.view_matrix = glm::translate(selected_camera.view_matrix, glm::vec3(0.0f, 0.0f, -1.0f));
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, -selected_camera.rotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.position[2] += 1.0f * cos(selected_camera.rotation[1]);
+		selected_camera.position[0] += 1.0f * sin(selected_camera.rotation[1]);
+	}
+	else if (key == 'a') {
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, selected_camera.rotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.view_matrix = glm::translate(selected_camera.view_matrix, glm::vec3(1.0f, 0.0f, 0.0f));
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, -selected_camera.rotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.position[0] -= 1.0f * cos(selected_camera.rotation[1]);
+		selected_camera.position[2] += 1.0f * sin(selected_camera.rotation[1]);
+	}
+	else if (key == 'd') {
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, selected_camera.rotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.view_matrix = glm::translate(selected_camera.view_matrix, glm::vec3(-1.0f, 0.0f, 0.0f));
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, -selected_camera.rotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.position[1] += 1.0f * cos(selected_camera.rotation[1]);
+		selected_camera.position[2] -= 1.0f * sin(selected_camera.rotation[1]);
+	}
+	//Rotation keys
+	else if (key == 'e') {
+		selected_camera.view_matrix = glm::translate(selected_camera.view_matrix, glm::vec3(selected_camera.position[0], 0.0f, selected_camera.position[2]));
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, keyboardAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+		selected_camera.view_matrix = glm::translate(selected_camera.view_matrix, glm::vec3(-selected_camera.position[0], 0.0f, -selected_camera.position[2]));
+		selected_camera.rotation[1] -= keyboardAngle;
+	}
+	else if (key == 'q') {
+		selected_camera.view_matrix = glm::translate(selected_camera.view_matrix, glm::vec3(selected_camera.position[0], 0.0f, selected_camera.position[2]));
+		selected_camera.view_matrix = glm::rotate(selected_camera.view_matrix, keyboardAngle, glm::vec3(0.0f, -1.0f, 0.0f));
+		selected_camera.view_matrix = glm::translate(selected_camera.view_matrix, glm::vec3(-selected_camera.position[0], 0.0f, -selected_camera.position[2]));
+		selected_camera.rotation[1] += keyboardAngle;
+	}
+	/*GIMBAL LOCK
+	else if (key == 'z') {
+		view = glm::rotate(view, keyboardAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+		rotationX -= keyboardAngle;
+	}
+	else if (key == 'x') {
+		view = glm::rotate(view, keyboardAngle, glm::vec3(-1.0f, 0.0f, 0.0f));
+		rotationX += keyboardAngle;
+	}*/
+}
+/// <summary>
 /// This method bind the Uniform Buffers Objects used on shaders.
 /// <param name="programId">Program where we create the Uniform Buffer Object.</param> 
-/// </summary>  
+/// </summary>
 void Scene::bindUBOs(int programId)
 {
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, buffer_point_lights_id);

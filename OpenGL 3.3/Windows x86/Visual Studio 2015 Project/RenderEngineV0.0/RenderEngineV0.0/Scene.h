@@ -141,6 +141,13 @@ public:
 	/// </summary>  
 	void animate();
 	/// <summary>
+	/// This method update scene elements when a key of the keyboard is pressed.
+	/// <param name="key">Character of the pressed key.</param>  
+	/// <param name="x">X position of the mouse cursor when button was pressed.</param>
+	/// <param name="y">Y position of the mouse cursor when button was pressed.</param>
+	/// </summary>  
+	void keyboardInteraction(unsigned char key, int x, int y);
+	/// <summary>
 	/// This method bind the Uniform Buffers Objects used on shaders.
 	/// <param name="programId">Program where we create the Uniform Buffer Object.</param> 
 	/// </summary>  
