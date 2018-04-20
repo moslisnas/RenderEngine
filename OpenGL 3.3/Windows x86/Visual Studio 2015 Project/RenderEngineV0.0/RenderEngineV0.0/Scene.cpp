@@ -288,20 +288,15 @@ void Scene::render()
 void Scene::animate()
 {
 	static float angle = 0.0f;
-	angle = (angle > NUMBER_PI * 2.0f) ? 0 : angle + 0.01f;
+	angle = (angle > NUMBER_PI * 2.0f) ? 0 : angle + 0.01;
 	for(unsigned int i=0; i<models.size(); i++){
 		models[i].model_matrix = glm::mat4(1.0f);
 		models[i].model_matrix = glm::translate(models[i].model_matrix, models[i].position);
+		models[i].model_matrix = glm::rotate(models[i].model_matrix, models[i].rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+		models[i].model_matrix = glm::rotate(models[i].model_matrix, models[i].rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+		models[i].model_matrix = glm::rotate(models[i].model_matrix, models[i].rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 		models[i].animate();
 	}
-	//Animation cube 1
-	models[0].model_matrix = glm::rotate(models[0].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
-	//Animation cube 2
-	models[1].model_matrix = glm::rotate(models[1].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
-	//Animation cube 3
-	models[2].model_matrix = glm::rotate(models[2].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
-	//Animation assimp model
-	models[3].model_matrix = glm::rotate(models[3].model_matrix, angle, glm::vec3(1.0f, 1.0f, 0.0f));
 
 	//Render
 	glutPostRedisplay();

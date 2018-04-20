@@ -64,6 +64,7 @@ public:
 #pragma region Variables
 	glm::mat4 model_matrix;
 	glm::vec3 position;
+	glm::vec3 rotation;
 	unsigned int n_vertices;
 	unsigned int n_triangles;
 	float *coordinates;
@@ -112,6 +113,13 @@ public:
 	/// <param name="z">The z component of position.</param>
 	/// </summary>
 	void setPosition(float x, float y, float z);
+	/// <summary>
+	/// Setter of model rotation.
+	/// <param name="x">The x component of rotation.</param>
+	/// <param name="y">The y component of rotation.</param>
+	/// <param name="z">The z component of rotation.</param>
+	/// </summary>
+	void setRotation(float x, float y, float z);
 #pragma endregion
 
 #pragma region Intialization methods

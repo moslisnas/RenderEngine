@@ -6,6 +6,8 @@
 /// </summary>
 Model::Model()
 {
+	this->setPosition(0.0f, 0.0f, 0.0f);
+	this->setRotation(0.0f, 0.0f, 0.0f);
 	this->n_vertices = 0;
 	this->n_triangles = 0;
 	this->model_matrix = glm::mat4(1.0f);
@@ -149,6 +151,18 @@ void Model::setPosition(float x, float y, float z)
 	this->position.y = y;
 	this->position.z = z;
 }
+/// <summary>
+/// Setter of model rotation.
+/// <param name="x">The x component of rotation.</param>
+/// <param name="y">The y component of rotation.</param>
+/// <param name="z">The z component of rotation.</param>
+/// </summary>
+void Model::setRotation(float x, float y, float z)
+{
+	this->rotation.x = x;
+	this->rotation.y = y;
+	this->rotation.z = z;
+}
 #pragma endregion
 
 #pragma region Other methods
@@ -217,6 +231,9 @@ void Model::loadDefaultCubeModel(Shade shade_mode)
 			fragment_shader.loadToonFragmentShader();
 			break;
 	}
+	//Animation
+	anim.rotation_speed_x = 0.01f;
+	anim.rotation_speed_y = 0.01f;
 }
 /// <summary>
 /// This method generate an imported model with default parameters.
@@ -287,6 +304,9 @@ void Model::loadAssimpModel(char* filePath, Shade shade_mode)
 		fragment_shader.loadToonFragmentShader();
 		break;
 	}
+	//Animation
+	anim.rotation_speed_x = 0.01f;
+	anim.rotation_speed_y = 0.01f;
 }
 /// <summary>
 /// This method generate default textures for a cube.
@@ -344,6 +364,6 @@ unsigned int Model::loadTex(const char *fileName) {
 /// </summary>
 void Model::animate()
 {
-	anim.loadDefaultAnimation();
+	anim.updateDefaultAnimation(this->position, this->rotation);
 }
 #pragma endregion

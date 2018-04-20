@@ -211,26 +211,6 @@ void SceneEngine::loadDefaultSceneRender()
 
 	//Default lights
 	scene.createPointLight();
-	/*scene.createDirectionalLight();
-	scene.directional_lights[0].setDirection(-1.0f, 0.0f, 0.0f);
-	scene.createDirectionalLight();
-	scene.directional_lights[1].setDirection(1.0f, 0.0f, 0.0f);
-	scene.directional_lights[1].setDiffuseIntensity(1.0f, 0.0f, 0.0f);
-	scene.directional_lights[1].setSpecularIntensity(1.0f, 0.0f, 0.0f);
-	scene.createFocalLight();
-	scene.focal_lights[0].setPosition(-1.25f, -1.25f, 5.0f);
-	scene.focal_lights[0].setDirection(0.0f, 0.0f, -1.0f);
-	scene.focal_lights[0].setDiffuseIntensity(1.0f, 0.0f, 0.0f);
-	scene.focal_lights[0].setSpecularIntensity(1.0f, 0.0f, 0.0f);
-	scene.focal_lights[0].setAppertureAngle(7.5f, false);
-	scene.focal_lights[0].setAttenuation(0.5f);
-	scene.createFocalLight();
-	scene.focal_lights[1].setPosition(1.25f, -1.25f, 5.0f);
-	scene.focal_lights[1].setDirection(0.0f, 0.0f, -1.0f);
-	scene.focal_lights[1].setDiffuseIntensity(1.0f, 1.0f, 0.2f);
-	scene.focal_lights[1].setSpecularIntensity(1.0f, 1.0f, 0.2f);
-	scene.focal_lights[1].setAppertureAngle(7.5f, false);
-	scene.focal_lights[1].setAttenuation(0.5f);*/
 
 	//Creating scene for rendering
 	scene.create();

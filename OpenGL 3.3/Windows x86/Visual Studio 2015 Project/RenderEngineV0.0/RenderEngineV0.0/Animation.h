@@ -8,6 +8,7 @@ Purpose: Header of Animation class
 @date 19/04/2018
 */
 
+//#include "Model.h"
 #ifndef GLM
 #define GLM
 #include <glm/glm.hpp>
@@ -22,6 +23,12 @@ class Animation
 {
 public:
 #pragma region Variables
+	float angle_x;
+	float rotation_speed_x;
+	float angle_y;
+	float rotation_speed_y;
+	float angle_z;
+	float rotation_speed_z;
 #pragma endregion
 
 #pragma region Contructor & destructor
@@ -36,13 +43,11 @@ public:
 #pragma endregion
 
 #pragma region Other methods
-
-	void rotateItself();
-
-	void loadDefaultAnimation()
-	{
-		rotateItself();
-	}
+	/// <summary>
+	/// This method generate a default animation.
+	/// <param name="position">The model position to update.</param>
+	/// <param name="rotation">The model rotation to update.</param>
+	/// </summary>
+	void updateDefaultAnimation(glm::vec3 &position, glm::vec3 &rotation);
 #pragma endregion
 };
-
