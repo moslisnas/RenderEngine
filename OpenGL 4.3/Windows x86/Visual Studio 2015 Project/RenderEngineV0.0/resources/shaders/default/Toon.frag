@@ -82,7 +82,7 @@ vec3 shade()
 		//Specular
 		vec3 R = reflect (-L,N);
 		if(dot(N,L) > 0.0)
-			specular = dot(p_lights[i].p_light_specular_intensity,p_lights[i].p_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
+			specular = length(p_lights[i].p_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
 		specMask = (pow(dot(R,V), alpha) > 0.4) ? 1 : 0;
 		vec3 Is = vec3(specular*specMask);
 		c += Id + Is;
@@ -99,7 +99,7 @@ vec3 shade()
 		//Specular
 		vec3 R = reflect (-L,N);
 		if(dot(N,L) > 0.0)
-			specular = dot(d_lights[i].d_light_specular_intensity,d_lights[i].d_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
+			specular = length(d_lights[i].d_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
 		specMask = (pow(dot(R,V), alpha) > 0.4) ? 1 : 0;
 		vec3 Is = vec3(specular*specMask);
 		c += Id + Is;
@@ -127,7 +127,7 @@ vec3 shade()
 		//Specular
 		vec3 R = reflect (-L,N);
 		if(dot(N,L) > 0.0)
-			specular = dot(f_lights[i].f_light_specular_intensity,f_lights[i].f_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
+			specular = length(f_lights[i].f_light_specular_intensity) * pow(max(0.0, dot(R,V)), alpha);
 		specMask = (pow(dot(R,V), alpha) > 0.4) ? 1 : 0;
 		vec3 Is = vec3(Ip*specular*specMask);
 		c += Id + Is;
@@ -135,10 +135,8 @@ vec3 shade()
 
 	//Shape.
 	float nDotv = dot(N,V);
-	float nMod = dot(N,N);
-	float vMod = dot(V,V);
 	//If cosin is lower than right term, then the fragment is on shape
-	if((nDotv/(nMod*vMod)) < shapeThickness)
+	if(nDotv < shapeThickness)
 		c = vec3(0.0);
 
 	return c;
