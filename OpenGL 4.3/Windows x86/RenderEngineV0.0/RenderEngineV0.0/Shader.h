@@ -58,9 +58,17 @@ public:
 	/// </summary>
 	void loadCommonUniformsVertex();
 	/// <summary>
+	/// This method load more usual uniform variables for geometry shader.
+	/// </summary>
+	void loadCommonUniformsGeometry();
+	/// <summary>
 	/// This method load more usual attributes for vertex shader.
 	/// </summary>
 	void loadCommonAttributesVertex();
+	/// <summary>
+	/// This method load more usual attributes for geometry shader.
+	/// </summary>
+	void loadCommonAttributesGeometry();
 	/// <summary>
 	/// This method load more usual uniform variables for fragment shader.
 	/// </summary>
@@ -71,6 +79,10 @@ public:
 	/// This method load a vertex shader for classic Phong shading method.
 	/// </summary>
 	void loadPhongVertexShader();
+	/// <summary>
+	/// This method load a geometry shader for classic Phong shading method.
+	/// </summary>
+	void loadPhongGeometryShader();
 	/// <summary>
 	/// This method load a fragment shader for classic Phong shading method.
 	/// </summary>

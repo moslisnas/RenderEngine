@@ -1,0 +1,18 @@
+﻿  Texture.cpp
+  Shader.cpp
+c:\users\molic\documents\github\renderengine\opengl 4.3\windows x86\renderenginev0.0\renderenginev0.0\shader.cpp(73): warning C4267: '=': conversión de 'size_t' a 'unsigned int'; posible pérdida de datos
+  SceneEngine.cpp
+c:\users\molic\documents\github\renderengine\opengl 4.3\windows x86\renderenginev0.0\renderenginev0.0\model.h(26): fatal error C1083: No se puede abrir el archivo incluir: 'Assimp/Importer.hpp': No such file or directory
+  Scene.cpp
+c:\users\molic\documents\github\renderengine\opengl 4.3\windows x86\renderenginev0.0\renderenginev0.0\model.h(26): fatal error C1083: No se puede abrir el archivo incluir: 'Assimp/Importer.hpp': No such file or directory
+  PointLight.cpp
+  Model.cpp
+c:\users\molic\documents\github\renderengine\opengl 4.3\windows x86\renderenginev0.0\renderenginev0.0\model.h(26): fatal error C1083: No se puede abrir el archivo incluir: 'Assimp/Importer.hpp': No such file or directory
+  main.cpp
+c:\users\molic\documents\github\renderengine\opengl 4.3\windows x86\renderenginev0.0\renderenginev0.0\model.h(26): fatal error C1083: No se puede abrir el archivo incluir: 'Assimp/Importer.hpp': No such file or directory
+  FocalLight.cpp
+  FileStreamLoad.cpp
+  DirectionalLight.cpp
+  Camera.cpp
+  Animation.cpp
+  Generando código...

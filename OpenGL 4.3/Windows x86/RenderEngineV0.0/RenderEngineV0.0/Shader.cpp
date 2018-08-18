@@ -34,6 +34,14 @@ void Shader::loadCommonUniformsVertex()
 	this->uniform_names.push_back(aux);
 }
 /// <summary>
+/// This method load more usual uniform variables for geometry shader.
+/// </summary>
+void Shader::loadCommonUniformsGeometry()
+{
+	this->num_uniforms = 0;
+	//this->uniform_ids = new unsigned int[num_uniforms]; POR HACER
+}
+/// <summary>
 /// This method load more usual attributes for vertex shader.
 /// </summary>
 void Shader::loadCommonAttributesVertex()
@@ -50,6 +58,14 @@ void Shader::loadCommonAttributesVertex()
 	this->attrib_names.push_back(aux);
 	aux = new char[10]; aux = "inTexCoord";
 	this->attrib_names.push_back(aux);
+}
+/// <summary>
+/// This method load more usual attributes for geometry shader.
+/// </summary>
+void Shader::loadCommonAttributesGeometry()
+{
+	this->num_attribs = 0;
+	//this->attrib_ids = new unsigned int[num_attribs]; POR HACER
 }
 /// <summary>
 /// This method load more usual uniform variables for fragment shader.
@@ -91,6 +107,16 @@ void Shader::loadPhongVertexShader()
 	this->type = GL_VERTEX_SHADER;
 	loadCommonUniformsVertex();
 	loadCommonAttributesVertex();
+}
+/// <summary>
+/// This method load a geometry shader for classic Phong shading method.
+/// </summary>
+void Shader::loadPhongGeometryShader()
+{
+	this->file_path = "../resources/shaders/default/Phong.geom";
+	this->type = GL_GEOMETRY_SHADER;
+	loadCommonUniformsGeometry();
+	loadCommonAttributesGeometry();
 }
 /// <summary>
 /// This method load a fragment shader for classic Phong shading method.

@@ -173,6 +173,8 @@ void Model::setRotation(float x, float y, float z)
 void Model::loadUniforms(int programId) {
 	for(unsigned int i=0; i<vertex_shader.num_uniforms; i++)
 		this->vertex_shader.uniform_ids[i] = glGetUniformLocation(programId, vertex_shader.uniform_names[i]);
+	for(unsigned int i=0; i<geometry_shader.num_uniforms; i++)
+		this->geometry_shader.uniform_ids[i] = glGetUniformLocation(programId, geometry_shader.uniform_names[i]);
 	for(unsigned int i=0; i<fragment_shader.num_uniforms; i++)
 		this->fragment_shader.uniform_ids[i] = glGetUniformLocation(programId, fragment_shader.uniform_names[i]);
 }
@@ -181,8 +183,10 @@ void Model::loadUniforms(int programId) {
 /// <param name="programId">Id of the program which contains this variables.</param>  
 /// </summary>
 void Model::loadAttributes(int programId) {
-	for(unsigned int j = 0; j<vertex_shader.num_attribs; j++)
-		vertex_shader.attrib_ids[j] = glGetAttribLocation(programId, vertex_shader.attrib_names[j]);
+	for(unsigned int i=0; i<vertex_shader.num_attribs; i++)
+		vertex_shader.attrib_ids[i] = glGetAttribLocation(programId, vertex_shader.attrib_names[i]);
+	for(unsigned int i=0; i<geometry_shader.num_attribs; i++)
+		geometry_shader.attrib_ids[i] = glGetAttribLocation(programId, geometry_shader.attrib_names[i]);
 }
 /// <summary>
 /// This method generate a cube with default parameters.
@@ -216,18 +220,22 @@ void Model::loadDefaultCubeModel(Shade shade_mode)
 	switch(shade_mode){
 		case PHONG:
 			vertex_shader.loadPhongVertexShader();
+			geometry_shader.loadPhongGeometryShader();
 			fragment_shader.loadPhongFragmentShader();
 			break;
 		case BLINN_PHONG:
 			vertex_shader.loadBlinnPhongVertexShader();
+			//geometry_shader.loadBlinnPhongGeometryShader(); POR HACER
 			fragment_shader.loadBlinnPhongFragmentShader();
 			break;
 		case BUMP:
 			vertex_shader.loadPhongBumpVertexShader();
+			//geometry_shader.loadBumpPhongGeometryShader(); POR HACER
 			fragment_shader.loadPhongBumpFragmentShader();
 			break;
 		case TOON:
 			vertex_shader.loadToonVertexShader();
+			//geometry_shader.loadToonGeometryShader(); POR HACER
 			fragment_shader.loadToonFragmentShader();
 			break;
 	}
@@ -297,10 +305,12 @@ void Model::loadAssimpModel(char* filePath, Shade shade_mode)
 		break;*/
 	case TOON:
 		vertex_shader.loadToonVertexShader();
+		//geometry_shader.loadToonGeometryShader(); POR HACER
 		fragment_shader.loadToonFragmentShader();
 		break;
 	default:
 		vertex_shader.loadToonVertexShader();
+		//geometry_shader.loadToonGeometryShader(); POR HACER
 		fragment_shader.loadToonFragmentShader();
 		break;
 	}

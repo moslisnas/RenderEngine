@@ -158,6 +158,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneEngine.h" />
     <ClInclude Include="Shader.h" />
@@ -167,11 +168,15 @@
     <None Include="..\resources\shaders\default\BlinnPhong.frag" />
     <None Include="..\resources\shaders\default\BlinnPhong.vert" />
     <None Include="..\resources\shaders\default\Phong.frag" />
+    <None Include="..\resources\shaders\default\Phong.geom" />
     <None Include="..\resources\shaders\default\Phong.vert" />
     <None Include="..\resources\shaders\default\PhongBump.frag" />
     <None Include="..\resources\shaders\default\PhongBump.vert" />
     <None Include="..\resources\shaders\default\Toon.frag" />
     <None Include="..\resources\shaders\default\Toon.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RenderEngineV0.0.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -33,7 +33,7 @@ const float NUMBER_PI = (float)atan(1) * 4;
 class Model
 {
 private:
-#pragma region Intialization methods
+#pragma region Initialization methods
 	/// <summary>
 	/// This method create VAO and store OpenGL VAO id.
 	/// </summary>
@@ -75,6 +75,7 @@ public:
 	float *tex_coords;
 	Shader vertex_shader;
 	Shader fragment_shader;
+	Shader geometry_shader;
 	std::vector<Texture> textures;
 	Animation anim;
 

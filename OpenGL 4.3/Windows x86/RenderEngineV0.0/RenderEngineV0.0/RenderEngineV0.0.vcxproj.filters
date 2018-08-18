@@ -92,6 +92,9 @@
     <ClInclude Include="Animation.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\resources\shaders\default\Phong.frag">
@@ -118,5 +121,13 @@
     <None Include="..\resources\shaders\default\BlinnPhong.vert">
       <Filter>Archivos de recursos\shaders</Filter>
     </None>
+    <None Include="..\resources\shaders\default\Phong.geom">
+      <Filter>Archivos de recursos\shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RenderEngineV0.0.rc">
+      <Filter>Archivos de recursos</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

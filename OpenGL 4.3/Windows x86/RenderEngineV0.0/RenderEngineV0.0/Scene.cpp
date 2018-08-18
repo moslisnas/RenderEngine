@@ -140,6 +140,7 @@ void Scene::compileShaders()
 	}*/
 	for (unsigned int i=0; i<num_programs; i++) {
 		this->models[i].vertex_shader.id = loadShader(models[i].vertex_shader.file_path, models[i].vertex_shader.type);
+		this->models[i].geometry_shader.id = loadShader(models[i].geometry_shader.file_path, models[i].geometry_shader.type); //POR HACER
 		this->models[i].fragment_shader.id = loadShader(models[i].fragment_shader.file_path, models[i].fragment_shader.type);
 	}
 }
@@ -149,12 +150,13 @@ void Scene::compileShaders()
 void Scene::compilePrograms()
 {
 	this->programs = new unsigned int[num_programs];
-	for (unsigned int i = 0; i<num_programs; i++) {
+	for(unsigned int i=0; i<num_programs; i++){
 		this->programs[i] = glCreateProgram();
 		//Deprecated attrib binding
 		/*for (unsigned int j=0; j<models[i].vertexShader.numAttribs; j++)
 		glBindAttribLocation(programs[i], j, models[i].vertexShader.attribNames[j]);*/
 		glAttachShader(this->programs[i], models[i].vertex_shader.id);
+		//glAttachShader(this->programs[i], models[i].geometry_shader.id); //POR HACER
 		glAttachShader(this->programs[i], models[i].fragment_shader.id);
 		glLinkProgram(this->programs[i]);
 		//Error checks
