@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <vector>
 #include <cstring>
+#include <map>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -34,6 +35,13 @@ void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT
 		func(instance, callback, pAllocator);
 }
 
+struct QueueFamilyIndices {
+	int graphicsFamily = -1;
+	bool isComplete() {
+		return graphicsFamily >= 0;
+	}
+};
+
 class HelloTriangleApplication{
 public:
 	void run(){
@@ -47,6 +55,7 @@ private:
 	GLFWwindow * window;
 	VkInstance instance;
 	VkDebugReportCallbackEXT callback;
+	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
 	void initWindow(){
 		glfwInit();
@@ -56,10 +65,10 @@ private:
 		
 		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 	}
-
 	void initVulkan(){
 		createInstance();
 		setupDebugCallback();
+		pickPhysicalDevice();
 	}
 
 	void createInstance(){
@@ -126,6 +135,7 @@ private:
 
 		return true;
 	}
+
 	std::vector<const char*> getRequiredExtensions() {
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
@@ -138,7 +148,7 @@ private:
 		return extensions;
 	}
 
-	//Debug Callback functions
+	//Debug Callback
 	void setupDebugCallback() {
 		VkDebugReportCallbackCreateInfoEXT createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
@@ -155,6 +165,93 @@ private:
 			
 			return VK_FALSE;
 	}
+
+	//Physical devices
+	void pickPhysicalDevice(){
+		uint32_t deviceCount = 0;
+		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+		if(deviceCount == 0)
+			throw std::runtime_error("failed to find GPUs with Vulkan support!");
+
+		//Listing & checking physical devices
+		std::vector<VkPhysicalDevice> devices(deviceCount);
+		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+		for(const auto & device : devices){
+			if(isDeviceSuitable(device)){
+				physicalDevice = device;
+				break;
+			}
+		}
+
+		if(physicalDevice == VK_NULL_HANDLE)
+			throw std::runtime_error("failed to find a suitable GPU!");
+
+		/*Optional: scoring the graphyc cards*/
+		/* Use an ordered map to automatically sort candidates byincreasing score
+		std::multimap<int, VkPhysicalDevice> candidates;
+		for(const auto & device:devices){
+			int score = rateDeviceSuitability(device);
+			candidates.insert(std::make_pair(score, device));
+		}
+		// Check if the best candidate is suitable at all
+		if(candidates.rbegin()->first > 0)
+			physicalDevice = candidates.rbegin()->second;
+		else
+			throw std::runtime_error("failed to find a suitable GPU!");*/
+	}
+	bool isDeviceSuitable(VkPhysicalDevice device) {
+		QueueFamilyIndices indices = findQueueFamilies(device);
+
+		return indices.isComplete();
+		//EXAMPLE
+		/*
+		VkPhysicalDeviceProperties deviceProperties;
+		VkPhysicalDeviceFeatures deviceFeatures;
+		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;*/
+	}
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device){
+		QueueFamilyIndices indices;
+
+		uint32_t queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+		int i = 0;
+		for(const auto & queueFamily:queueFamilies){
+			if(queueFamily.queueCount > 0 && queueFamily.queueFlags &VK_QUEUE_GRAPHICS_BIT)
+				indices.graphicsFamily = i;
+
+			if(indices.isComplete())
+				break;
+
+			i++;
+		}
+
+		return indices;
+	}
+	/*Optional: rating GPUs*/
+	/*int rateDeviceSuitability(VkPhysicalDevice device) {
+		VkPhysicalDeviceProperties deviceProperties;
+		VkPhysicalDeviceFeatures deviceFeatures;
+		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+		int score = 0;
+		// Discrete GPUs have a significant performance advantage
+		if(deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+			score += 1000;
+		// Maximum possible size of textures affects graphics quality
+		score += deviceProperties.limits.maxImageDimension2D;
+		// Application can't function without geometry shaders
+		if(!deviceFeatures.geometryShader)
+			return 0;
+
+		return score;
+	}*/
 
 	void mainLoop(){
 		while(!glfwWindowShouldClose(window)) {
@@ -184,6 +281,6 @@ int main(){
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
-	system("PAUSE");
+	//system("PAUSE");
 	return EXIT_SUCCESS;
 }
