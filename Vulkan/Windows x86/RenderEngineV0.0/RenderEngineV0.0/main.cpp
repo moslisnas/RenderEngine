@@ -56,6 +56,8 @@ private:
 	VkInstance instance;
 	VkDebugReportCallbackEXT callback;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+	VkDevice device;
+	VkQueue graphicsQueue;
 
 	void initWindow(){
 		glfwInit();
@@ -69,6 +71,7 @@ private:
 		createInstance();
 		setupDebugCallback();
 		pickPhysicalDevice();
+		createLogicalDevice();
 	}
 
 	void createInstance(){
@@ -89,8 +92,6 @@ private:
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(glfwExtensions.size());
 		createInfo.ppEnabledExtensionNames = glfwExtensions.data();
 		createInfo.enabledLayerCount = 0;
-		if(vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
-			throw std::runtime_error("failed to create instance!");
 
 		//Vulkan extensions
 		uint32_t extensionCount = 0;
@@ -111,6 +112,8 @@ private:
 		else
 			createInfo.enabledLayerCount = 0;
 
+		if(vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+			throw std::runtime_error("failed to create instance!");
 	}
 
 	bool checkValidationLayerSupport() {
@@ -253,6 +256,38 @@ private:
 		return score;
 	}*/
 
+	//Logical device
+	void createLogicalDevice(){
+		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = indices.graphicsFamily;
+		queueCreateInfo.queueCount = 1;
+		float queuePriority = 1.0f;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		VkPhysicalDeviceFeatures deviceFeatures ={};
+
+		VkDeviceCreateInfo createInfo ={};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pQueueCreateInfos = &queueCreateInfo;
+		createInfo.queueCreateInfoCount = 1;
+		createInfo.pEnabledFeatures = &deviceFeatures;
+		createInfo.enabledExtensionCount = 0;
+		if(enableValidationLayers){
+			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			createInfo.ppEnabledLayerNames = validationLayers.data();
+		}
+		else
+			createInfo.enabledLayerCount = 0;
+
+		if(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
+			throw std::runtime_error("failed to create logical device!");
+
+		//Getting queues
+		vkGetDeviceQueue(device, indices.graphicsFamily, 0, &graphicsQueue);
+	}
+
 	void mainLoop(){
 		while(!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
@@ -260,13 +295,15 @@ private:
 	}
 
 	void cleanup(){
+		//Logical device
+		vkDestroyDevice(device, nullptr);
+		//Validation layers
 		if(enableValidationLayers)
 			DestroyDebugReportCallbackEXT(instance, callback, nullptr);
-
+		//Instance
 		vkDestroyInstance(instance, nullptr);
-
+		//Glfw Window
 		glfwDestroyWindow(window);
-
 		glfwTerminate();
 	}
 };
@@ -281,6 +318,6 @@ int main(){
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
-	//system("PAUSE");
+	system("PAUSE");
 	return EXIT_SUCCESS;
 }
