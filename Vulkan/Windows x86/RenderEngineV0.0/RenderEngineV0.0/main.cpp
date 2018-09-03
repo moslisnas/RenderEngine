@@ -78,6 +78,9 @@ private:
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
+	//Render pass
+	VkRenderPass renderPass;
+	//Pipeline
 	VkPipelineLayout pipelineLayout;
 
 	void initWindow(){
@@ -96,6 +99,7 @@ private:
 		createLogicalDevice();
 		createSwapChain();
 		createImageViews();
+		createRenderPass();
 		createGraphicsPipeline();
 	}
 
@@ -557,16 +561,6 @@ private:
 		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
 		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
 		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
-		/*if(blendEnable) {
-			finalColor.rgb = (srcColorBlendFactor * newColor.rgb) <colorBlendOp> (dstColorBlendFactor * oldColor.rgb);
-			finalColor.a = (srcAlphaBlendFactor * newColor.a) <alphaBlendOp> (dstAlphaBlendFactor * oldColor.a);
-		}
-		else {
-			finalColor = newColor;
-		}
-		finalColor = finalColor & colorWriteMask;
-		finalColor.rgb = newAlpha * newColor + (1 - newAlpha) * oldColor;
-		finalColor.a = newAlpha.a;*/
 		colorBlendAttachment.blendEnable = VK_TRUE;
 		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -634,6 +628,38 @@ private:
 		return shaderModule;
 	}
 
+	//Render pass
+	void createRenderPass(){
+		VkAttachmentDescription colorAttachment ={};
+		colorAttachment.format = swapChainImageFormat;
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		//Subpasses
+		VkAttachmentReference colorAttachmentRef ={};
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		VkSubpassDescription subpass ={};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+
+		//Creation info
+		VkRenderPassCreateInfo renderPassInfo ={};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+		//Creation
+		if(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+			throw std::runtime_error("failed to create render pass!");
+	}
+
 	void mainLoop(){
 		while(!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
@@ -641,6 +667,8 @@ private:
 	}
 
 	void cleanup(){
+		//Render pass
+		vkDestroyRenderPass(device, renderPass, nullptr);
 		//Pipeline layout
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		//Image views
