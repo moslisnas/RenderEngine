@@ -11,6 +11,8 @@
 #include <set>
 #include <algorithm>
 #include <fstream>
+#include <array>
+#include <glm/glm.hpp>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -25,6 +27,7 @@ const std::vector<const char*> deviceExtensions ={ VK_KHR_SWAPCHAIN_EXTENSION_NA
 	const bool enableValidationLayers = true;
 #endif
 
+#pragma region Debug callbacks
 VkResult CreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT * pCreateInfo, const VkAllocationCallbacks * pAllocator, VkDebugReportCallbackEXT * pCallback){
 	auto func = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
 
@@ -39,7 +42,36 @@ void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT
 	if(func != nullptr)
 		func(instance, callback, pAllocator);
 }
+#pragma endregion
 
+#pragma region Structs
+struct Vertex {
+	glm::vec2 pos;
+	glm::vec3 color;
+	static VkVertexInputBindingDescription getBindingDescription(){
+		VkVertexInputBindingDescription bindingDescription ={};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+		return bindingDescription;
+	}
+	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions(){
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+		//Position
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(Vertex, pos);
+		//Color
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+		return attributeDescriptions;
+	}
+};
 struct QueueFamilyIndices {
 	int graphicsFamily = -1;
 	int presentFamily = -1;
@@ -53,6 +85,8 @@ struct SwapChainSupportDetails {
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
 };
+#pragma endregion
+
 
 class HelloTriangleApplication{
 public:
@@ -67,7 +101,12 @@ public:
 		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 	}
+	//Data members
+	const std::vector<Vertex> vertices = {
+		{{0.0f, -0.5f},{1.0f, 0.0f, 0.0f}}, {{0.5f, 0.5f},{0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f},{0.0f, 0.0f, 1.0f}}
+	};
 private:
+	#pragma region Data members
 	GLFWwindow * window;
 	VkInstance instance;
 	VkDebugReportCallbackEXT callback;
@@ -101,7 +140,9 @@ private:
 	//Frame
 	size_t currentFrame = 0;
 	bool framebufferResized = false;
+	#pragma endregion
 
+	#pragma region Initialization & debug
 	void initWindow(){
 		glfwInit();
 		//Avoid set OpenGL as default render API and the resizable option for the window. 
@@ -127,7 +168,6 @@ private:
 		createCommandBuffers();
 		createSyncObjects();
 	}
-
 	//Instance
 	void createInstance(){
 		VkApplicationInfo appInfo ={};
@@ -170,6 +210,7 @@ private:
 		if(vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
 			throw std::runtime_error("failed to create instance!");
 	}
+
 	//Validation layer
 	bool checkValidationLayerSupport() {
 		uint32_t layerCount;
@@ -193,6 +234,7 @@ private:
 
 		return true;
 	}
+
 	//Extensions
 	std::vector<const char*> getRequiredExtensions() {
 		uint32_t glfwExtensionCount = 0;
@@ -223,7 +265,9 @@ private:
 			
 			return VK_FALSE;
 	}
-	
+	#pragma endregion
+
+	#pragma region Physical & logical device methods
 	//Suitable
 	bool isDeviceSuitable(VkPhysicalDevice device) {
 		//Checking queue families
@@ -361,7 +405,9 @@ private:
 
 		return requiredExtensions.empty();
 	}
-	
+	#pragma endregion
+
+	#pragma region Swap chain & image views
 	//Swap chain
 	void createSwapChain(){
 		//Checking
@@ -515,49 +561,9 @@ private:
 				throw std::runtime_error("failed to create image views!");
 		}
 	}
+	#pragma endregion
 
-	//Render pass
-	void createRenderPass(){
-		VkAttachmentDescription colorAttachment ={};
-		colorAttachment.format = swapChainImageFormat;
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		//Subpasses
-		VkAttachmentReference colorAttachmentRef ={};
-		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		VkSubpassDescription subpass ={};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
-
-		//Creation info
-		VkRenderPassCreateInfo renderPassInfo ={};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 1;
-		renderPassInfo.pAttachments = &colorAttachment;
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
-		//Dependency subpass
-		VkSubpassDependency dependency ={};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		renderPassInfo.dependencyCount = 1;
-		renderPassInfo.pDependencies = &dependency;
-		//Creation
-		if(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
-			throw std::runtime_error("failed to create render pass!");
-	}
-
+	#pragma region Pipeline
 	//Pipeline
 	void createGraphicsPipeline(){
 		auto vertShaderCode = readFile("Shaders/vert.spv");
@@ -587,10 +593,12 @@ private:
 		//Vertex input
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+		auto bindingDescription = Vertex::getBindingDescription();
+		auto attributeDescriptions = Vertex::getAttributeDescriptions();
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 		//Input assembly
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -733,7 +741,50 @@ private:
 
 		return shaderModule;
 	}
+	#pragma endregion
 
+	#pragma region Render elements
+	//Render pass
+	void createRenderPass(){
+		VkAttachmentDescription colorAttachment ={};
+		colorAttachment.format = swapChainImageFormat;
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		//Subpasses
+		VkAttachmentReference colorAttachmentRef ={};
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		VkSubpassDescription subpass ={};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+
+		//Creation info
+		VkRenderPassCreateInfo renderPassInfo ={};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+		//Dependency subpass
+		VkSubpassDependency dependency ={};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
+		//Creation
+		if(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+			throw std::runtime_error("failed to create render pass!");
+	}
 	//Framebuffers
 	void createFramebuffers(){
 		swapChainFramebuffers.resize(swapChainImageViews.size());
@@ -752,7 +803,6 @@ private:
 				throw std::runtime_error("failed to create framebuffer!");
 		}
 	}
-
 	//Command buffers
 	void createCommandPool(){
 		//Creation info
@@ -802,26 +852,9 @@ private:
 		}
 
 	}
-
-	//Semaphores
-	void createSyncObjects(){
-		//Initialization
-		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-		//Creation info
-		VkSemaphoreCreateInfo semaphoreInfo ={};
-		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-		VkFenceCreateInfo fenceInfo ={};
-		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-		//Creation
-		for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
-			if(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
-				throw std::runtime_error("failed to create synchronization objects for a frame!");
-		}
-	}
-
+	#pragma endregion
+	
+	#pragma region Mainloop
 	//Main loop
 	void mainLoop(){
 		while(!glfwWindowShouldClose(window)) {
@@ -831,6 +864,7 @@ private:
 
 		vkDeviceWaitIdle(device);
 	}
+	//Drawframe
 	void drawFrame(){
 		//Fences
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
@@ -849,14 +883,14 @@ private:
 		VkSubmitInfo submitInfo ={};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		//Semaphores
-		VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+		VkSemaphore waitSemaphores[] ={imageAvailableSemaphores[currentFrame]};
 		VkPipelineStageFlags waitStages[] ={VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
-		VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+		VkSemaphore signalSemaphores[] ={renderFinishedSemaphores[currentFrame]};
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 		//Fences
@@ -888,6 +922,9 @@ private:
 		//Rough sincronization method
 		//vkQueueWaitIdle(presentQueue);
 	}
+	#pragma endregion
+
+	#pragma region Cleanup methods
 	void cleanup(){
 		cleanupSwapChain();
 		//Semaphores
@@ -927,6 +964,26 @@ private:
 			vkDestroyImageView(device, swapChainImageViews[i], nullptr);
 		//Swap chain
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
+	}
+	#pragma endregion
+
+	//Semaphores & fences
+	void createSyncObjects(){
+		//Initialization
+		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+		//Creation info
+		VkSemaphoreCreateInfo semaphoreInfo ={};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		VkFenceCreateInfo fenceInfo ={};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+		//Creation
+		for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
+			if(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
+				throw std::runtime_error("failed to create synchronization objects for a frame!");
+		}
 	}
 };
 
