@@ -12,7 +12,11 @@
 #include <algorithm>
 #include <fstream>
 #include <array>
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <chrono>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -45,6 +49,19 @@ void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT
 #pragma endregion
 
 #pragma region Structs
+struct QueueFamilyIndices {
+	int graphicsFamily = -1;
+	int presentFamily = -1;
+	
+	bool isComplete() {
+		return graphicsFamily >= 0 && presentFamily >= 0;
+	}
+};
+struct SwapChainSupportDetails {
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
+};
 struct Vertex {
 	glm::vec2 pos;
 	glm::vec3 color;
@@ -57,7 +74,7 @@ struct Vertex {
 		return bindingDescription;
 	}
 	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions(){
-		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions ={};
 		//Position
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
@@ -72,18 +89,10 @@ struct Vertex {
 		return attributeDescriptions;
 	}
 };
-struct QueueFamilyIndices {
-	int graphicsFamily = -1;
-	int presentFamily = -1;
-	
-	bool isComplete() {
-		return graphicsFamily >= 0 && presentFamily >= 0;
-	}
-};
-struct SwapChainSupportDetails {
-	VkSurfaceCapabilitiesKHR capabilities;
-	std::vector<VkSurfaceFormatKHR> formats;
-	std::vector<VkPresentModeKHR> presentModes;
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
 };
 #pragma endregion
 
@@ -128,6 +137,8 @@ private:
 	//Pipeline
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
+	//Descriptor set layout
+	VkDescriptorSetLayout descriptorSetLayout;
 	//Framebuffers
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	//Vertex buffer
@@ -136,6 +147,9 @@ private:
 	//Index buffer
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+	//Uniform buffers
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	//Commands
 	VkCommandPool commandPool;
 	std::vector<VkCommandBuffer> commandBuffers;
@@ -169,11 +183,13 @@ private:
 		createSwapChain();
 		createImageViews();
 		createRenderPass();
+		createDescriptorSetLayout();
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
 		createVertexBuffer();
 		createIndexBuffer();
+		createUniformBuffer();
 		createCommandBuffers();
 		createSyncObjects();
 	}
@@ -687,8 +703,8 @@ private:
 		//Pipeline layout
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0; // Optional
-		pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+		pipelineLayoutInfo.setLayoutCount = 1;
+		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 		if(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
@@ -746,6 +762,54 @@ private:
 			throw std::runtime_error("failed to create shader module!");
 
 		return shaderModule;
+	}
+	#pragma endregion
+
+	#pragma region Descriptor layouts & uniform buffers
+	//Descriptor set layout
+	void createDescriptorSetLayout(){
+		//UBO info
+		VkDescriptorSetLayoutBinding uboLayoutBinding ={};
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+													   //Creation info
+		VkDescriptorSetLayoutCreateInfo layoutInfo ={};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &uboLayoutBinding;
+		//Creation
+		if(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+			throw std::runtime_error("failed to create descriptor set layout!");
+	}
+	//Uniform buffers
+	void createUniformBuffer(){
+		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+		
+		uniformBuffers.resize(swapChainImages.size());
+		uniformBuffersMemory.resize(swapChainImages.size());
+
+		for(size_t i = 0; i < swapChainImages.size(); i++)
+			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+	}
+	void updateUniformBuffer(uint32_t currentImage){
+		//Timming
+		static auto startTime = std::chrono::high_resolution_clock::now();
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+		//Ubo
+		UniformBufferObject ubo ={};
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+		ubo.proj[1][1] *= -1;
+		//Filling data
+		void* data;
+		vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+		memcpy(data, &ubo, sizeof(ubo));
+		vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
 	}
 	#pragma endregion
 
@@ -967,7 +1031,7 @@ private:
 
 	}
 	#pragma endregion
-	
+
 	#pragma region Mainloop
 	//Main loop
 	void mainLoop(){
@@ -992,7 +1056,8 @@ private:
 		}
 		else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 			throw std::runtime_error("failed to acquire swap chain image!");
-		//vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+		updateUniformBuffer(imageIndex);
 
 		VkSubmitInfo submitInfo ={};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -1041,6 +1106,12 @@ private:
 	#pragma region Cleanup methods
 	void cleanup(){
 		cleanupSwapChain();
+		//Descriptor set layouts & uniform buffers
+		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+		for(size_t i = 0; i < swapChainImages.size(); i++){
+			vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+			vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+		}
 		//Index buffer
 		vkDestroyBuffer(device, indexBuffer, nullptr);
 		vkFreeMemory(device, indexBufferMemory, nullptr);
