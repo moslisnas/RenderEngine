@@ -1,10 +1,14 @@
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <stdexcept>
+#ifndef GLFW_INCLUDE_VULKAN
+	#define GLFW_INCLUDE_VULKAN
+	#include <GLFW/glfw3.h>
+#endif
+#ifndef IOS_AND_EXCEPT
+	#include <iostream>
+	#include <stdexcept>
+#endif
 #include "VulkanRenderEngine.h"
 
-/*int main(){
+int main(){
 	VulkanRenderEngine vulkanApp;
 
 	try{
@@ -16,4 +20,4 @@
 	}
 	system("PAUSE");
 	return EXIT_SUCCESS;
-}*/
+}

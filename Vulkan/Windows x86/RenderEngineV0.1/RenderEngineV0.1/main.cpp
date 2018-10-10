@@ -1730,7 +1730,7 @@ private:
 	}
 };
 
-int main(){
+/*int main(){
 	HelloTriangleApplication app;
 	
 	try{
@@ -1742,4 +1742,4 @@ int main(){
 	}
 	system("PAUSE");
 	return EXIT_SUCCESS;
-}
+}*/

@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Archivos de código fuente\RenderEngine">
-      <UniqueIdentifier>{a0102684-4747-4984-a099-b2e79f872620}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Archivos de encabezado\RenderEngine">
       <UniqueIdentifier>{9bd7c826-7f79-4ac4-b3ef-ae5dd6085368}</UniqueIdentifier>
     </Filter>
@@ -46,10 +43,22 @@
     <ClCompile Include="VulkanRenderEngine.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
+    <ClCompile Include="Viewport.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanHelper.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VulkanRenderEngine.h">
       <Filter>Archivos de encabezado\RenderEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanHelper.h">
+      <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

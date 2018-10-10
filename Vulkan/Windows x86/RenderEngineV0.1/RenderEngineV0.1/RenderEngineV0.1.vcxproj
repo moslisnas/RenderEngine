@@ -128,9 +128,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main2.cpp" />
+    <ClCompile Include="Viewport.cpp" />
+    <ClCompile Include="VulkanHelper.cpp" />
     <ClCompile Include="VulkanRenderEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Viewport.h" />
+    <ClInclude Include="VulkanHelper.h" />
     <ClInclude Include="VulkanRenderEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
