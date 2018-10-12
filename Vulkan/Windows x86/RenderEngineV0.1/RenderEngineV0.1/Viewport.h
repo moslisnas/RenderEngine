@@ -11,6 +11,10 @@ Purpose: Header of Viewport class
 	#define GLFW_INCLUDE_VULKAN
 	#include <GLFW/glfw3.h>
 #endif
+#ifndef IOS_AND_EXCEPT
+	#include <iostream>
+	#include <stdexcept>
+#endif
 
 class Viewport{
 private:
@@ -22,6 +26,7 @@ public:
 	#pragma region Data members
 	GLFWwindow * window;
 	#pragma endregion
+
 	#pragma region Contructor & destructor
 	/// <summary>
 	/// Constructor of <c>Viewport</c> class.
@@ -39,6 +44,7 @@ public:
 	/// </summary>
 	void initWindow();
 	#pragma endregion
+
 	#pragma region Cleanup methods
 	/// <summary>
 	/// Cleanup of Viewport elements.

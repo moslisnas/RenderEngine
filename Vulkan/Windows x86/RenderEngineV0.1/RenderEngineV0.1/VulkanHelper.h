@@ -18,10 +18,29 @@ Purpose: Header of VulkanHelper class
 	#include <iostream>
 	#include <stdexcept>
 #endif
+#ifndef STRUCTURE_DATAS
+	#include <set>
+#endif
+
+#pragma region Structs
+struct QueueFamilyIndices {
+	int graphicsFamily = -1;
+	int presentFamily = -1;
+
+	bool isComplete() {
+		return graphicsFamily >= 0 && presentFamily >= 0;
+	}
+};
+struct SwapChainSupportDetails {
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
+};
+#pragma endregion
 
 class VulkanHelper{
 private:
-	#pragma region Data members
+	#pragma region Debug data members
 	#ifdef NDEBUG
 	const bool enableValidationLayers = false;
 	#else
@@ -36,7 +55,8 @@ private:
 	#pragma endregion
 public:
 	#pragma region Data members
-	const std::vector<const char*> validationLayers ={"VK_LAYER_LUNARG_standard_validation"};
+	const std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
+	const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 	#pragma endregion
 
 	#pragma region Contructor & destructor
@@ -60,6 +80,12 @@ public:
 	/// Check if validation layers can be used.
 	/// </summary>
 	bool checkValidationLayerSupport();
+	/// <summary>
+	/// Check if extensions can be used.
+	/// 
+	/// 
+	/// </summary>
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 	/// <summary>
 	/// Obtain our glfw application extensions.
 	/// </summary>
@@ -87,7 +113,7 @@ public:
 	/// </summary>
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT callback, const VkAllocationCallbacks* pAllocator);
 	#pragma endregion
-
+	
 	#pragma region Cleanup methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
 	/// <summary>
 	/// Cleanup of VulkanHelper elements.

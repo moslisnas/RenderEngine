@@ -47,6 +47,25 @@ bool VulkanHelper::checkValidationLayerSupport(){
 	return true;
 }
 /// <summary>
+/// Check if extensions can be used.
+/// 
+/// 
+/// </summary>
+bool VulkanHelper::checkDeviceExtensionSupport(VkPhysicalDevice device){
+	//Reading available extensions.
+	uint32_t extensionCount;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+	//Check if we have all extensions required of "deviceExtensions" list are available.
+	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+	for(const auto& extension : availableExtensions)
+		requiredExtensions.erase(extension.extensionName);
+
+	return requiredExtensions.empty();
+}
+/// <summary>
 /// Obtain our glfw application extensions.
 /// </summary>
 std::vector<const char *> VulkanHelper::getRequiredExtensions(){
@@ -83,7 +102,7 @@ void VulkanHelper::printExtensions(){
 /// 
 /// </summary>
 void VulkanHelper::setupDebugCallback(VkInstance instance) {
-	//Debug extension creation info data.
+	//Debug extension creation data.
 	VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;

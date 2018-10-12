@@ -13,7 +13,7 @@ Viewport::~Viewport(){
 }
 #pragma endregion
 
-#pragma region Initialization methods
+#pragma region Initialization methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
 /// <summary>
 /// Initalize window elements.
 /// </summary>

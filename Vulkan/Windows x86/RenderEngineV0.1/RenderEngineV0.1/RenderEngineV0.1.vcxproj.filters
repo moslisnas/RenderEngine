@@ -16,6 +16,9 @@
     <Filter Include="Archivos de encabezado\RenderEngine">
       <UniqueIdentifier>{9bd7c826-7f79-4ac4-b3ef-ae5dd6085368}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de código fuente\RenderEngine">
+      <UniqueIdentifier>{97661de0-2ff7-4745-986b-f2b5e90b3df3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\compile.bat">
@@ -40,24 +43,24 @@
     <ClCompile Include="main2.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanRenderEngine.cpp">
-      <Filter>Archivos de código fuente</Filter>
-    </ClCompile>
     <ClCompile Include="Viewport.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
     <ClCompile Include="VulkanHelper.cpp">
-      <Filter>Archivos de código fuente</Filter>
+      <Filter>Archivos de código fuente\RenderEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanRenderEngine.cpp">
+      <Filter>Archivos de código fuente\RenderEngine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VulkanRenderEngine.h">
       <Filter>Archivos de encabezado\RenderEngine</Filter>
     </ClInclude>
-    <ClInclude Include="Viewport.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
     <ClInclude Include="VulkanHelper.h">
+      <Filter>Archivos de encabezado\RenderEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
