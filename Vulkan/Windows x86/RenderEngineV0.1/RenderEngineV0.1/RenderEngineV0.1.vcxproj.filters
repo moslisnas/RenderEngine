@@ -63,5 +63,8 @@
     <ClInclude Include="Viewport.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="Auxiliar.h">
+      <Filter>Archivos de código fuente\RenderEngine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

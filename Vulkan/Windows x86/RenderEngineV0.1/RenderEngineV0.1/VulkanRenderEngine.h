@@ -19,6 +19,7 @@ Purpose: Header of VulkanRenderEngine class
 #endif
 #include "VulkanHelper.h"
 #include "Viewport.h"
+#include "Auxiliar.h"
 
 class VulkanRenderEngine{
 private:
@@ -39,6 +40,11 @@ private:
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
+	std::vector<VkFramebuffer> swapChainFramebuffers;
+	//Pipeline elements.
+	VkPipeline graphicsPipeline;
+	VkPipelineLayout pipelineLayout;
+	VkRenderPass renderPass;
 	#pragma endregion
 public:
 	#pragma region Contructor & destructor
@@ -88,6 +94,23 @@ public:
 	/// Creation of image views.
 	/// </summary>
 	void createImageViews();
+	/// <summary>
+	/// Creation of graphics pipeline.
+	/// </summary>
+	void createGraphicsPipeline();
+	/// <summary>
+	/// Creation of render pass.
+	/// </summary>
+	void createRenderPass();
+	/// <summary>
+	/// Creation of framebuffers.
+	/// </summary>
+	void createFramebuffers();
+	/// <summary>
+	/// Creation of shader module.
+	/// 
+	/// </summary>
+	VkShaderModule createShaderModule(const std::vector<char>& code);
 	#pragma endregion
 
 	#pragma region Query methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
