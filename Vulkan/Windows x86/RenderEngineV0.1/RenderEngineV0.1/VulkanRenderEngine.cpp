@@ -36,6 +36,10 @@ void VulkanRenderEngine::initVulkan(){
 	createImageViews();
 	createRenderPass();
 	createGraphicsPipeline();
+	createFramebuffers();
+	createCommandPool();
+	createCommandBuffers();
+	createSyncObjects();
 }
 /// <summary>
 /// Main loop of our application.
@@ -43,7 +47,9 @@ void VulkanRenderEngine::initVulkan(){
 void VulkanRenderEngine::mainLoop(){
 	while(!glfwWindowShouldClose(viewport.window)) {
 		glfwPollEvents();
+		drawFrame();
 	}
+	vkDeviceWaitIdle(logicalDevice);
 }
 #pragma endregion
 
@@ -393,11 +399,19 @@ void VulkanRenderEngine::createRenderPass(){
 	colorAttachmentRef.attachment = 0;
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-	//Subpass.
+	//Subpass data.
 	VkSubpassDescription subpass = {};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
+	//Subpass dependency data.
+	VkSubpassDependency dependency = {};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	//Render pass creation data.
 	VkRenderPassCreateInfo renderPassInfo = {};
@@ -406,6 +420,8 @@ void VulkanRenderEngine::createRenderPass(){
 	renderPassInfo.pAttachments = &colorAttachment;
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
 	//Render pass creation.
 	if(vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
 		throw std::runtime_error("failed to create render pass!");
@@ -432,7 +448,90 @@ void VulkanRenderEngine::createFramebuffers(){
 	}
 }
 /// <summary>
-/// Creation of shader module.
+/// Creation of command pool.
+/// </summary>
+void VulkanRenderEngine::createCommandPool(){
+	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+	//Command pool creation data.
+	VkCommandPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
+	poolInfo.flags = 0; // Optional
+	//Command pool creation.
+	if(vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+		throw std::runtime_error("failed to create command pool!");
+}
+/// <summary>
+/// Creation of command buffers.
+/// </summary>
+void VulkanRenderEngine::createCommandBuffers(){
+	commandBuffers.resize(swapChainFramebuffers.size());
+	//Command buffers allocation data.
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = commandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+	//Command buffers allocation.
+	if(vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+		throw std::runtime_error("failed to allocate command buffers!");
+
+	for(size_t i = 0; i < commandBuffers.size(); i++){
+		//Command buffer recording (begin) data.
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+		beginInfo.pInheritanceInfo = nullptr; // Optional
+		//Command buffer recording(begin).
+		if(vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
+			throw std::runtime_error("failed to begin recording command buffer!");
+
+		//Render pass link data.
+		VkRenderPassBeginInfo renderPassInfo ={};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = renderPass;
+		renderPassInfo.framebuffer = swapChainFramebuffers[i];
+		renderPassInfo.renderArea.offset ={0, 0};
+		renderPassInfo.renderArea.extent = swapChainExtent;
+
+		//Clear color.
+		VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+		
+		//Commands.
+		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+		vkCmdEndRenderPass(commandBuffers[i]);
+
+		//Command buffer recording (end).
+		if(vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
+			throw std::runtime_error("failed to record command buffer!");
+	}
+}
+/// <summary>
+/// Creation of synchronization elements.
+/// </summary>
+void VulkanRenderEngine::createSyncObjects(){
+	//Semaphores creation data.
+	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	VkSemaphoreCreateInfo semaphoreInfo ={};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	//Fences creation data.
+	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+	VkFenceCreateInfo fenceInfo = {};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+	//Semaphores & fences creation.
+	for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
+		if(vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
+			throw std::runtime_error("failed to create synchronization objects for a frame!");
+	}
+}
+/// <summary>
+/// Creation of shader module. POR HACER --> REVISAR SI LLEVAR A VulkanHelper
 /// 
 /// </summary>
 VkShaderModule VulkanRenderEngine::createShaderModule(const std::vector<char>& code){
@@ -533,6 +632,54 @@ SwapChainSupportDetails VulkanRenderEngine::querySwapChainSupport(VkPhysicalDevi
 
 #pragma region Vulkan configuration methods POR HACER --> Improve hardware rating and hardware selected. POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
 /// <summary>
+/// Drawing method.
+/// </summary>
+void VulkanRenderEngine::drawFrame(){
+	//Senchronization.
+	vkWaitForFences(logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+	vkResetFences(logicalDevice, 1, &inFlightFences[currentFrame]);
+
+	//Getting next frame.
+	uint32_t imageIndex;
+	vkAcquireNextImageKHR(logicalDevice, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+	//Submit data.
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	//Wait semaphores data.
+	VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+	VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+	//Signal semaphores data.
+	VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+	//Submit.
+	if(vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
+		throw std::runtime_error("failed to submit draw command buffer!");
+
+	//Presentation data.
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+	VkSwapchainKHR swapChains[] = {swapChain};
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pResults = nullptr; // Optional
+	//Presentation.
+	vkQueuePresentKHR(presentQueue, &presentInfo);
+	vkQueueWaitIdle(presentQueue);
+
+	//Synchronization operations.
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+/// <summary>
 /// Decide the hardware selected to use on render.
 /// </summary>
 void VulkanRenderEngine::pickPhyshicalDevice(){
@@ -629,6 +776,14 @@ VkExtent2D VulkanRenderEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& 
 /// Cleanup of Vulkan elements.
 /// </summary>
 void VulkanRenderEngine::cleanup(){
+	//Semaphores.
+	for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
+		vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(logicalDevice, imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
+	}
+	//Command pool.
+	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 	//Framebuffers.
 	for(auto framebuffer : swapChainFramebuffers)
 		vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);

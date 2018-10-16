@@ -22,6 +22,8 @@ Purpose: Header of VulkanHelper class
 	#include <set>
 #endif
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 #pragma region Structs
 struct QueueFamilyIndices {
 	int graphicsFamily = -1;
@@ -122,4 +124,3 @@ public:
 	void cleanup(VkInstance instance);
 	#pragma endregion
 };
-

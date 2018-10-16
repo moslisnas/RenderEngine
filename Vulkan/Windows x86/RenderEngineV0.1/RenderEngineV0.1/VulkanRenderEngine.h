@@ -45,6 +45,14 @@ private:
 	VkPipeline graphicsPipeline;
 	VkPipelineLayout pipelineLayout;
 	VkRenderPass renderPass;
+	//Command elements.
+	VkCommandPool commandPool;
+	std::vector<VkCommandBuffer> commandBuffers;
+	//Synchronization elements.
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
+	size_t currentFrame = 0;
 	#pragma endregion
 public:
 	#pragma region Contructor & destructor
@@ -107,6 +115,18 @@ public:
 	/// </summary>
 	void createFramebuffers();
 	/// <summary>
+	/// Creation of command pool.
+	/// </summary>
+	void createCommandPool();
+	/// <summary>
+	/// Creation of command buffers.
+	/// </summary>
+	void createCommandBuffers();
+	/// <summary>
+	/// Creation of synchronization elements.
+	/// </summary>
+	void createSyncObjects();
+	/// <summary>
 	/// Creation of shader module.
 	/// 
 	/// </summary>
@@ -133,6 +153,10 @@ public:
 	#pragma endregion
 
 	#pragma region Vulkan configuration methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
+	/// <summary>
+	/// Drawing method.
+	/// </summary>
+	void drawFrame();
 	/// <summary>
 	/// Decide the hardware selected to use on render.
 	/// </summary>
