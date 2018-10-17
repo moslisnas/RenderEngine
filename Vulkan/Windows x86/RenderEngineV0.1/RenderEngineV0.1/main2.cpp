@@ -1,12 +1,12 @@
 #ifndef GLFW_INCLUDE_VULKAN
 	#define GLFW_INCLUDE_VULKAN
 	#include <GLFW/glfw3.h>
+	#include "VulkanRenderEngine.h"
 #endif
 #ifndef IOS_AND_EXCEPT
 	#include <iostream>
 	#include <stdexcept>
 #endif
-#include "VulkanRenderEngine.h"
 
 int main(){
 	VulkanRenderEngine vulkanApp;

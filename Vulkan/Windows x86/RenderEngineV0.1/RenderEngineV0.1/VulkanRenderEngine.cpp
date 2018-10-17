@@ -13,12 +13,12 @@ VulkanRenderEngine::~VulkanRenderEngine(){
 }
 #pragma endregion
 
-#pragma region Main methods
+#pragma region Main methods POR HACER --> INTENTAR LLEVAR initwintdow A VIEWPORT CLASS
 /// <summary>
 /// Method to launch the graphyc application.
 /// </summary>
 void VulkanRenderEngine::run(){
-	viewport.initWindow();
+	initWindow();
 	initVulkan();
 	mainLoop();
 	cleanup();
@@ -40,6 +40,18 @@ void VulkanRenderEngine::initVulkan(){
 	createCommandPool();
 	createCommandBuffers();
 	createSyncObjects();
+}
+/// <summary>
+/// Initalize window elements.
+/// </summary>
+void VulkanRenderEngine::initWindow(){
+	glfwInit();
+	//Avoid set OpenGL as default render API and the resizable option for the window. 
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //Window resize
+	viewport.window = glfwCreateWindow(viewport.WIDTH, viewport.HEIGHT, "Vulkan", nullptr, nullptr);
+	glfwSetWindowUserPointer(viewport.window, this);
+	glfwSetFramebufferSizeCallback(viewport.window, VulkanRenderEngine::framebufferResizeCallback);
 }
 /// <summary>
 /// Main loop of our application.
@@ -202,6 +214,27 @@ void VulkanRenderEngine::createSwapChain(){
 	//Getting swap chain surface format and extent.
 	swapChainImageFormat = surfaceFormat.format;
 	swapChainExtent = extent;
+}
+/// <summary>
+/// Recreation of swap chain.
+/// </summary>
+void VulkanRenderEngine::recreateSwapChain(){
+	int width = 0, height = 0;
+	while(width == 0 || height == 0) {
+		glfwGetFramebufferSize(viewport.window, &width, &height);
+		glfwWaitEvents();
+	}
+	//Synchronization.
+	vkDeviceWaitIdle(logicalDevice);
+	//Cleanup.
+	cleanupSwapChain();
+	//Recreation.
+	createSwapChain();
+	createImageViews();
+	createRenderPass();
+	createGraphicsPipeline();
+	createFramebuffers();
+	createCommandBuffers();
 }
 /// <summary>
 /// Creation of image views.
@@ -637,11 +670,16 @@ SwapChainSupportDetails VulkanRenderEngine::querySwapChainSupport(VkPhysicalDevi
 void VulkanRenderEngine::drawFrame(){
 	//Senchronization.
 	vkWaitForFences(logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
-	vkResetFences(logicalDevice, 1, &inFlightFences[currentFrame]);
 
 	//Getting next frame.
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(logicalDevice, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(logicalDevice, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	if(result == VK_ERROR_OUT_OF_DATE_KHR){
+		recreateSwapChain();
+		return;
+	}
+	else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		throw std::runtime_error("failed to acquire swap chain image!");
 
 	//Submit data.
 	VkSubmitInfo submitInfo = {};
@@ -658,6 +696,10 @@ void VulkanRenderEngine::drawFrame(){
 	VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	//Synchronization.
+	vkResetFences(logicalDevice, 1, &inFlightFences[currentFrame]);
+
 	//Submit.
 	if(vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
 		throw std::runtime_error("failed to submit draw command buffer!");
@@ -673,8 +715,14 @@ void VulkanRenderEngine::drawFrame(){
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.pResults = nullptr; // Optional
 	//Presentation.
-	vkQueuePresentKHR(presentQueue, &presentInfo);
-	vkQueueWaitIdle(presentQueue);
+	result = vkQueuePresentKHR(presentQueue, &presentInfo);
+	if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+		framebufferResized = false;
+		recreateSwapChain();
+	}
+	else if(result != VK_SUCCESS)
+		throw std::runtime_error("failed to present swap chain image!");
+	//vkQueueWaitIdle(presentQueue);
 
 	//Synchronization operations.
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -776,7 +824,9 @@ VkExtent2D VulkanRenderEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& 
 /// Cleanup of Vulkan elements.
 /// </summary>
 void VulkanRenderEngine::cleanup(){
-	//Semaphores.
+	//Swap chain elements.
+	cleanupSwapChain();
+	//Semaphores & fences.
 	for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], nullptr);
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphores[i], nullptr);
@@ -784,28 +834,35 @@ void VulkanRenderEngine::cleanup(){
 	}
 	//Command pool.
 	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+	//Logical device.
+	vkDestroyDevice(logicalDevice, nullptr);
+	//VulkanHelper elements: Validation layers.
+	vulkanHelper.cleanup(instance);
+	//Surface.
+	vkDestroySurfaceKHR(instance, surface, nullptr);
+	//Vulkan instance.
+	vkDestroyInstance(instance, nullptr);
+	//Glfw Window.
+	viewport.cleanup();
+}
+/// <summary>
+/// Cleanup of Vulkan swap chain.
+/// </summary>
+void VulkanRenderEngine::cleanupSwapChain(){
 	//Framebuffers.
-	for(auto framebuffer : swapChainFramebuffers)
-		vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
+	for(size_t i = 0; i < swapChainFramebuffers.size(); i++)
+		vkDestroyFramebuffer(logicalDevice, swapChainFramebuffers[i], nullptr);
+	//Command buffers.
+	vkFreeCommandBuffers(logicalDevice, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 	//Pipeline.
 	vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
 	//Render pass.
 	vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
 	//Image views.
-	for(auto imageView : swapChainImageViews)
-		vkDestroyImageView(logicalDevice, imageView, nullptr);
+	for(size_t i = 0; i < swapChainImageViews.size(); i++)
+		vkDestroyImageView(logicalDevice, swapChainImageViews[i], nullptr);
 	//Swap chain.
 	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
-	//Surface.
-	vkDestroySurfaceKHR(instance, surface, nullptr);
-	//Logical device.
-	vkDestroyDevice(logicalDevice, nullptr);
-	//VulkanHelper elements: Validation layers.
-	vulkanHelper.cleanup(instance);
-	//Vulkan instance.
-	vkDestroyInstance(instance, nullptr);
-	//Glfw Window.
-	viewport.cleanup();
 }
 #pragma endregion

@@ -17,14 +17,11 @@ Purpose: Header of Viewport class
 #endif
 
 class Viewport{
-private:
-	#pragma region Data members
-	const int WIDTH = 800;
-	const int HEIGHT = 600;
-	#pragma endregion
 public:
 	#pragma region Data members
 	GLFWwindow * window;
+	const int WIDTH = 800;
+	const int HEIGHT = 600;
 	#pragma endregion
 
 	#pragma region Contructor & destructor
@@ -36,13 +33,6 @@ public:
 	/// Destructor of <c>Viewport</c> class.
 	/// </summary>
 	~Viewport();
-	#pragma endregion
-
-	#pragma region Initialization methods
-	/// <summary>
-	/// Initalize window elements.
-	/// </summary>
-	void initWindow();
 	#pragma endregion
 
 	#pragma region Cleanup methods

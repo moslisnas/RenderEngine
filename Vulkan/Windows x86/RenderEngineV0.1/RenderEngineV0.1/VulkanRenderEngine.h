@@ -53,7 +53,8 @@ private:
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	size_t currentFrame = 0;
-	#pragma endregion
+	//Others.
+	bool framebufferResized = false;
 public:
 	#pragma region Contructor & destructor
 	/// <summary>
@@ -66,7 +67,7 @@ public:
 	~VulkanRenderEngine();
 	#pragma endregion
 
-	#pragma region Main methods
+	#pragma region Main methods POR HACER --> INTENTAR LLEVAR initwintdow A VIEWPORT CLASS
 	/// <summary>
 	/// Method to launch the graphyc application.
 	/// </summary>
@@ -76,9 +77,20 @@ public:
 	/// </summary>
 	void initVulkan();
 	/// <summary>
+	/// Initalize window elements.
+	/// </summary>
+	void initWindow();
+	/// <summary>
 	/// Main loop of our application.
 	/// </summary>
 	void mainLoop();
+	#pragma endregion
+
+	#pragma region Callbacks
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+		auto app = reinterpret_cast<VulkanRenderEngine*>(glfwGetWindowUserPointer(window));
+		app->framebufferResized = true;
+	}
 	#pragma endregion
 
 	#pragma region Creation methods
@@ -98,6 +110,10 @@ public:
 	/// Creation of swap chain.
 	/// </summary>
 	void createSwapChain();
+	/// <summary>
+	/// Recreation of swap chain.
+	/// </summary>
+	void recreateSwapChain();
 	/// <summary>
 	/// Creation of image views.
 	/// </summary>
@@ -186,5 +202,9 @@ public:
 	/// Cleanup of Vulkan elements.
 	/// </summary>
 	void cleanup();
+	/// <summary>
+	/// Cleanup of Vulkan swap chain.
+	/// </summary>
+	void cleanupSwapChain();
 	#pragma endregion
 };
