@@ -90,6 +90,8 @@ private:
 	//Buffers.
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
 	//Others.
 	bool framebufferResized = false;
 	#pragma endregion
@@ -97,9 +99,14 @@ public:
 	#pragma region Data members
 	//Vertex data. POR HACER --> LLEVAR A ARRAY DE MODELS DE CLASE ESCENA.
 	const std::vector<Vertex> vertices = {
-		{{0.0f, -0.5f},{1.0f, 1.0f, 1.0f}},
-		{{0.5f, 0.5f},{0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f},{0.0f, 0.0f, 1.0f}}
+		{{-0.5f, -0.5f},{1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f},{0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f},{0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f},{1.0f, 1.0f, 1.0f}}
+	};
+	//Index data. POR HACER --> LLEVAR A ARRAY DE MODELS DE CLASE ESCENA.
+	const std::vector<uint16_t> indices = {
+		0, 1, 2, 2, 3, 0
 	};
 	#pragma endregion
 
@@ -182,6 +189,10 @@ public:
 	/// </summary>
 	void createVertexBuffer();
 	/// <summary>
+	/// Creation of index buffer.
+	/// </summary>
+	void createIndexBuffer();
+	/// <summary>
 	/// Creation of command pool.
 	/// </summary>
 	void createCommandPool();
@@ -194,7 +205,21 @@ public:
 	/// </summary>
 	void createSyncObjects();
 	/// <summary>
-	/// Creation of shader module.
+	/// Creation of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	///
+	///
+	///
+	/// </summary>
+	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	/// <summary>
+	/// Copy of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	///
+	///
+	///
+	/// </summary>
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	/// <summary>
+	/// Creation of shader module. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
 	/// 
 	/// </summary>
 	VkShaderModule createShaderModule(const std::vector<char>& code);

@@ -39,6 +39,7 @@ void VulkanRenderEngine::initVulkan(){
 	createFramebuffers();
 	createCommandPool();
 	createVertexBuffer();
+	createIndexBuffer();
 	createCommandBuffers();
 	createSyncObjects();
 }
@@ -66,7 +67,7 @@ void VulkanRenderEngine::mainLoop(){
 }
 #pragma endregion
 
-#pragma region Creation methods
+#pragma region Creation methods POR HACER --> AÑADIR PARAMS A LA DOCUMENTACIÓN
 /// <summary>
 /// Creation of VulkanInstance.
 /// </summary>
@@ -487,36 +488,53 @@ void VulkanRenderEngine::createFramebuffers(){
 /// Creation of vertex buffer.
 /// </summary>
 void VulkanRenderEngine::createVertexBuffer(){ //POR HACER --> GESTIONAR A TRAVÉS DE LA CLASE SCENE
-	//Buffer creation data.
-	VkBufferCreateInfo bufferInfo = {};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	//Buffer creation.
-	if(vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
-		throw std::runtime_error("failed to create vertex buffer!");
-
-	//Getting necessary memory requirements.
-	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(logicalDevice, vertexBuffer, &memRequirements);
-
-	//Buffer memory allocation data.
-	VkMemoryAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	//Buffer memory allocation.
-	if(vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
-		throw std::runtime_error("failed to allocate vertex buffer memory!");
-	//Bind buffer memory.
-	vkBindBufferMemory(logicalDevice, vertexBuffer, vertexBufferMemory, 0);
+	//Getting size and CPU buffer creation.
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	//Copy vertex data to buffer.
 	void* data;
-	vkMapMemory(logicalDevice, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferInfo.size);
-	vkUnmapMemory(logicalDevice, vertexBufferMemory);
+	vkMapMemory(logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(logicalDevice, stagingBufferMemory);
+	
+	//Creating and filling buffer at GPU.
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+	//Copying the CPU buffer to GPU.
+	copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+	//Free staging buffer resources.
+	vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
+}
+/// <summary>
+/// Creation of index buffer.
+/// </summary>
+void VulkanRenderEngine::createIndexBuffer(){
+	//Getting size and CPU buffer creation.
+	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	//Copy vertex data to buffer.
+	void* data;
+	vkMapMemory(logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, indices.data(), (size_t)bufferSize);
+	vkUnmapMemory(logicalDevice, stagingBufferMemory);
+
+	//Creating and filling buffer at GPU.
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+
+	//Copying the CPU buffer to GPU.
+	copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+	//Free staging buffer resources.
+	vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
 }
 /// <summary>
 /// Creation of command pool.
@@ -573,12 +591,13 @@ void VulkanRenderEngine::createCommandBuffers(){
 		//Commands execution.
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+		//Bind vertex & index buffer.
 		VkBuffer vertexBuffers[] ={vertexBuffer};
 		VkDeviceSize offsets[] ={0};
-		//Bind vertex buffer.
-		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets); 
+		vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		//Draw.
-		vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 		vkCmdEndRenderPass(commandBuffers[i]);
 
 		//Command buffer recording (end).
@@ -605,6 +624,85 @@ void VulkanRenderEngine::createSyncObjects(){
 		if(vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
 			throw std::runtime_error("failed to create synchronization objects for a frame!");
 	}
+}
+/// <summary>
+/// Creation of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+///
+///
+///
+/// </summary>
+void VulkanRenderEngine::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory){
+	//Buffer creation data.
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = size;
+	bufferInfo.usage = usage;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	//Buffer creation.
+	if(vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+		throw std::runtime_error("failed to create buffer!");
+
+	//Getting necessary memory requirements.
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
+
+	//Buffer memory allocation data.
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+	//Buffer memory allocation.
+	if(vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+		throw std::runtime_error("failed to allocate buffer memory!");
+	//Bind buffer memory.
+	vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
+}
+/// <summary>
+/// Copy of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+///
+///
+///
+/// </summary>
+void VulkanRenderEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size){
+	//Command buffer allocation data.
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = commandPool;
+	allocInfo.commandBufferCount = 1;
+	//Command buffer allocation.
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
+
+	//Command buffer copying (begin) data.
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	//Command buffer copying(begin).
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	//Copy buffer data.
+	VkBufferCopy copyRegion = {};
+	copyRegion.srcOffset = 0; // Optional
+	copyRegion.dstOffset = 0; // Optional
+	copyRegion.size = size;
+	//Copy buffer.
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	//Command buffer copying (end).
+	vkEndCommandBuffer(commandBuffer);
+
+	//Submit data.
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+	//Submit.
+	vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+
+	//Synchronization.
+	vkQueueWaitIdle(graphicsQueue);
+
+	//Free copy command buffer.
+	vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
 }
 /// <summary>
 /// Creation of shader module. POR HACER --> REVISAR SI LLEVAR A VulkanHelper
@@ -781,7 +879,6 @@ void VulkanRenderEngine::drawFrame(){
 	}
 	else if(result != VK_SUCCESS)
 		throw std::runtime_error("failed to present swap chain image!");
-	//vkQueueWaitIdle(presentQueue);
 
 	//Synchronization operations.
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -886,6 +983,8 @@ void VulkanRenderEngine::cleanup(){
 	//Swap chain elements.
 	cleanupSwapChain();
 	//Buffers.
+	vkDestroyBuffer(logicalDevice, indexBuffer, nullptr);
+	vkFreeMemory(logicalDevice, indexBufferMemory, nullptr);
 	vkDestroyBuffer(logicalDevice, vertexBuffer, nullptr);
 	vkFreeMemory(logicalDevice, vertexBufferMemory, nullptr);
 	//Semaphores & fences.
