@@ -13,13 +13,47 @@ Purpose: Header of VulkanRenderEngine class
 #endif
 #ifndef STRUCTURE_DATAS
 	#include <set>
+	#include <array>
 #endif
 #ifndef ALGEBRAIC_METHODS
 	#include <algorithm>
+	#include <glm/glm.hpp>
 #endif
 #include "VulkanHelper.h"
 #include "Viewport.h"
 #include "Auxiliar.h"
+
+#pragma region Structs POR HACER --> LLEVAR A CLASE MODEL
+struct Vertex {
+	glm::vec2 pos;
+	glm::vec3 color;
+
+	static VkVertexInputBindingDescription getBindingDescription(){
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+		return bindingDescription;
+	}
+
+	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions(){
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+		//Coordinates.
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(Vertex, pos);
+		//Colors.
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+		return attributeDescriptions;
+	}
+};
+#pragma endregion
 
 class VulkanRenderEngine{
 private:
@@ -53,9 +87,22 @@ private:
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	size_t currentFrame = 0;
+	//Buffers.
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
 	//Others.
 	bool framebufferResized = false;
+	#pragma endregion
 public:
+	#pragma region Data members
+	//Vertex data. POR HACER --> LLEVAR A ARRAY DE MODELS DE CLASE ESCENA.
+	const std::vector<Vertex> vertices = {
+		{{0.0f, -0.5f},{1.0f, 1.0f, 1.0f}},
+		{{0.5f, 0.5f},{0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f},{0.0f, 0.0f, 1.0f}}
+	};
+	#pragma endregion
+
 	#pragma region Contructor & destructor
 	/// <summary>
 	/// Constructor of <c>VulkanRenderEngine</c> class.
@@ -131,6 +178,10 @@ public:
 	/// </summary>
 	void createFramebuffers();
 	/// <summary>
+	/// Creation of vertex buffer.
+	/// </summary>
+	void createVertexBuffer();
+	/// <summary>
 	/// Creation of command pool.
 	/// </summary>
 	void createCommandPool();
@@ -166,6 +217,12 @@ public:
 	/// 
 	/// </summary>
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+	/// <summary>
+	/// Checks our device memory.
+	/// 
+	/// 
+	/// </summary>
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	#pragma endregion
 
 	#pragma region Vulkan configuration methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
