@@ -41,6 +41,7 @@ struct UniformBufferObject {
 struct Vertex {
 	glm::vec2 pos;
 	glm::vec3 color;
+	glm::vec2 texCoord;
 
 	static VkVertexInputBindingDescription getBindingDescription(){
 		VkVertexInputBindingDescription bindingDescription = {};
@@ -51,8 +52,8 @@ struct Vertex {
 		return bindingDescription;
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions(){
-		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions(){
+		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
 		//Coordinates.
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
@@ -63,6 +64,11 @@ struct Vertex {
 		attributeDescriptions[1].location = 1;
 		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[1].offset = offsetof(Vertex, color);
+		//Texture coordinates.
+		attributeDescriptions[2].binding = 0;
+		attributeDescriptions[2].location = 2;
+		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
 
 		return attributeDescriptions;
 	}
@@ -111,6 +117,11 @@ private:
 	VkDeviceMemory indexBufferMemory;
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	//Textures.
+	VkImage textureImage;
+	VkDeviceMemory textureImageMemory;
+	VkImageView textureImageView;
+	VkSampler textureSampler;
 	//Others.
 	bool framebufferResized = false;
 	#pragma endregion
@@ -118,10 +129,10 @@ public:
 	#pragma region Data members
 	//Vertex data. POR HACER --> LLEVAR A ARRAY DE MODELS DE CLASE ESCENA.
 	const std::vector<Vertex> vertices = {
-		{{-0.5f, -0.5f},{1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f},{0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f},{0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f},{1.0f, 1.0f, 1.0f}}
+		{{-0.5f, -0.5f},{1.0f, 0.0f, 0.0f},{1.0f, 0.0f}},
+		{{0.5f, -0.5f},{0.0f, 1.0f, 0.0f},{0.0f, 0.0f}},
+		{{0.5f, 0.5f},{0.0f, 0.0f, 1.0f},{0.0f, 1.0f}},
+		{{-0.5f, 0.5f},{1.0f, 1.0f, 1.0f},{1.0f, 1.0f}}
 	};
 	//Index data. POR HACER --> LLEVAR A ARRAY DE MODELS DE CLASE ESCENA.
 	const std::vector<uint16_t> indices = {
@@ -228,6 +239,24 @@ public:
 	/// </summary>
 	void createUniformBuffer();
 	/// <summary>
+	/// Creation of texture image. POR HACER --> VER SI LLEVAR A AUXILIAR.H
+	/// </summary>
+	void createTextureImage();
+	/// <summary>
+	/// Creation of texture image view. POR HACER --> VER SI LLEVAR A AUXILIAR.H
+	/// </summary>
+	void createTextureImageView();
+	/// <summary>
+	/// Creation of image view. POR HACER --> VER SI LLEVAR A AUXILIAR.H
+	/// 
+	/// 
+	/// </summary>
+	VkImageView createImageView(VkImage image, VkFormat format);
+	/// <summary>
+	/// Creation of texture sampler.
+	/// </summary>
+	void createTextureSampler();
+	/// <summary>
 	/// Creation of command pool.
 	/// </summary>
 	void createCommandPool();
@@ -247,12 +276,13 @@ public:
 	/// </summary>
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	/// <summary>
-	/// Copy of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	///
-	///
-	///
+	/// Creation of image buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	/// 
+	/// 
+	/// 
+	/// 
 	/// </summary>
-	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	void VulkanRenderEngine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	/// <summary>
 	/// Creation of shader module. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
 	/// 
@@ -317,6 +347,35 @@ public:
 	/// 
 	/// </summary>
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+	/// <summary>
+	/// Allocate command and registry begin.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	/// </summary>
+	VkCommandBuffer beginSingleTimeCommands();
+	/// <summary>
+	/// Registry command buffer and free resources.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	/// </summary>
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+	/// <summary>
+	/// Copy of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	///
+	///
+	///
+	/// </summary>
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	/// <summary>
+	/// Copy of buffer to a image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	///
+	///
+	///
+	/// </summary>
+	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+	/// <summary>
+	/// Put image on a layout. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	///
+	///
+	///
+	/// </summary>
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	#pragma endregion
 
 	#pragma region Cleanup methods

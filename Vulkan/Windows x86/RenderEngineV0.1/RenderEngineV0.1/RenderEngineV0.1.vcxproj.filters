@@ -37,12 +37,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Archivos de código fuente</Filter>
-    </ClCompile>
-    <ClCompile Include="main2.cpp">
-      <Filter>Archivos de código fuente</Filter>
-    </ClCompile>
     <ClCompile Include="Viewport.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
@@ -51,6 +45,9 @@
     </ClCompile>
     <ClCompile Include="VulkanRenderEngine.cpp">
       <Filter>Archivos de código fuente\RenderEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Archivos de código fuente</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

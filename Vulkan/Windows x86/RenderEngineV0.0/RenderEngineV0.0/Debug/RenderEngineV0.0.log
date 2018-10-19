@@ -1,0 +1,4 @@
+﻿  main.cpp
+LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
+  RenderEngineV0.0.vcxproj -> C:\Users\molic\Documents\GitHub\RenderEngine\Vulkan\Windows x86\RenderEngineV0.0\Debug\RenderEngineV0.0.exe
+  RenderEngineV0.0.vcxproj -> C:\Users\molic\Documents\GitHub\RenderEngine\Vulkan\Windows x86\RenderEngineV0.0\Debug\RenderEngineV0.0.pdb (Full PDB)
