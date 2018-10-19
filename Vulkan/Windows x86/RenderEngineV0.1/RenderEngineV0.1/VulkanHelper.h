@@ -12,13 +12,16 @@ Purpose: Header of VulkanHelper class
 	#include <GLFW/glfw3.h>
 #endif
 #ifndef INCLUDE_VECTOR
+	#define INCLUDE_VECTOR
 	#include <vector>
 #endif
 #ifndef IOS_AND_EXCEPT
+	#define IOS_AND_EXCEPT
 	#include <iostream>
 	#include <stdexcept>
 #endif
 #ifndef STRUCTURE_DATAS
+	#define STRUCTURE_DATAS
 	#include <set>
 #endif
 

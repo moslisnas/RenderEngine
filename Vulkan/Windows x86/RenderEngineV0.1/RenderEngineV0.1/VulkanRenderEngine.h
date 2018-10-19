@@ -8,22 +8,36 @@ Purpose: Header of VulkanRenderEngine class
 */
 
 #ifndef IOS_AND_EXCEPT
+	#define IOS_AND_EXCEPT
 	#include <iostream>
 	#include <stdexcept>
 #endif
 #ifndef STRUCTURE_DATAS
+	#define STRUCTURE_DATAS
 	#include <set>
 	#include <array>
 #endif
 #ifndef ALGEBRAIC_METHODS
+	#define ALGEBRAIC_METHODS
 	#include <algorithm>
 	#include <glm/glm.hpp>
+	#include <glm/glm.hpp>
+	#include <glm/gtc/matrix_transform.hpp>
+#endif
+#ifndef ANIMATIONS
+	#define ANIMATIONS
+	#include <chrono>
 #endif
 #include "VulkanHelper.h"
 #include "Viewport.h"
 #include "Auxiliar.h"
 
-#pragma region Structs POR HACER --> LLEVAR A CLASE MODEL
+#pragma region Structs POR HACER --> LLEVAR A CLASE MODEL EL STRUCT VERTEX Y VER SI LLEVAR LOS UBOS A VULKANHELPER CLASS
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
 struct Vertex {
 	glm::vec2 pos;
 	glm::vec3 color;
@@ -78,6 +92,9 @@ private:
 	//Pipeline elements.
 	VkPipeline graphicsPipeline;
 	VkPipelineLayout pipelineLayout;
+	VkDescriptorSetLayout descriptorSetLayout;
+	VkDescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
 	VkRenderPass renderPass;
 	//Command elements.
 	VkCommandPool commandPool;
@@ -92,6 +109,8 @@ private:
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	//Others.
 	bool framebufferResized = false;
 	#pragma endregion
@@ -173,6 +192,18 @@ public:
 	/// </summary>
 	void createImageViews();
 	/// <summary>
+	/// Creation of descriptor set layout (UBO).
+	/// </summary>
+	void createDescriptorSetLayout();
+	/// <summary>
+	/// Creation of descriptor pool.
+	/// </summary>
+	void createDescriptorPool();
+	/// <summary>
+	/// Creation of descriptor sets.
+	/// </summary>
+	void createDescriptorSets();
+	/// <summary>
 	/// Creation of graphics pipeline.
 	/// </summary>
 	void createGraphicsPipeline();
@@ -192,6 +223,10 @@ public:
 	/// Creation of index buffer.
 	/// </summary>
 	void createIndexBuffer();
+	/// <summary>
+	/// Creation of uniform buffer.
+	/// </summary>
+	void createUniformBuffer();
 	/// <summary>
 	/// Creation of command pool.
 	/// </summary>
@@ -255,6 +290,11 @@ public:
 	/// Drawing method.
 	/// </summary>
 	void drawFrame();
+	/// <summary>
+	/// Update the pipeline uniform buffer.
+	/// 
+	/// </summary>
+	void updateUniformBuffer(uint32_t currentImage);
 	/// <summary>
 	/// Decide the hardware selected to use on render.
 	/// </summary>

@@ -4,6 +4,7 @@
 	#include "VulkanRenderEngine.h"
 #endif
 #ifndef IOS_AND_EXCEPT
+	#define IOS_AND_EXCEPT
 	#include <iostream>
 	#include <stdexcept>
 #endif

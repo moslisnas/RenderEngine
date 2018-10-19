@@ -8,10 +8,12 @@ Purpose: Header of Auxiliar functions
 */
 
 #ifndef INCLUDE_VECTOR
-#include <vector>
+	#define INCLUDE_VECTOR
+	#include <vector>
 #endif
 #ifndef FILE_STREAMS
-#include <fstream>
+	#define FILE_STREAMS
+	#include <fstream>
 #endif
 
 /// <summary>
