@@ -21,12 +21,15 @@ Purpose: Header of VulkanRenderEngine class
 	#define ALGEBRAIC_METHODS
 	#include <algorithm>
 	#include <glm/glm.hpp>
-	#include <glm/glm.hpp>
 	#include <glm/gtc/matrix_transform.hpp>
 #endif
 #ifndef ANIMATIONS
 	#define ANIMATIONS
 	#include <chrono>
+#endif
+#ifndef GLM_FORCE_DEPTH_ZERO_TO_ONE
+	#define GLM_FORCE_RADIANS
+	#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #endif
 #include "VulkanHelper.h"
 #include "Viewport.h"
@@ -39,7 +42,7 @@ struct UniformBufferObject {
 	glm::mat4 proj;
 };
 struct Vertex {
-	glm::vec2 pos;
+	glm::vec3 pos;
 	glm::vec3 color;
 	glm::vec2 texCoord;
 
@@ -57,7 +60,7 @@ struct Vertex {
 		//Coordinates.
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[0].offset = offsetof(Vertex, pos);
 		//Colors.
 		attributeDescriptions[1].binding = 0;
@@ -122,6 +125,10 @@ private:
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
 	VkSampler textureSampler;
+	//Depth.
+	VkImage depthImage;
+	VkDeviceMemory depthImageMemory;
+	VkImageView depthImageView;
 	//Others.
 	bool framebufferResized = false;
 	#pragma endregion
@@ -129,14 +136,20 @@ public:
 	#pragma region Data members
 	//Vertex data. POR HACER --> LLEVAR A ARRAY DE MODELS DE CLASE ESCENA.
 	const std::vector<Vertex> vertices = {
-		{{-0.5f, -0.5f},{1.0f, 0.0f, 0.0f},{1.0f, 0.0f}},
-		{{0.5f, -0.5f},{0.0f, 1.0f, 0.0f},{0.0f, 0.0f}},
-		{{0.5f, 0.5f},{0.0f, 0.0f, 1.0f},{0.0f, 1.0f}},
-		{{-0.5f, 0.5f},{1.0f, 1.0f, 1.0f},{1.0f, 1.0f}}
+		{{-0.5f, -0.5f, 0.0f},{1.0f, 0.0f, 0.0f},{0.0f, 0.0f}},
+		{{0.5f, -0.5f, 0.0f},{0.0f, 1.0f, 0.0f},{1.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.0f},{0.0f, 0.0f, 1.0f},{1.0f, 1.0f}},
+		{{-0.5f, 0.5f, 0.0f},{1.0f, 1.0f, 1.0f},{0.0f, 1.0f}},
+		
+		{{-0.5f, -0.5f, -0.5f},{1.0f, 0.0f, 0.0f},{0.0f, 0.0f}},
+		{{0.5f, -0.5f, -0.5f},{0.0f, 1.0f, 0.0f},{1.0f, 0.0f}},
+		{{0.5f, 0.5f, -0.5f},{0.0f, 0.0f, 1.0f},{1.0f, 1.0f}},
+		{{-0.5f, 0.5f, -0.5f},{1.0f, 1.0f, 1.0f},{0.0f, 1.0f}}
 	};
 	//Index data. POR HACER --> LLEVAR A ARRAY DE MODELS DE CLASE ESCENA.
 	const std::vector<uint16_t> indices = {
-		0, 1, 2, 2, 3, 0
+		0, 1, 2, 2, 3, 0,
+		4, 5, 6, 6, 7, 4
 	};
 	#pragma endregion
 
@@ -251,11 +264,15 @@ public:
 	/// 
 	/// 
 	/// </summary>
-	VkImageView createImageView(VkImage image, VkFormat format);
+	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 	/// <summary>
 	/// Creation of texture sampler.
 	/// </summary>
 	void createTextureSampler();
+	/// <summary>
+	/// Creation of depth resources.
+	/// </summary>
+	void createDepthResources();
 	/// <summary>
 	/// Creation of command pool.
 	/// </summary>
@@ -313,6 +330,18 @@ public:
 	/// 
 	/// </summary>
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	/// <summary>
+	/// Checks if the format is available.
+	/// </summary>
+	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+	/// <summary>
+	/// Checks if depth format is available.
+	/// </summary>
+	VkFormat findDepthFormat();
+	/// <summary>
+	/// Checks if format has the stencil component.
+	/// </summary>
+	bool hasStencilComponent(VkFormat format);
 	#pragma endregion
 
 	#pragma region Vulkan configuration methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
