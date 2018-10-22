@@ -166,7 +166,7 @@ public:
 
 	#pragma region Main methods POR HACER --> INTENTAR LLEVAR initwintdow A VIEWPORT CLASS
 	/// <summary>
-	/// Method to launch the graphyc application.
+	/// Method to launch the graphycs application.
 	/// </summary>
 	void run();
 	/// <summary>
@@ -261,8 +261,10 @@ public:
 	void createTextureImageView();
 	/// <summary>
 	/// Creation of image view. POR HACER --> VER SI LLEVAR A AUXILIAR.H
-	/// 
-	/// 
+	/// <param name="image">The image from which we create the image view.</param>
+	/// <param name="format">The format used to create the image view.</param>
+	/// <param name="aspectFlags">Flags for the image view properties.</param>
+	/// <returns>The image view created.</returns> 
 	/// </summary>
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 	/// <summary>
@@ -287,71 +289,88 @@ public:
 	void createSyncObjects();
 	/// <summary>
 	/// Creation of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	///
-	///
-	///
+	/// <param name="size">Buffer size.</param>
+	/// <param name="usage">Flags to indicate the purpose of the buffer.</param>
+	/// <param name="properties">Flags for the buffer memory properties.</param>
+	/// <param name="buffer">Variable where we store the created buffer.</param>  
+	/// <param name="bufferMemory">Variable where we store the buffer device memory data.</param>
 	/// </summary>
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	/// <summary>
-	/// Creation of image buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	/// 
-	/// 
-	/// 
-	/// 
+	/// Creation of image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	/// <param name="width">Image width.</param>
+	/// <param name="height">Image height.</param>
+	/// <param name="format">The format used to create the image.</param>
+	/// <param name="tiling">The way we dispose the image texel data.</param>
+	/// <param name="usage">Flags to indicate the purpose of the image.</param>
+	/// <param name="properties">Flags for the image memory properties.</param>
+	/// <param name="image">Variable where we store the created image.</param>  
+	/// <param name="imageMemory">Variable where we store the image device memory data.</param>
 	/// </summary>
 	void VulkanRenderEngine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	/// <summary>
-	/// Creation of shader module. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	/// 
+	/// Creation of shader module. POR HACER --> REVISAR SI LLEVAR A VulkanHelper
+	/// <param name="code">The code from which we built the module.</param>
+	/// <returns>The shader module created.</returns> 
 	/// </summary>
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	#pragma endregion
 
-	#pragma region Query methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
+	#pragma region Query methods
 	/// <summary>
 	/// Checks if our device can be used to our application requeriments.
-	/// 
+	/// <param name="device">Physical device we want to check.</param>
+	/// <returns>True if the device meet some requirements: graphycs and presentation queue families, extensions, swap chain support and anisotropy feature; false otherwise.</returns> 
 	/// </summary>
 	bool isDeviceSuitable(VkPhysicalDevice device);
 	/// <summary>
-	/// Checks if our device support some indicated queue families.
-	/// 
+	/// Checks if our device support some indicated queue families and get their indices.
+	/// <param name="device">Physical device we want to check.</param>
+	/// <returns>The indices of the queue families.</returns> 
 	/// </summary>
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 	/// <summary>
-	/// Checks if our device support swap chain with surface formats & present modes.
-	/// 
-	/// 
+	/// Checks if our device support swap chain with surface formats and present modes, furthermore return swap chain support details.
+	/// <param name="device">Physical device we want to check.</param>
+	/// <returns>The swap chain support details.</returns> 
 	/// </summary>
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 	/// <summary>
-	/// Checks our device memory.
-	/// 
-	/// 
+	/// Checks if its available one specific type of device memory and return his reference.
+	/// <param name="typeFilter">The type filter of the memory that we are searching.</param>
+	/// <param name="properties">Flags for the memory properties.</param>
+	/// <returns>The reference to the memory.</returns> 
 	/// </summary>
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	/// <summary>
 	/// Checks if the format is available.
+	/// <param name="candidates">The formats that we accept to use.</param>
+	/// <param name="tiling">The way we dispose the image texel data.</param>
+	/// <param name="features">Flags for the format features we want to get supporting.</param>
+	/// <returns>The format itself.</returns>
 	/// </summary>
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	/// <summary>
-	/// Checks if depth format is available.
+	/// Checks if depth format is available and returns it.
+	/// <returns>The depth format itself.</returns>
 	/// </summary>
 	VkFormat findDepthFormat();
 	/// <summary>
 	/// Checks if format has the stencil component.
+	/// <param name="format">The format itself.</param>
+	/// <returns>True if the format has stencil component, false otherwise.</returns> 
 	/// </summary>
 	bool hasStencilComponent(VkFormat format);
 	#pragma endregion
 
-	#pragma region Vulkan configuration methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
+	#pragma region Vulkan configuration methods
 	/// <summary>
 	/// Drawing method.
 	/// </summary>
 	void drawFrame();
 	/// <summary>
-	/// Update the pipeline uniform buffer.
-	/// 
+	/// Update the pipeline uniform buffer with and image.
+	/// <param name="currentImage">The image we want to include on the updating.</param>
 	/// </summary>
 	void updateUniformBuffer(uint32_t currentImage);
 	/// <summary>
@@ -360,49 +379,53 @@ public:
 	void pickPhyshicalDevice();
 	/// <summary>
 	/// Chose swap chain surface format.
-	/// 
-	/// 
+	/// <param name="availableFormats">The formats that we can use.</param>
+	/// <returns>The surface format selected.</returns> 
 	/// </summary>
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	/// <summary>
 	/// Chose swap chain present mode.
-	/// 
-	/// 
+	/// <param name="availablePresentModes">The present modes that we can use.</param>
+	/// <returns>The present mode selected.</returns> 
 	/// </summary>
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
 	/// <summary>
 	/// Chose swap chain extent.
-	/// 
-	/// 
+	/// <param name="capabilities">The surface capabilities available.</param>
+	/// <returns>The swap extent (2D) selected.</returns> 
 	/// </summary>
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	/// <summary>
-	/// Allocate command and registry begin.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	/// Allocate command buffer and registry begin.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	/// <returns>The command buffer initialized.</returns> 
 	/// </summary>
 	VkCommandBuffer beginSingleTimeCommands();
 	/// <summary>
 	/// Registry command buffer and free resources.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	/// <param name="commandBuffer">The command buffer that we want to free.</param>
 	/// </summary>
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 	/// <summary>
 	/// Copy of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	///
-	///
-	///
+	/// <param name="srcBuffer">The original buffer to copy.</param>
+	/// <param name="dstBuffer">The destiny buffer to make the copy.</param>
+	/// <param name="size">The buffer to copy size.</param>
 	/// </summary>
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 	/// <summary>
 	/// Copy of buffer to a image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	///
-	///
-	///
+	/// <param name="buffer">The original buffer to copy.</param>
+	/// <param name="image">The destiny image to make the copy.</param>
+	/// <param name="width">The image width.</param>
+	/// <param name="height">The image height.</param>
 	/// </summary>
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	/// <summary>
 	/// Put image on a layout. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	///
-	///
-	///
+	/// <param name="image">The original image to transit.</param>
+	/// <param name="format">The format for the image.</param>
+	/// <param name="oldLayout">The old layout used.</param>
+	/// <param name="newLayout">The new layout to use.</param>
 	/// </summary>
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	#pragma endregion

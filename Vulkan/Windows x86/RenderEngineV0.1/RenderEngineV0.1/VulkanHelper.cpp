@@ -13,16 +13,17 @@ VulkanHelper::~VulkanHelper(){
 }
 #pragma endregion
 
-#pragma region Query methods POR HACER --> Añadir return param
+#pragma region Query methods
 /// <summary>
 /// Method to check if debug mode is active.
-/// 
+/// <returns>True if debug mode is active, false otherwise.</returns> 
 /// </summary>
 bool VulkanHelper::isDebugging(){
 	return enableValidationLayers;
 }
 /// <summary>
 /// Check if validation layers can be used.
+/// <returns>True if we can use validation layer, false otherwise.</returns> 
 /// </summary>
 bool VulkanHelper::checkValidationLayerSupport(){
 	uint32_t layerCount;
@@ -47,9 +48,9 @@ bool VulkanHelper::checkValidationLayerSupport(){
 	return true;
 }
 /// <summary>
-/// Check if extensions can be used.
-/// 
-/// 
+/// Check if our requested device extensions can be used.
+/// <param name="device">Logical device we want to check.</param>  
+/// <returns>True if we have all extensions of "deviceExtensions" available, false otherwise.</returns> 
 /// </summary>
 bool VulkanHelper::checkDeviceExtensionSupport(VkPhysicalDevice device){
 	//Reading available extensions.
@@ -66,7 +67,8 @@ bool VulkanHelper::checkDeviceExtensionSupport(VkPhysicalDevice device){
 	return requiredExtensions.empty();
 }
 /// <summary>
-/// Obtain our glfw application extensions.
+/// Obtain our requestted application extensions.
+/// <returns>Glfw extensions and validation layer extension (if enabled).</returns> 
 /// </summary>
 std::vector<const char *> VulkanHelper::getRequiredExtensions(){
 	//Obtaining extensions.
@@ -96,10 +98,10 @@ void VulkanHelper::printExtensions(){
 }
 #pragma endregion
 
-#pragma region Debug methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
+#pragma region Debug methods
 /// <summary>
-/// Setup the debug callbacks.
-/// 
+/// Setup the debug callback.
+/// <param name="instance">Vulkan instance where we setup the debug callback.</param>  
 /// </summary>
 void VulkanHelper::setupDebugCallback(VkInstance instance) {
 	//Debug extension creation data.
@@ -118,7 +120,10 @@ void VulkanHelper::setupDebugCallback(VkInstance instance) {
 }
 /// <summary>
 /// Link the debug callback with the vulkan instance.
-/// 
+/// <param name="instance">Vulkan instance where we bind the debug utility.</param>
+/// <param name="pCreateInfo">Struct with the debug utilities creation data.</param>
+/// <param name="pAllocator">Optional callback for memory allocator.</param>
+/// <param name="pCallback">Variable where we store the created element.</param>
 /// </summary>
 VkResult VulkanHelper::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pCallback){
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -130,7 +135,9 @@ VkResult VulkanHelper::CreateDebugUtilsMessengerEXT(VkInstance instance, const V
 }
 /// <summary>
 /// Unlink the debug callback with the vulkan instance.
-/// 
+/// <param name="instance">Vulkan instance where we destroy the debug utility.</param>
+/// <param name="callback">Callback we want to free from memory.</param>
+/// <param name="pAllocator">Optional callback for memory allocator.</param>
 /// </summary>
 void VulkanHelper::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT callback, const VkAllocationCallbacks* pAllocator){
 	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
@@ -140,10 +147,10 @@ void VulkanHelper::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUti
 }
 #pragma endregion
 
-#pragma region Cleanup methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
+#pragma region Cleanup methods
 /// <summary>
 /// Cleanup of VulkanHelper elements.
-/// 
+/// <param name="instance">Vulkan instance where we clean.</param>  
 /// </summary>
 void VulkanHelper::cleanup(VkInstance instance){
 	if(enableValidationLayers)

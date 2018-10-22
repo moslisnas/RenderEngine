@@ -19,7 +19,7 @@ VulkanRenderEngine::~VulkanRenderEngine(){
 
 #pragma region Main methods POR HACER --> INTENTAR LLEVAR initwintdow A VIEWPORT CLASS
 /// <summary>
-/// Method to launch the graphyc application.
+/// Method to launch the graphycs application.
 /// </summary>
 void VulkanRenderEngine::run(){
 	initWindow();
@@ -81,13 +81,13 @@ void VulkanRenderEngine::mainLoop(){
 }
 #pragma endregion
 
-#pragma region Creation methods POR HACER --> AÑADIR PARAMS A LA DOCUMENTACIÓN
+#pragma region Creation methods
 /// <summary>
 /// Creation of VulkanInstance.
 /// </summary>
 void VulkanRenderEngine::createVulkanInstance(){
 	//Application data.
-	VkApplicationInfo appInfo ={};
+	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "Hello VR";
 	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -729,8 +729,10 @@ void VulkanRenderEngine::createTextureImageView(){
 }
 /// <summary>
 /// Creation of image view. POR HACER --> VER SI LLEVAR A AUXILIAR.H
-/// 
-/// 
+/// <param name="image">The image from which we create the image view.</param>
+/// <param name="format">The format used to create the image view.</param>
+/// <param name="aspectFlags">Flags for the image view properties.</param>
+/// <returns>The image view created.</returns> 
 /// </summary>
 VkImageView VulkanRenderEngine::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags){
 	//Image view creation data.
@@ -886,9 +888,11 @@ void VulkanRenderEngine::createSyncObjects(){
 }
 /// <summary>
 /// Creation of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-///
-///
-///
+/// <param name="size">Buffer size.</param>
+/// <param name="usage">Flags to indicate the purpose of the buffer.</param>
+/// <param name="properties">Flags for the buffer memory properties.</param>
+/// <param name="buffer">Variable where we store the created buffer.</param>  
+/// <param name="bufferMemory">Variable where we store the buffer device memory data.</param>
 /// </summary>
 void VulkanRenderEngine::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory){
 	//Buffer creation data.
@@ -917,11 +921,15 @@ void VulkanRenderEngine::createBuffer(VkDeviceSize size, VkBufferUsageFlags usag
 	vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
 }
 /// <summary>
-/// Creation of image buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-/// 
-/// 
-/// 
-/// 
+/// Creation of image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+/// <param name="width">Image width.</param>
+/// <param name="height">Image height.</param>
+/// <param name="format">The format used to create the image.</param>
+/// <param name="tiling">The way we dispose the image texel data.</param>
+/// <param name="usage">Flags to indicate the purpose of the image.</param>
+/// <param name="properties">Flags for the image memory properties.</param>
+/// <param name="image">Variable where we store the created image.</param>  
+/// <param name="imageMemory">Variable where we store the image device memory data.</param>
 /// </summary>
 void VulkanRenderEngine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory){
 	//Image creation data.
@@ -961,7 +969,8 @@ void VulkanRenderEngine::createImage(uint32_t width, uint32_t height, VkFormat f
 }
 /// <summary>
 /// Creation of shader module. POR HACER --> REVISAR SI LLEVAR A VulkanHelper
-/// 
+/// <param name="code">The code from which we built the module.</param>
+/// <returns>The shader module created.</returns> 
 /// </summary>
 VkShaderModule VulkanRenderEngine::createShaderModule(const std::vector<char>& code){
 	//Shader module creation data.
@@ -978,10 +987,11 @@ VkShaderModule VulkanRenderEngine::createShaderModule(const std::vector<char>& c
 }
 #pragma endregion
 
-#pragma region Query methods POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
+#pragma region Query methods
 /// <summary>
 /// Checks if our device can be used to our application requeriments.
-/// 
+/// <param name="device">Physical device we want to check.</param>
+/// <returns>True if the device meet some requirements: graphycs and presentation queue families, extensions, swap chain support and anisotropy feature; false otherwise.</returns> 
 /// </summary>
 bool VulkanRenderEngine::isDeviceSuitable(VkPhysicalDevice device){
 	//Checking queue families
@@ -1001,8 +1011,9 @@ bool VulkanRenderEngine::isDeviceSuitable(VkPhysicalDevice device){
 	return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 /// <summary>
-/// Checks if our device support some indicated queue families.
-/// 
+/// Checks if our device support some indicated queue families and it returns their indices.
+/// <param name="device">Physical device we want to check.</param>
+/// <returns>The indices of the queue families.</returns> 
 /// </summary>
 QueueFamilyIndices VulkanRenderEngine::findQueueFamilies(VkPhysicalDevice device){
 	//Getting queue families properties.
@@ -1032,25 +1043,9 @@ QueueFamilyIndices VulkanRenderEngine::findQueueFamilies(VkPhysicalDevice device
 	return indices;
 }
 /// <summary>
-/// Checks our device memory.
-/// 
-/// 
-/// </summary>
-uint32_t VulkanRenderEngine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties){
-	//Getting memory properties.
-	VkPhysicalDeviceMemoryProperties memProperties;
-	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-	//Check device memory properties.
-	for(uint32_t i = 0; i < memProperties.memoryTypeCount; i++){
-		if((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-			return i;
-	}
-	throw std::runtime_error("failed to find suitable memory type!");
-}
-/// <summary>
-/// Checks if our device support swap chain with surface formats & present modes.
-/// 
-/// 
+/// Checks if our device support swap chain with surface formats and present modes, furthermore it returns swap chain support details.
+/// <param name="device">Physical device we want to check.</param>
+/// <returns>The swap chain support details.</returns>
 /// </summary>
 SwapChainSupportDetails VulkanRenderEngine::querySwapChainSupport(VkPhysicalDevice device){
 	//Getting swap chain support details.
@@ -1075,10 +1070,28 @@ SwapChainSupportDetails VulkanRenderEngine::querySwapChainSupport(VkPhysicalDevi
 	return details;
 }
 /// <summary>
-/// Checks if the format is available.
-///
-///
-///
+/// Checks if its available one specific type of device memory and it returns his reference.
+/// <param name="typeFilter">The type filter of the memory that we are searching.</param>
+/// <param name="properties">Flags for the memory properties.</param>
+/// <returns>The reference to the memory.</returns>
+/// </summary>
+uint32_t VulkanRenderEngine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties){
+	//Getting memory properties.
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+	//Check device memory properties.
+	for(uint32_t i = 0; i < memProperties.memoryTypeCount; i++){
+		if((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+			return i;
+	}
+	throw std::runtime_error("failed to find suitable memory type!");
+}
+/// <summary>
+/// Checks if the format is available and returns it.
+/// <param name="candidates">The formats that we accept to use.</param>
+/// <param name="tiling">The way we dispose the image texel data.</param>
+/// <param name="features">Flags for the format features we want to get supporting.</param>
+/// <returns>The format itself.</returns>
 /// </summary>
 VkFormat VulkanRenderEngine::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features){
 	for(VkFormat format : candidates){
@@ -1095,20 +1108,23 @@ VkFormat VulkanRenderEngine::findSupportedFormat(const std::vector<VkFormat>& ca
 	}
 }
 /// <summary>
-/// Checks if depth format is available.
+/// Checks if depth format is available and returns it.
+/// <returns>The depth format itself.</returns>
 /// </summary>
 VkFormat VulkanRenderEngine::findDepthFormat(){
 	return findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }
 /// <summary>
 /// Checks if format has the stencil component.
+/// <param name="format">The format itself.</param>
+/// <returns>True if the format has stencil component, false otherwise.</returns> 
 /// </summary>
 bool VulkanRenderEngine::hasStencilComponent(VkFormat format){
 	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 #pragma endregion
 
-#pragma region Vulkan configuration methods POR HACER --> Improve hardware rating and hardware selected. POR HACER --> AÑADIR PARAMS DE DOCUMENTACIÓN
+#pragma region Vulkan configuration methods POR HACER --> Improve hardware rating and hardware selected.
 /// <summary>
 /// Drawing method.
 /// </summary>
@@ -1174,8 +1190,8 @@ void VulkanRenderEngine::drawFrame(){
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 /// <summary>
-/// Update the pipeline uniform buffer.
-/// 
+/// Update the pipeline uniform buffer with and image.
+/// <param name="currentImage">The image we want to include on the updating.</param>
 /// </summary>
 void VulkanRenderEngine::updateUniformBuffer(uint32_t currentImage){
 	//Getting times to update scene.
@@ -1233,8 +1249,8 @@ void VulkanRenderEngine::pickPhyshicalDevice(){
 }
 /// <summary>
 /// Chose swap chain surface format.
-/// 
-/// 
+/// <param name="availableFormats">The formats that we can use.</param>
+/// <returns>The surface format selected.</returns> 
 /// </summary>
 VkSurfaceFormatKHR VulkanRenderEngine::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats){
 	//If we have no surface formats on parameter.
@@ -1250,8 +1266,8 @@ VkSurfaceFormatKHR VulkanRenderEngine::chooseSwapSurfaceFormat(const std::vector
 }
 /// <summary>
 /// Chose swap chain present mode.
-/// 
-/// 
+/// <param name="availablePresentModes">The present modes that we can use.</param>
+/// <returns>The present mode selected.</returns> 
 /// </summary>
 VkPresentModeKHR VulkanRenderEngine::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes){
 	//Present mode selected by default.
@@ -1268,8 +1284,8 @@ VkPresentModeKHR VulkanRenderEngine::chooseSwapPresentMode(const std::vector<VkP
 }
 /// <summary>
 /// Chose swap chain extent.
-/// 
-/// 
+/// <param name="capabilities">The surface capabilities available.</param>
+/// <returns>The swap extent (2D) selected.</returns> 
 /// </summary>
 VkExtent2D VulkanRenderEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities){
 	//Put maximum width allowed extent.
@@ -1288,6 +1304,7 @@ VkExtent2D VulkanRenderEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& 
 }
 /// <summary>
 /// Allocate command buffer and registry begin.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+/// <returns>The command buffer initialized.</returns> 
 /// </summary>
 VkCommandBuffer VulkanRenderEngine::beginSingleTimeCommands(){
 	//Command buffer allocation data.
@@ -1311,6 +1328,7 @@ VkCommandBuffer VulkanRenderEngine::beginSingleTimeCommands(){
 }
 /// <summary>
 /// Registry command buffer and free resources.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+/// <param name="commandBuffer">The command buffer that we want to free.</param>
 /// </summary>
 void VulkanRenderEngine::endSingleTimeCommands(VkCommandBuffer commandBuffer){
 	//Command buffer end.
@@ -1332,9 +1350,9 @@ void VulkanRenderEngine::endSingleTimeCommands(VkCommandBuffer commandBuffer){
 }
 /// <summary>
 /// Copy of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-///
-///
-///
+/// <param name="srcBuffer">The original buffer to copy.</param>
+/// <param name="dstBuffer">The destiny buffer to make the copy.</param>
+/// <param name="size">The buffer to copy size.</param>
 /// </summary>
 void VulkanRenderEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size){
 	//Allocate copy command buffer.
@@ -1351,9 +1369,10 @@ void VulkanRenderEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDe
 }
 /// <summary>
 /// Copy of buffer to a image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-///
-///
-///
+/// <param name="buffer">The original buffer to copy.</param>
+/// <param name="image">The destiny image to make the copy.</param>
+/// <param name="width">The image width.</param>
+/// <param name="height">The image height.</param>
 /// </summary>
 void VulkanRenderEngine::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height){
 	//Allocate copy buffer to image command buffer.
@@ -1378,12 +1397,13 @@ void VulkanRenderEngine::copyBufferToImage(VkBuffer buffer, VkImage image, uint3
 }
 /// <summary>
 /// Put image on a layout. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-///
-///
-///
+/// <param name="image">The original image to transit.</param>
+/// <param name="format">The format for the image.</param>
+/// <param name="oldLayout">The old layout used.</param>
+/// <param name="newLayout">The new layout to use.</param>
 /// </summary>
 void VulkanRenderEngine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout){
-	//Allocate transition image layout- command buffer.
+	//Allocate transition image layout command buffer.
 	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
 	//Image memory barrier data.
