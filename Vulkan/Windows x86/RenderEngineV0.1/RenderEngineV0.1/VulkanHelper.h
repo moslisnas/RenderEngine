@@ -125,6 +125,45 @@ public:
 	/// </summary>
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT callback, const VkAllocationCallbacks* pAllocator);
 	#pragma endregion
+
+	#pragma region Utility methods
+	/// <summary>
+	/// Copy of buffer.
+	/// <param name="srcBuffer">The original buffer to copy.</param>
+	/// <param name="dstBuffer">The destiny buffer to make the copy.</param>
+	/// <param name="size">The buffer to copy size.</param>
+	/// <param name="logicalDevice">The logical device where we do the copy.</param>
+	/// <param name="commandPool">The command pool which perform the command.</param>
+	/// <param name="queue">The queue where the copy is done.</param>
+	/// </summary>
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue);
+	/// <summary>
+	/// Copy of buffer to a image.
+	/// <param name="buffer">The original buffer to copy.</param>
+	/// <param name="image">The destiny image to make the copy.</param>
+	/// <param name="width">The image width.</param>
+	/// <param name="height">The image height.</param>
+	/// <param name="logicalDevice">The logical device where we do the copy.</param>
+	/// <param name="commandPool">The command pool which perform the command.</param>
+	/// <param name="queue">The queue where the copy is done.</param>
+	/// </summary>
+	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue);
+	/// <summary>
+	/// Allocate command buffer and registry begin.
+	/// <param name="logicalDevice">The logical device where we registry the command.</param>
+	/// <param name="commandPool">The command pool which perform the command.</param>
+	/// <returns>The command buffer initialized.</returns> 
+	/// </summary>
+	VkCommandBuffer beginSingleTimeCommands(VkDevice& logicalDevice, VkCommandPool& commandPool);
+	/// <summary>
+	/// Registry command buffer and free resources.
+	/// <param name="commandBuffer">The command buffer that we want to free.</param>
+	/// <param name="logicalDevice">The logical device where we registry command buffer and free resources.</param>
+	/// <param name="commandPool">The command pool which perform the command.</param>
+	/// <param name="queue">The queue where the command is performed.</param>
+	/// </summary>
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue);
+	#pragma endregion
 	
 	#pragma region Cleanup methods
 	/// <summary>

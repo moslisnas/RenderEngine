@@ -635,7 +635,7 @@ void VulkanRenderEngine::createVertexBuffer(){ //POR HACER --> GESTIONAR A TRAVÉ
 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
 	//Copying the CPU buffer to GPU.
-	copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+	vulkanHelper.copyBuffer(stagingBuffer, vertexBuffer, bufferSize, logicalDevice, commandPool, graphicsQueue);
 
 	//Free staging buffer resources.
 	vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
@@ -661,7 +661,7 @@ void VulkanRenderEngine::createIndexBuffer(){
 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
 	//Copying the CPU buffer to GPU.
-	copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+	vulkanHelper.copyBuffer(stagingBuffer, indexBuffer, bufferSize, logicalDevice, commandPool, graphicsQueue);
 
 	//Free staging buffer resources.
 	vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
@@ -711,7 +711,7 @@ void VulkanRenderEngine::createTextureImage(){
 	transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 	//Put buffer image data on image resource.
-	copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+	vulkanHelper.copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), logicalDevice, commandPool, graphicsQueue);
 
 	//Put texture image on a layout.
 	transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -1303,99 +1303,6 @@ VkExtent2D VulkanRenderEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& 
 	}
 }
 /// <summary>
-/// Allocate command buffer and registry begin.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-/// <returns>The command buffer initialized.</returns> 
-/// </summary>
-VkCommandBuffer VulkanRenderEngine::beginSingleTimeCommands(){
-	//Command buffer allocation data.
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = commandPool;
-	allocInfo.commandBufferCount = 1;
-	//Command buffer allocation.
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
-
-	//Command buffer begin data.
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	//Command buffer begin.
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-	return commandBuffer;
-}
-/// <summary>
-/// Registry command buffer and free resources.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-/// <param name="commandBuffer">The command buffer that we want to free.</param>
-/// </summary>
-void VulkanRenderEngine::endSingleTimeCommands(VkCommandBuffer commandBuffer){
-	//Command buffer end.
-	vkEndCommandBuffer(commandBuffer);
-
-	//Submit data.
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-	//Submit.
-	vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	
-	//Synchronization.
-	vkQueueWaitIdle(graphicsQueue);
-	
-	//Free command buffer.
-	vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
-}
-/// <summary>
-/// Copy of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-/// <param name="srcBuffer">The original buffer to copy.</param>
-/// <param name="dstBuffer">The destiny buffer to make the copy.</param>
-/// <param name="size">The buffer to copy size.</param>
-/// </summary>
-void VulkanRenderEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size){
-	//Allocate copy command buffer.
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-
-	//Copy buffer data.
-	VkBufferCopy copyRegion = {};
-	copyRegion.size = size;
-	//Copy buffer.
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-	//Command buffer copying.
-	endSingleTimeCommands(commandBuffer);
-}
-/// <summary>
-/// Copy of buffer to a image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-/// <param name="buffer">The original buffer to copy.</param>
-/// <param name="image">The destiny image to make the copy.</param>
-/// <param name="width">The image width.</param>
-/// <param name="height">The image height.</param>
-/// </summary>
-void VulkanRenderEngine::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height){
-	//Allocate copy buffer to image command buffer.
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-
-	//Image buffer copy data.
-	VkBufferImageCopy region = {};
-	region.bufferOffset = 0;
-	region.bufferRowLength = 0;
-	region.bufferImageHeight = 0;
-	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	region.imageSubresource.mipLevel = 0;
-	region.imageSubresource.baseArrayLayer = 0;
-	region.imageSubresource.layerCount = 1;
-	region.imageOffset = {0, 0, 0};
-	region.imageExtent = {width, height, 1};
-	//Image buffer copy.
-	vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-	//Command buffer copy buffer to image.
-	endSingleTimeCommands(commandBuffer);
-}
-/// <summary>
 /// Put image on a layout. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
 /// <param name="image">The original image to transit.</param>
 /// <param name="format">The format for the image.</param>
@@ -1404,7 +1311,7 @@ void VulkanRenderEngine::copyBufferToImage(VkBuffer buffer, VkImage image, uint3
 /// </summary>
 void VulkanRenderEngine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout){
 	//Allocate transition image layout command buffer.
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+	VkCommandBuffer commandBuffer = vulkanHelper.beginSingleTimeCommands(logicalDevice, commandPool);
 
 	//Image memory barrier data.
 	VkImageMemoryBarrier barrier = {};
@@ -1454,7 +1361,7 @@ void VulkanRenderEngine::transitionImageLayout(VkImage image, VkFormat format, V
 	vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
 	//Command buffer transition image layout.
-	endSingleTimeCommands(commandBuffer);
+	vulkanHelper.endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, graphicsQueue);
 }
 #pragma endregion
 

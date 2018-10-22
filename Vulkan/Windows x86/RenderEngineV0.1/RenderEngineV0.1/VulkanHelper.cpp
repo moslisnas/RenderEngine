@@ -147,6 +147,113 @@ void VulkanHelper::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUti
 }
 #pragma endregion
 
+#pragma region Utility methods
+/// <summary>
+/// Copy of buffer.
+/// <param name="srcBuffer">The original buffer to copy.</param>
+/// <param name="dstBuffer">The destiny buffer to make the copy.</param>
+/// <param name="size">The buffer to copy size.</param>
+/// <param name="logicalDevice">The logical device where we do the copy.</param>
+/// <param name="commandPool">The command pool which perform the command.</param>
+/// <param name="queue">The queue where the copy is done.</param>
+/// </summary>
+void VulkanHelper::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue){
+	//Allocate copy command buffer.
+	VkCommandBuffer commandBuffer = beginSingleTimeCommands(logicalDevice, commandPool);
+
+	//Copy buffer data.
+	VkBufferCopy copyRegion = {};
+	copyRegion.size = size;
+	//Copy buffer.
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	//Command buffer copying.
+	endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, queue);
+}
+/// <summary>
+/// Copy of buffer to a image.
+/// <param name="buffer">The original buffer to copy.</param>
+/// <param name="image">The destiny image to make the copy.</param>
+/// <param name="width">The image width.</param>
+/// <param name="height">The image height.</param>
+/// <param name="logicalDevice">The logical device where we do the copy.</param>
+/// <param name="commandPool">The command pool which perform the command.</param>
+/// <param name="queue">The queue where the copy is done.</param>
+/// </summary>
+void VulkanHelper::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue){
+	//Allocate copy buffer to image command buffer.
+	VkCommandBuffer commandBuffer = beginSingleTimeCommands(logicalDevice, commandPool);
+
+	//Image buffer copy data.
+	VkBufferImageCopy region ={};
+	region.bufferOffset = 0;
+	region.bufferRowLength = 0;
+	region.bufferImageHeight = 0;
+	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.imageSubresource.mipLevel = 0;
+	region.imageSubresource.baseArrayLayer = 0;
+	region.imageSubresource.layerCount = 1;
+	region.imageOffset ={0, 0, 0};
+	region.imageExtent ={width, height, 1};
+	//Image buffer copy.
+	vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+	//Command buffer copy buffer to image.
+	endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, queue);
+}
+/// <summary>
+/// Allocate command buffer and registry begin.
+/// <param name="logicalDevice">The logical device where we registry the command.</param>
+/// <param name="commandPool">The command pool which perform the command.</param>
+/// <returns>The command buffer initialized.</returns> 
+/// </summary>
+VkCommandBuffer VulkanHelper::beginSingleTimeCommands(VkDevice& logicalDevice, VkCommandPool& commandPool){
+	//Command buffer allocation data.
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = commandPool;
+	allocInfo.commandBufferCount = 1;
+	//Command buffer allocation.
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
+
+	//Command buffer begin data.
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	//Command buffer begin.
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	return commandBuffer;
+}
+/// <summary>
+/// Registry command buffer and free resources.
+/// <param name="commandBuffer">The command buffer that we want to free.</param>
+/// <param name="logicalDevice">The logical device where we registry command buffer and free resources.</param>
+/// <param name="commandPool">The command pool which perform the command.</param>
+/// <param name="queue">The queue where the command is performed.</param>
+/// </summary>
+void VulkanHelper::endSingleTimeCommands(VkCommandBuffer commandBuffer, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue){
+	//Command buffer end.
+	vkEndCommandBuffer(commandBuffer);
+
+	//Submit data.
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+	//Submit.
+	vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+
+	//Synchronization.
+	vkQueueWaitIdle(queue);
+
+	//Free command buffer.
+	vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+}
+#pragma endregion
+
 #pragma region Cleanup methods
 /// <summary>
 /// Cleanup of VulkanHelper elements.

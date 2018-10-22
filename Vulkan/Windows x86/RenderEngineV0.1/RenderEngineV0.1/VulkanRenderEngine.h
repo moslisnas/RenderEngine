@@ -396,31 +396,6 @@ public:
 	/// </summary>
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	/// <summary>
-	/// Allocate command buffer and registry begin.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	/// <returns>The command buffer initialized.</returns> 
-	/// </summary>
-	VkCommandBuffer beginSingleTimeCommands();
-	/// <summary>
-	/// Registry command buffer and free resources.  POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	/// <param name="commandBuffer">The command buffer that we want to free.</param>
-	/// </summary>
-	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-	/// <summary>
-	/// Copy of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	/// <param name="srcBuffer">The original buffer to copy.</param>
-	/// <param name="dstBuffer">The destiny buffer to make the copy.</param>
-	/// <param name="size">The buffer to copy size.</param>
-	/// </summary>
-	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-	/// <summary>
-	/// Copy of buffer to a image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	/// <param name="buffer">The original buffer to copy.</param>
-	/// <param name="image">The destiny image to make the copy.</param>
-	/// <param name="width">The image width.</param>
-	/// <param name="height">The image height.</param>
-	/// </summary>
-	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-	/// <summary>
 	/// Put image on a layout. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
 	/// <param name="image">The original image to transit.</param>
 	/// <param name="format">The format for the image.</param>
