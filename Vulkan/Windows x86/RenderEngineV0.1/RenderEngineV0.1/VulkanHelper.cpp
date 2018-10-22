@@ -96,6 +96,24 @@ void VulkanHelper::printExtensions(){
 	for(const auto& extension : extensions)
 		std::cout << "\t" << extension.extensionName << std::endl;
 }
+/// <summary>
+/// Checks if its available one specific type of device memory and it returns his reference.
+/// <param name="typeFilter">The type filter of the memory that we are searching.</param>
+/// <param name="properties">Flags for the memory properties.</param>
+/// <param name="physicalDevice">The physical device where we search the memory type.</param>
+/// <returns>The reference to the memory.</returns>
+/// </summary>
+uint32_t VulkanHelper::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice& physicalDevice){
+	//Getting memory properties.
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+	//Check device memory properties.
+	for(uint32_t i = 0; i < memProperties.memoryTypeCount; i++){
+		if((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+			return i;
+	}
+	throw std::runtime_error("failed to find suitable memory type!");
+}
 #pragma endregion
 
 #pragma region Debug methods
@@ -149,6 +167,91 @@ void VulkanHelper::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUti
 
 #pragma region Utility methods
 /// <summary>
+/// Creation of buffer.
+/// <param name="size">Buffer size.</param>
+/// <param name="usage">Flags to indicate the purpose of the buffer.</param>
+/// <param name="properties">Flags for the buffer memory properties.</param>
+/// <param name="buffer">Variable where we store the created buffer.</param>
+/// <param name="bufferMemory">Variable where we store the buffer device memory data.</param>
+/// <param name="logicalDevice">The logical device where we create the buffer.</param>
+/// <param name="physicalDevice">The physical device to search the memory type to use for the creation.</param>
+/// </summary>
+void VulkanHelper::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice){
+	//Buffer creation data.
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = size;
+	bufferInfo.usage = usage;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	//Buffer creation.
+	if(vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+		throw std::runtime_error("failed to create buffer!");
+
+	//Getting necessary memory requirements.
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
+
+	//Buffer memory allocation data.
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties, physicalDevice);
+	//Buffer memory allocation.
+	if(vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+		throw std::runtime_error("failed to allocate buffer memory!");
+	//Bind buffer memory.
+	vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
+}
+/// <summary>
+/// Creation of image.
+/// <param name="width">Image width.</param>
+/// <param name="height">Image height.</param>
+/// <param name="format">The format used to create the image.</param>
+/// <param name="tiling">The way we dispose the image texel data.</param>
+/// <param name="usage">Flags to indicate the purpose of the image.</param>
+/// <param name="properties">Flags for the image memory properties.</param>
+/// <param name="image">Variable where we store the created image.</param>  
+/// <param name="imageMemory">Variable where we store the image device memory data.</param>
+/// <param name="logicalDevice">The logical device where we create the image.</param>
+/// <param name="physicalDevice">The physical device to search the memory type to use for the image creation.</param>
+/// </summary>
+void VulkanHelper::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice){
+	//Image creation data.
+	VkImageCreateInfo imageInfo = {};
+	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.extent.width = width;
+	imageInfo.extent.height = height;
+	imageInfo.extent.depth = 1;
+	imageInfo.mipLevels = 1;
+	imageInfo.arrayLayers = 1;
+	imageInfo.format = format;
+	imageInfo.tiling = tiling;
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	imageInfo.usage = usage;
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	//Image creation.
+	if(vkCreateImage(logicalDevice, &imageInfo, nullptr, &image) != VK_SUCCESS)
+		throw std::runtime_error("failed to create image!");
+
+	//Getting necessary memory requirements.
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(logicalDevice, image, &memRequirements);
+
+	//Image buffer memory allocation data.
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties, physicalDevice);
+	//Image buffer memory allocation.
+	if(vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+		throw std::runtime_error("failed to allocate image memory!");
+
+	//Bind image memory.
+	vkBindImageMemory(logicalDevice, image, imageMemory, 0);
+}
+/// <summary>
 /// Copy of buffer.
 /// <param name="srcBuffer">The original buffer to copy.</param>
 /// <param name="dstBuffer">The destiny buffer to make the copy.</param>
@@ -200,6 +303,25 @@ void VulkanHelper::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wi
 
 	//Command buffer copy buffer to image.
 	endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, queue);
+}
+/// <summary>
+/// Creation of shader module.
+/// <param name="code">The code from which we built the module.</param>
+/// <param name="logicalDevice">The logical device where we create the module.</param>
+/// <returns>The shader module created.</returns> 
+/// </summary>
+VkShaderModule VulkanHelper::createShaderModule(const std::vector<char>& code, VkDevice& logicalDevice){
+	//Shader module creation data.
+	VkShaderModuleCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	//Shader module creation.
+	VkShaderModule shaderModule;
+	if(vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+		throw std::runtime_error("failed to create shader module!");
+
+	return shaderModule;
 }
 /// <summary>
 /// Allocate command buffer and registry begin.

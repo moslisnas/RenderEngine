@@ -101,6 +101,14 @@ public:
 	/// Print our application extensions.
 	/// </summary>
 	void printExtensions();
+	/// <summary>
+	/// Checks if its available one specific type of device memory and return his reference.
+	/// <param name="typeFilter">The type filter of the memory that we are searching.</param>
+	/// <param name="properties">Flags for the memory properties.</param>
+	/// <param name="physicalDevice">The physical device where we search the memory type.</param>
+	/// <returns>The reference to the memory.</returns> 
+	/// </summary>
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice& physicalDevice);
 	#pragma endregion
 
 	#pragma region Debug methods
@@ -128,6 +136,31 @@ public:
 
 	#pragma region Utility methods
 	/// <summary>
+	/// Creation of buffer.
+	/// <param name="size">Buffer size.</param>
+	/// <param name="usage">Flags to indicate the purpose of the buffer.</param>
+	/// <param name="properties">Flags for the buffer memory properties.</param>
+	/// <param name="buffer">Variable where we store the created buffer.</param>  
+	/// <param name="bufferMemory">Variable where we store the buffer device memory data.</param>
+	/// <param name="logicalDevice">The logical device where we create the buffer.</param>
+	/// <param name="physicalDevice">The physical device to search the memory type to use for the buffer creation.</param>
+	/// </summary>
+	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice);
+	/// <summary>
+	/// Creation of image.
+	/// <param name="width">Image width.</param>
+	/// <param name="height">Image height.</param>
+	/// <param name="format">The format used to create the image.</param>
+	/// <param name="tiling">The way we dispose the image texel data.</param>
+	/// <param name="usage">Flags to indicate the purpose of the image.</param>
+	/// <param name="properties">Flags for the image memory properties.</param>
+	/// <param name="image">Variable where we store the created image.</param>  
+	/// <param name="imageMemory">Variable where we store the image device memory data.</param>
+	/// <param name="logicalDevice">The logical device where we create the image.</param>
+	/// <param name="physicalDevice">The physical device to search the memory type to use for the image creation.</param>
+	/// </summary>
+	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice);
+	/// <summary>
 	/// Copy of buffer.
 	/// <param name="srcBuffer">The original buffer to copy.</param>
 	/// <param name="dstBuffer">The destiny buffer to make the copy.</param>
@@ -148,6 +181,13 @@ public:
 	/// <param name="queue">The queue where the copy is done.</param>
 	/// </summary>
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue);
+	/// <summary>
+	/// Creation of shader module.
+	/// <param name="code">The code from which we built the module.</param>
+	/// <param name="logicalDevice">The logical device where we create the module.</param>
+	/// <returns>The shader module created.</returns> 
+	/// </summary>
+	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice& logicalDevice);
 	/// <summary>
 	/// Allocate command buffer and registry begin.
 	/// <param name="logicalDevice">The logical device where we registry the command.</param>

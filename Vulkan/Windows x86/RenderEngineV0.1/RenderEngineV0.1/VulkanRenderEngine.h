@@ -287,33 +287,6 @@ public:
 	/// Creation of synchronization elements.
 	/// </summary>
 	void createSyncObjects();
-	/// <summary>
-	/// Creation of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	/// <param name="size">Buffer size.</param>
-	/// <param name="usage">Flags to indicate the purpose of the buffer.</param>
-	/// <param name="properties">Flags for the buffer memory properties.</param>
-	/// <param name="buffer">Variable where we store the created buffer.</param>  
-	/// <param name="bufferMemory">Variable where we store the buffer device memory data.</param>
-	/// </summary>
-	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-	/// <summary>
-	/// Creation of image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-	/// <param name="width">Image width.</param>
-	/// <param name="height">Image height.</param>
-	/// <param name="format">The format used to create the image.</param>
-	/// <param name="tiling">The way we dispose the image texel data.</param>
-	/// <param name="usage">Flags to indicate the purpose of the image.</param>
-	/// <param name="properties">Flags for the image memory properties.</param>
-	/// <param name="image">Variable where we store the created image.</param>  
-	/// <param name="imageMemory">Variable where we store the image device memory data.</param>
-	/// </summary>
-	void VulkanRenderEngine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-	/// <summary>
-	/// Creation of shader module. POR HACER --> REVISAR SI LLEVAR A VulkanHelper
-	/// <param name="code">The code from which we built the module.</param>
-	/// <returns>The shader module created.</returns> 
-	/// </summary>
-	VkShaderModule createShaderModule(const std::vector<char>& code);
 	#pragma endregion
 
 	#pragma region Query methods
@@ -335,13 +308,7 @@ public:
 	/// <returns>The swap chain support details.</returns> 
 	/// </summary>
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-	/// <summary>
-	/// Checks if its available one specific type of device memory and return his reference.
-	/// <param name="typeFilter">The type filter of the memory that we are searching.</param>
-	/// <param name="properties">Flags for the memory properties.</param>
-	/// <returns>The reference to the memory.</returns> 
-	/// </summary>
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
 	/// <summary>
 	/// Checks if the format is available.
 	/// <param name="candidates">The formats that we accept to use.</param>

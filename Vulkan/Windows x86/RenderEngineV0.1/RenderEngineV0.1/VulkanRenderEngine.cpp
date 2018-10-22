@@ -375,8 +375,8 @@ void VulkanRenderEngine::createGraphicsPipeline(){
 	VkShaderModule fragShaderModule;
 	auto vertShaderCode = readFile("shaders/vert.spv");
 	auto fragShaderCode = readFile("shaders/frag.spv");
-	vertShaderModule = createShaderModule(vertShaderCode);
-	fragShaderModule = createShaderModule(fragShaderCode);
+	vertShaderModule = vulkanHelper.createShaderModule(vertShaderCode, logicalDevice);
+	fragShaderModule = vulkanHelper.createShaderModule(fragShaderCode, logicalDevice);
 
 	//Vertex shader data.
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
@@ -385,7 +385,7 @@ void VulkanRenderEngine::createGraphicsPipeline(){
 	vertShaderStageInfo.module = vertShaderModule;
 	vertShaderStageInfo.pName = "main";
 	//Fragment shader data.
-	VkPipelineShaderStageCreateInfo fragShaderStageInfo ={};
+	VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
 	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	fragShaderStageInfo.module = fragShaderModule;
@@ -623,7 +623,7 @@ void VulkanRenderEngine::createVertexBuffer(){ //POR HACER --> GESTIONAR A TRAVÉ
 	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, logicalDevice, physicalDevice);
 
 	//Copy vertex data to buffer.
 	void* data;
@@ -632,7 +632,7 @@ void VulkanRenderEngine::createVertexBuffer(){ //POR HACER --> GESTIONAR A TRAVÉ
 	vkUnmapMemory(logicalDevice, stagingBufferMemory);
 	
 	//Creating and filling buffer at GPU.
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory, logicalDevice, physicalDevice);
 
 	//Copying the CPU buffer to GPU.
 	vulkanHelper.copyBuffer(stagingBuffer, vertexBuffer, bufferSize, logicalDevice, commandPool, graphicsQueue);
@@ -649,7 +649,7 @@ void VulkanRenderEngine::createIndexBuffer(){
 	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, logicalDevice, physicalDevice);
 
 	//Copy index data to buffer.
 	void* data;
@@ -658,7 +658,7 @@ void VulkanRenderEngine::createIndexBuffer(){
 	vkUnmapMemory(logicalDevice, stagingBufferMemory);
 
 	//Creating and filling buffer at GPU.
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory, logicalDevice, physicalDevice);
 
 	//Copying the CPU buffer to GPU.
 	vulkanHelper.copyBuffer(stagingBuffer, indexBuffer, bufferSize, logicalDevice, commandPool, graphicsQueue);
@@ -677,7 +677,7 @@ void VulkanRenderEngine::createUniformBuffer(){
 	uniformBuffersMemory.resize(swapChainImages.size());
 	//Uniform buffers creation.
 	for(size_t i = 0; i < swapChainImages.size(); i++)
-		createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+		vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i], logicalDevice, physicalDevice);
 }
 /// <summary>
 /// Creation of texture image. POR HACER --> VER SI LLEVAR A AUXILIAR.H
@@ -693,7 +693,7 @@ void VulkanRenderEngine::createTextureImage(){
 	//CPU buffer creation.
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	vulkanHelper.createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, logicalDevice, physicalDevice);
 	
 	//Copy image data to buffer.
 	void* data;
@@ -705,7 +705,7 @@ void VulkanRenderEngine::createTextureImage(){
 	stbi_image_free(pixels);
 
 	//Image buffer creation.
-	createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+	vulkanHelper.createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory, logicalDevice, physicalDevice);
 
 	//Put image on a layout.
 	transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -787,7 +787,7 @@ void VulkanRenderEngine::createDepthResources(){
 	VkFormat depthFormat = findDepthFormat();
 
 	//Creating depth image & depth image view.
-	createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
+	vulkanHelper.createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, logicalDevice, physicalDevice);
 	depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
 	//Put depth image on a layout.
@@ -886,105 +886,6 @@ void VulkanRenderEngine::createSyncObjects(){
 			throw std::runtime_error("failed to create synchronization objects for a frame!");
 	}
 }
-/// <summary>
-/// Creation of buffer. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-/// <param name="size">Buffer size.</param>
-/// <param name="usage">Flags to indicate the purpose of the buffer.</param>
-/// <param name="properties">Flags for the buffer memory properties.</param>
-/// <param name="buffer">Variable where we store the created buffer.</param>  
-/// <param name="bufferMemory">Variable where we store the buffer device memory data.</param>
-/// </summary>
-void VulkanRenderEngine::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory){
-	//Buffer creation data.
-	VkBufferCreateInfo bufferInfo = {};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = size;
-	bufferInfo.usage = usage;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	//Buffer creation.
-	if(vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
-		throw std::runtime_error("failed to create buffer!");
-
-	//Getting necessary memory requirements.
-	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
-
-	//Buffer memory allocation data.
-	VkMemoryAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-	//Buffer memory allocation.
-	if(vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-		throw std::runtime_error("failed to allocate buffer memory!");
-	//Bind buffer memory.
-	vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
-}
-/// <summary>
-/// Creation of image. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
-/// <param name="width">Image width.</param>
-/// <param name="height">Image height.</param>
-/// <param name="format">The format used to create the image.</param>
-/// <param name="tiling">The way we dispose the image texel data.</param>
-/// <param name="usage">Flags to indicate the purpose of the image.</param>
-/// <param name="properties">Flags for the image memory properties.</param>
-/// <param name="image">Variable where we store the created image.</param>  
-/// <param name="imageMemory">Variable where we store the image device memory data.</param>
-/// </summary>
-void VulkanRenderEngine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory){
-	//Image creation data.
-	VkImageCreateInfo imageInfo = {};
-	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	imageInfo.imageType = VK_IMAGE_TYPE_2D;
-	imageInfo.extent.width = width;
-	imageInfo.extent.height = height;
-	imageInfo.extent.depth = 1;
-	imageInfo.mipLevels = 1;
-	imageInfo.arrayLayers = 1;
-	imageInfo.format = format;
-	imageInfo.tiling = tiling;
-	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	imageInfo.usage = usage;
-	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	//Image creation.
-	if(vkCreateImage(logicalDevice, &imageInfo, nullptr, &image) != VK_SUCCESS)
-		throw std::runtime_error("failed to create image!");
-
-	//Getting necessary memory requirements.
-	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(logicalDevice, image, &memRequirements);
-
-	//Image buffer memory allocation data.
-	VkMemoryAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-	//Image buffer memory allocation.
-	if(vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-		throw std::runtime_error("failed to allocate image memory!");
-
-	//Bind image memory.
-	vkBindImageMemory(logicalDevice, image, imageMemory, 0);
-}
-/// <summary>
-/// Creation of shader module. POR HACER --> REVISAR SI LLEVAR A VulkanHelper
-/// <param name="code">The code from which we built the module.</param>
-/// <returns>The shader module created.</returns> 
-/// </summary>
-VkShaderModule VulkanRenderEngine::createShaderModule(const std::vector<char>& code){
-	//Shader module creation data.
-	VkShaderModuleCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-	//Shader module creation.
-	VkShaderModule shaderModule;
-	if(vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-		throw std::runtime_error("failed to create shader module!");
-
-	return shaderModule;
-}
 #pragma endregion
 
 #pragma region Query methods
@@ -1068,23 +969,6 @@ SwapChainSupportDetails VulkanRenderEngine::querySwapChainSupport(VkPhysicalDevi
 	}
 
 	return details;
-}
-/// <summary>
-/// Checks if its available one specific type of device memory and it returns his reference.
-/// <param name="typeFilter">The type filter of the memory that we are searching.</param>
-/// <param name="properties">Flags for the memory properties.</param>
-/// <returns>The reference to the memory.</returns>
-/// </summary>
-uint32_t VulkanRenderEngine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties){
-	//Getting memory properties.
-	VkPhysicalDeviceMemoryProperties memProperties;
-	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-	//Check device memory properties.
-	for(uint32_t i = 0; i < memProperties.memoryTypeCount; i++){
-		if((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-			return i;
-	}
-	throw std::runtime_error("failed to find suitable memory type!");
 }
 /// <summary>
 /// Checks if the format is available and returns it.
