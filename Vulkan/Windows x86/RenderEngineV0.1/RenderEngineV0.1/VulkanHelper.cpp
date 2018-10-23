@@ -207,6 +207,7 @@ void VulkanHelper::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkM
 /// <param name="width">Image width.</param>
 /// <param name="height">Image height.</param>
 /// <param name="mipLevels">The mipmap levels used.</param>
+/// <param name="numSamples">The number of samples used for multisampling.</param>
 /// <param name="format">The format used to create the image.</param>
 /// <param name="tiling">The way we dispose the image texel data.</param>
 /// <param name="usage">Flags to indicate the purpose of the image.</param>
@@ -216,7 +217,7 @@ void VulkanHelper::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkM
 /// <param name="logicalDevice">The logical device where we create the image.</param>
 /// <param name="physicalDevice">The physical device to search the memory type to use for the image creation.</param>
 /// </summary>
-void VulkanHelper::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice){
+void VulkanHelper::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice){
 	//Image creation data.
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -230,7 +231,7 @@ void VulkanHelper::createImage(uint32_t width, uint32_t height, uint32_t mipLeve
 	imageInfo.tiling = tiling;
 	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	imageInfo.usage = usage;
-	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.samples = numSamples;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	//Image creation.
 	if(vkCreateImage(logicalDevice, &imageInfo, nullptr, &image) != VK_SUCCESS)

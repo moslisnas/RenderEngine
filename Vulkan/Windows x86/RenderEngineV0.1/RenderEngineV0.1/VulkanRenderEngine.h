@@ -121,7 +121,6 @@ private:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	//Textures.
-	uint32_t mipLevels;
 	VkImage textureImage;
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
@@ -132,6 +131,11 @@ private:
 	VkImageView depthImageView;
 	//Others.
 	bool framebufferResized = false;
+	uint32_t mipLevels;
+	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+	VkImage colorImage;
+	VkDeviceMemory colorImageMemory;
+	VkImageView colorImageView;
 	#pragma endregion
 public:
 	#pragma region Data members
@@ -249,6 +253,15 @@ public:
 	/// </summary>
 	void createTextureImage();
 	/// <summary>
+	/// Mipmap generation for texture images.
+	/// <param name="image">The image from we want generate mipmap.</param>
+	/// <param name="imageFormat">The format of the image.</param>
+	/// <param name="texWidth">The texture image width.</param>
+	/// <param name="texHeight">The  texture image height.</param>
+	/// <param name="mipLevels">The number of levels used for mipmaps.</param>
+	/// </summary>
+	void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+	/// <summary>
 	/// Creation of texture image view.
 	/// </summary>
 	void createTextureImageView();
@@ -272,8 +285,10 @@ public:
 	/// Creation of synchronization elements.
 	/// </summary>
 	void createSyncObjects();
-
-	void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+	/// <summary>
+	/// Creation of multisampling color elements.
+	/// </summary>
+	void createColorResources();
 	#pragma endregion
 
 	#pragma region Query methods
@@ -314,6 +329,11 @@ public:
 	/// <returns>True if the format has stencil component, false otherwise.</returns> 
 	/// </summary>
 	bool hasStencilComponent(VkFormat format);
+	/// <summary>
+	/// Get the max number of multisampling samples supported.
+	/// <returns>The max multisampling samples supported.</returns> 
+	/// </summary>
+	VkSampleCountFlagBits getMaxUsableSampleCount();
 	#pragma endregion
 
 	#pragma region Vulkan configuration methods
