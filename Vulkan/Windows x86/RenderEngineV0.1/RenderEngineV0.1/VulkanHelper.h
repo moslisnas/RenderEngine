@@ -45,7 +45,7 @@ struct SwapChainSupportDetails {
 
 class VulkanHelper{
 private:
-	#pragma region Data members POR HACER --> REVISAR PARAMETROS Y VER SI DEJAR AQUI LA DEFINICIÓN DEL DEBUGCALLBACK
+	#pragma region Data members
 	#ifdef NDEBUG
 	const bool enableValidationLayers = false;
 	#else
@@ -160,6 +160,15 @@ public:
 	/// <param name="physicalDevice">The physical device to search the memory type to use for the image creation.</param>
 	/// </summary>
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice);
+	/// <summary>
+	/// Creation of image view.
+	/// <param name="image">The image from which we create the image view.</param>
+	/// <param name="format">The format used to create the image view.</param>
+	/// <param name="aspectFlags">Flags for the image view properties.</param>
+	/// <param name="logicalDevice">The logical device where we create the image.</param>
+	/// <returns>The image view created.</returns> 
+	/// </summary>
+	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkDevice& logicalDevice);
 	/// <summary>
 	/// Copy of buffer.
 	/// <param name="srcBuffer">The original buffer to copy.</param>

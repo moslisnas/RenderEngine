@@ -252,6 +252,33 @@ void VulkanHelper::createImage(uint32_t width, uint32_t height, VkFormat format,
 	vkBindImageMemory(logicalDevice, image, imageMemory, 0);
 }
 /// <summary>
+/// Creation of image view.
+/// <param name="image">The image from which we create the image view.</param>
+/// <param name="format">The format used to create the image view.</param>
+/// <param name="aspectFlags">Flags for the image view properties.</param>
+/// <param name="logicalDevice">The logical device where we create the image.</param>
+/// <returns>The image view created.</returns> 
+/// </summary>
+VkImageView VulkanHelper::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkDevice& logicalDevice){
+	//Image view creation data.
+	VkImageViewCreateInfo viewInfo ={};
+	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	viewInfo.image = image;
+	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.format = format;
+	viewInfo.subresourceRange.aspectMask = aspectFlags;
+	viewInfo.subresourceRange.baseMipLevel = 0;
+	viewInfo.subresourceRange.levelCount = 1;
+	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.layerCount = 1;
+	//Image view creation.
+	VkImageView imageView;
+	if(vkCreateImageView(logicalDevice, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+		throw std::runtime_error("failed to create image view!");
+
+	return imageView;
+}
+/// <summary>
 /// Copy of buffer.
 /// <param name="srcBuffer">The original buffer to copy.</param>
 /// <param name="dstBuffer">The destiny buffer to make the copy.</param>

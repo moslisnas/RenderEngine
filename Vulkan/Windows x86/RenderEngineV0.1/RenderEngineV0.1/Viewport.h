@@ -35,6 +35,23 @@ public:
 	~Viewport();
 	#pragma endregion
 
+	#pragma region Initialization methods
+	/// <summary>
+	/// Initalize window elements.
+	/// <param name="framebufferResizeCallback">The callback used for framebuffer resize.</param>
+	/// </summary>
+	void initWindow(GLFWframebuffersizefun framebufferResizeCallback);
+	#pragma endregion
+
+	#pragma region Creation methods
+	/// <summary>
+	/// Creation of surface.
+	/// <param name="instance">The vulkan instance where we create the surface.</param>
+	/// <param name="surface">The surface itself.</param>
+	/// </summary>
+	void createSurface(VkInstance& instance, VkSurfaceKHR& surface);
+	#pragma endregion
+
 	#pragma region Cleanup methods
 	/// <summary>
 	/// Cleanup of Viewport elements.
@@ -42,4 +59,3 @@ public:
 	void cleanup();
 #pragma endregion
 };
-

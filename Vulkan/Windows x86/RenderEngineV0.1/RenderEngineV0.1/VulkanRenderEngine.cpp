@@ -17,12 +17,12 @@ VulkanRenderEngine::~VulkanRenderEngine(){
 }
 #pragma endregion
 
-#pragma region Main methods POR HACER --> INTENTAR LLEVAR initwintdow A VIEWPORT CLASS
+#pragma region Main methods
 /// <summary>
 /// Method to launch the graphycs application.
 /// </summary>
 void VulkanRenderEngine::run(){
-	initWindow();
+	viewport.initWindow(framebufferResizeCallback);
 	initVulkan();
 	mainLoop();
 	cleanup();
@@ -33,7 +33,7 @@ void VulkanRenderEngine::run(){
 void VulkanRenderEngine::initVulkan(){
 	createVulkanInstance();
 	vulkanHelper.setupDebugCallback(instance);
-	createSurface();
+	viewport.createSurface(instance, surface);
 	pickPhyshicalDevice();
 	createLogicalDevice();
 	createSwapChain();
@@ -56,18 +56,6 @@ void VulkanRenderEngine::initVulkan(){
 	//ENGLOBAR EN METODO CREATESCENE.
 	createCommandBuffers();
 	createSyncObjects();
-}
-/// <summary>
-/// Initalize window elements.
-/// </summary>
-void VulkanRenderEngine::initWindow(){
-	glfwInit();
-	//Avoid set OpenGL as default render API and the resizable option for the window. 
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); //Window resize
-	viewport.window = glfwCreateWindow(viewport.WIDTH, viewport.HEIGHT, "Vulkan", nullptr, nullptr);
-	glfwSetWindowUserPointer(viewport.window, this);
-	glfwSetFramebufferSizeCallback(viewport.window, VulkanRenderEngine::framebufferResizeCallback);
 }
 /// <summary>
 /// Main loop of our application.
@@ -100,7 +88,7 @@ void VulkanRenderEngine::createVulkanInstance(){
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
 
-	//GLFW extensions. POR HACER --> METODO GETEXTENSIONS EN VULKANHELPER parameter createInfo
+	//GLFW extensions.
 	auto extensions = vulkanHelper.getRequiredExtensions();
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 	createInfo.ppEnabledExtensionNames = extensions.data();
@@ -108,7 +96,7 @@ void VulkanRenderEngine::createVulkanInstance(){
 	//Print extensions.
 	vulkanHelper.printExtensions();
 
-	//ValidationLayers. POR HACER --> METODO GETVALIDATIONLAYERS EN VULKANHELPER parameter createInfo
+	//ValidationLayers.
 	if(vulkanHelper.isDebugging() && !vulkanHelper.checkValidationLayerSupport())
 		throw std::runtime_error("validation layers requested, but not available!");
 	if(vulkanHelper.isDebugging()) {
@@ -125,7 +113,7 @@ void VulkanRenderEngine::createVulkanInstance(){
 /// <summary>
 /// Creation of logical device.
 /// </summary>
-void VulkanRenderEngine::createLogicalDevice(){ // POR HACER --> REVISAR SI PODEMOS LLEVAR ALGO A LA CLASE VULKANHELPER
+void VulkanRenderEngine::createLogicalDevice(){
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	//Enable anisotropy (for textures).
 	deviceFeatures.samplerAnisotropy = VK_TRUE;
@@ -168,14 +156,6 @@ void VulkanRenderEngine::createLogicalDevice(){ // POR HACER --> REVISAR SI PODE
 	//Getting queues.
 	vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
 	vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue);
-}
-/// <summary>
-/// Creation of surface.
-/// </summary>
-void VulkanRenderEngine::createSurface(){ // POR HACER --> REVISAR SI PODEMOS LLEVAR ALGO A LA CLASE VULKANHELPER
-	//Surface creation.
-	if(glfwCreateWindowSurface(instance, viewport.window, nullptr, &surface) != VK_SUCCESS)
-		throw std::runtime_error("failed to create window surface!");
 }
 /// <summary>
 /// Creation of swap chain.
@@ -264,7 +244,7 @@ void VulkanRenderEngine::createImageViews(){
 
 	//Image views creation.
 	for(uint32_t i = 0; i < swapChainImages.size(); i++)
-		swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+		swapChainImageViews[i] = vulkanHelper.createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, logicalDevice);
 }
 /// <summary>
 /// Creation of descriptor set layout (UBO & samplers).
@@ -680,7 +660,7 @@ void VulkanRenderEngine::createUniformBuffer(){
 		vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i], logicalDevice, physicalDevice);
 }
 /// <summary>
-/// Creation of texture image. POR HACER --> VER SI LLEVAR A AUXILIAR.H
+/// Creation of texture image.
 /// </summary>
 void VulkanRenderEngine::createTextureImage(){
 	//Loading image.
@@ -721,37 +701,11 @@ void VulkanRenderEngine::createTextureImage(){
 	vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
 }
 /// <summary>
-/// Creation of texture image view. POR HACER --> VER SI LLEVAR A AUXILIAR.H
+/// Creation of texture image view.
 /// </summary>
 void VulkanRenderEngine::createTextureImageView(){
 	//Texture image view creation.
-	textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
-}
-/// <summary>
-/// Creation of image view. POR HACER --> VER SI LLEVAR A AUXILIAR.H
-/// <param name="image">The image from which we create the image view.</param>
-/// <param name="format">The format used to create the image view.</param>
-/// <param name="aspectFlags">Flags for the image view properties.</param>
-/// <returns>The image view created.</returns> 
-/// </summary>
-VkImageView VulkanRenderEngine::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags){
-	//Image view creation data.
-	VkImageViewCreateInfo viewInfo = {};
-	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	viewInfo.image = image;
-	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	viewInfo.format = format;
-	viewInfo.subresourceRange.aspectMask = aspectFlags;
-	viewInfo.subresourceRange.baseMipLevel = 0;
-	viewInfo.subresourceRange.levelCount = 1;
-	viewInfo.subresourceRange.baseArrayLayer = 0;
-	viewInfo.subresourceRange.layerCount = 1;
-	//Image view creation.
-	VkImageView imageView;
-	if(vkCreateImageView(logicalDevice, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-		throw std::runtime_error("failed to create image view!");
-	
-	return imageView;
+	textureImageView = vulkanHelper.createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, logicalDevice);
 }
 /// <summary>
 /// Creation of texture sampler.
@@ -788,7 +742,7 @@ void VulkanRenderEngine::createDepthResources(){
 
 	//Creating depth image & depth image view.
 	vulkanHelper.createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, logicalDevice, physicalDevice);
-	depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+	depthImageView = vulkanHelper.createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, logicalDevice);
 
 	//Put depth image on a layout.
 	transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
@@ -1187,7 +1141,7 @@ VkExtent2D VulkanRenderEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& 
 	}
 }
 /// <summary>
-/// Put image on a layout. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+/// Put image on a layout.
 /// <param name="image">The original image to transit.</param>
 /// <param name="format">The format for the image.</param>
 /// <param name="oldLayout">The old layout used.</param>

@@ -164,7 +164,7 @@ public:
 	~VulkanRenderEngine();
 	#pragma endregion
 
-	#pragma region Main methods POR HACER --> INTENTAR LLEVAR initwintdow A VIEWPORT CLASS
+	#pragma region Main methods
 	/// <summary>
 	/// Method to launch the graphycs application.
 	/// </summary>
@@ -173,10 +173,6 @@ public:
 	/// Initialization of Vulkan elements.
 	/// </summary>
 	void initVulkan();
-	/// <summary>
-	/// Initalize window elements.
-	/// </summary>
-	void initWindow();
 	/// <summary>
 	/// Main loop of our application.
 	/// </summary>
@@ -199,10 +195,6 @@ public:
 	/// Creation of logical device.
 	/// </summary>
 	void createLogicalDevice();
-	/// <summary>
-	/// Creation of surface.
-	/// </summary>
-	void createSurface();
 	/// <summary>
 	/// Creation of swap chain.
 	/// </summary>
@@ -252,21 +244,13 @@ public:
 	/// </summary>
 	void createUniformBuffer();
 	/// <summary>
-	/// Creation of texture image. POR HACER --> VER SI LLEVAR A AUXILIAR.H
+	/// Creation of texture image.
 	/// </summary>
 	void createTextureImage();
 	/// <summary>
-	/// Creation of texture image view. POR HACER --> VER SI LLEVAR A AUXILIAR.H
+	/// Creation of texture image view.
 	/// </summary>
 	void createTextureImageView();
-	/// <summary>
-	/// Creation of image view. POR HACER --> VER SI LLEVAR A AUXILIAR.H
-	/// <param name="image">The image from which we create the image view.</param>
-	/// <param name="format">The format used to create the image view.</param>
-	/// <param name="aspectFlags">Flags for the image view properties.</param>
-	/// <returns>The image view created.</returns> 
-	/// </summary>
-	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 	/// <summary>
 	/// Creation of texture sampler.
 	/// </summary>
@@ -308,7 +292,6 @@ public:
 	/// <returns>The swap chain support details.</returns> 
 	/// </summary>
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-
 	/// <summary>
 	/// Checks if the format is available.
 	/// <param name="candidates">The formats that we accept to use.</param>
@@ -363,7 +346,7 @@ public:
 	/// </summary>
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	/// <summary>
-	/// Put image on a layout. POR HACER --> VER SI MOVER A VULKANHELPER CLASS
+	/// Put image on a layout.
 	/// <param name="image">The original image to transit.</param>
 	/// <param name="format">The format for the image.</param>
 	/// <param name="oldLayout">The old layout used.</param>
