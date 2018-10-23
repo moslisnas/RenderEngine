@@ -134,7 +134,7 @@ public:
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT callback, const VkAllocationCallbacks* pAllocator);
 	#pragma endregion
 
-	#pragma region Utility methods
+	#pragma region Creation methods
 	/// <summary>
 	/// Creation of buffer.
 	/// <param name="size">Buffer size.</param>
@@ -150,6 +150,7 @@ public:
 	/// Creation of image.
 	/// <param name="width">Image width.</param>
 	/// <param name="height">Image height.</param>
+	/// <param name="mipLevels">The mipmap levels used.</param>
 	/// <param name="format">The format used to create the image.</param>
 	/// <param name="tiling">The way we dispose the image texel data.</param>
 	/// <param name="usage">Flags to indicate the purpose of the image.</param>
@@ -159,16 +160,27 @@ public:
 	/// <param name="logicalDevice">The logical device where we create the image.</param>
 	/// <param name="physicalDevice">The physical device to search the memory type to use for the image creation.</param>
 	/// </summary>
-	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice);
+	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice);
 	/// <summary>
 	/// Creation of image view.
 	/// <param name="image">The image from which we create the image view.</param>
 	/// <param name="format">The format used to create the image view.</param>
 	/// <param name="aspectFlags">Flags for the image view properties.</param>
+	/// <param name="mipLevels">The mipmap levels used.</param>
 	/// <param name="logicalDevice">The logical device where we create the image.</param>
 	/// <returns>The image view created.</returns> 
 	/// </summary>
-	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkDevice& logicalDevice);
+	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels, VkDevice& logicalDevice);
+	/// <summary>
+	/// Creation of shader module.
+	/// <param name="code">The code from which we built the module.</param>
+	/// <param name="logicalDevice">The logical device where we create the module.</param>
+	/// <returns>The shader module created.</returns> 
+	/// </summary>
+	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice& logicalDevice);
+	#pragma endregion
+
+	#pragma region Utility methods
 	/// <summary>
 	/// Copy of buffer.
 	/// <param name="srcBuffer">The original buffer to copy.</param>
@@ -190,13 +202,6 @@ public:
 	/// <param name="queue">The queue where the copy is done.</param>
 	/// </summary>
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue);
-	/// <summary>
-	/// Creation of shader module.
-	/// <param name="code">The code from which we built the module.</param>
-	/// <param name="logicalDevice">The logical device where we create the module.</param>
-	/// <returns>The shader module created.</returns> 
-	/// </summary>
-	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice& logicalDevice);
 	/// <summary>
 	/// Allocate command buffer and registry begin.
 	/// <param name="logicalDevice">The logical device where we registry the command.</param>

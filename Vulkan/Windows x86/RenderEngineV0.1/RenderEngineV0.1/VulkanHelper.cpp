@@ -165,7 +165,7 @@ void VulkanHelper::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUti
 }
 #pragma endregion
 
-#pragma region Utility methods
+#pragma region Creation methods
 /// <summary>
 /// Creation of buffer.
 /// <param name="size">Buffer size.</param>
@@ -206,6 +206,7 @@ void VulkanHelper::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkM
 /// Creation of image.
 /// <param name="width">Image width.</param>
 /// <param name="height">Image height.</param>
+/// <param name="mipLevels">The mipmap levels used.</param>
 /// <param name="format">The format used to create the image.</param>
 /// <param name="tiling">The way we dispose the image texel data.</param>
 /// <param name="usage">Flags to indicate the purpose of the image.</param>
@@ -215,7 +216,7 @@ void VulkanHelper::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkM
 /// <param name="logicalDevice">The logical device where we create the image.</param>
 /// <param name="physicalDevice">The physical device to search the memory type to use for the image creation.</param>
 /// </summary>
-void VulkanHelper::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice){
+void VulkanHelper::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice& logicalDevice, VkPhysicalDevice& physicalDevice){
 	//Image creation data.
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -223,7 +224,7 @@ void VulkanHelper::createImage(uint32_t width, uint32_t height, VkFormat format,
 	imageInfo.extent.width = width;
 	imageInfo.extent.height = height;
 	imageInfo.extent.depth = 1;
-	imageInfo.mipLevels = 1;
+	imageInfo.mipLevels = mipLevels;
 	imageInfo.arrayLayers = 1;
 	imageInfo.format = format;
 	imageInfo.tiling = tiling;
@@ -256,19 +257,20 @@ void VulkanHelper::createImage(uint32_t width, uint32_t height, VkFormat format,
 /// <param name="image">The image from which we create the image view.</param>
 /// <param name="format">The format used to create the image view.</param>
 /// <param name="aspectFlags">Flags for the image view properties.</param>
+/// <param name="mipLevels">The mipmap levels used.</param>
 /// <param name="logicalDevice">The logical device where we create the image.</param>
 /// <returns>The image view created.</returns> 
 /// </summary>
-VkImageView VulkanHelper::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkDevice& logicalDevice){
+VkImageView VulkanHelper::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels, VkDevice& logicalDevice){
 	//Image view creation data.
-	VkImageViewCreateInfo viewInfo ={};
+	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	viewInfo.image = image;
 	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	viewInfo.format = format;
 	viewInfo.subresourceRange.aspectMask = aspectFlags;
 	viewInfo.subresourceRange.baseMipLevel = 0;
-	viewInfo.subresourceRange.levelCount = 1;
+	viewInfo.subresourceRange.levelCount = mipLevels;
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount = 1;
 	//Image view creation.
@@ -278,6 +280,28 @@ VkImageView VulkanHelper::createImageView(VkImage image, VkFormat format, VkImag
 
 	return imageView;
 }
+/// <summary>
+/// Creation of shader module.
+/// <param name="code">The code from which we built the module.</param>
+/// <param name="logicalDevice">The logical device where we create the module.</param>
+/// <returns>The shader module created.</returns> 
+/// </summary>
+VkShaderModule VulkanHelper::createShaderModule(const std::vector<char>& code, VkDevice& logicalDevice){
+	//Shader module creation data.
+	VkShaderModuleCreateInfo createInfo ={};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	//Shader module creation.
+	VkShaderModule shaderModule;
+	if(vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+		throw std::runtime_error("failed to create shader module!");
+
+	return shaderModule;
+}
+#pragma endregion
+
+#pragma region Utility methods
 /// <summary>
 /// Copy of buffer.
 /// <param name="srcBuffer">The original buffer to copy.</param>
@@ -330,25 +354,6 @@ void VulkanHelper::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wi
 
 	//Command buffer copy buffer to image.
 	endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, queue);
-}
-/// <summary>
-/// Creation of shader module.
-/// <param name="code">The code from which we built the module.</param>
-/// <param name="logicalDevice">The logical device where we create the module.</param>
-/// <returns>The shader module created.</returns> 
-/// </summary>
-VkShaderModule VulkanHelper::createShaderModule(const std::vector<char>& code, VkDevice& logicalDevice){
-	//Shader module creation data.
-	VkShaderModuleCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-	//Shader module creation.
-	VkShaderModule shaderModule;
-	if(vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-		throw std::runtime_error("failed to create shader module!");
-
-	return shaderModule;
 }
 /// <summary>
 /// Allocate command buffer and registry begin.

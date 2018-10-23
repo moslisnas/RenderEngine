@@ -121,6 +121,7 @@ private:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	//Textures.
+	uint32_t mipLevels;
 	VkImage textureImage;
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
@@ -271,6 +272,8 @@ public:
 	/// Creation of synchronization elements.
 	/// </summary>
 	void createSyncObjects();
+
+	void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 	#pragma endregion
 
 	#pragma region Query methods
@@ -351,8 +354,9 @@ public:
 	/// <param name="format">The format for the image.</param>
 	/// <param name="oldLayout">The old layout used.</param>
 	/// <param name="newLayout">The new layout to use.</param>
+	/// <param name="mipLevels">The mipmap levels used.</param>
 	/// </summary>
-	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 	#pragma endregion
 
 	#pragma region Cleanup methods
