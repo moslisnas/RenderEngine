@@ -49,8 +49,7 @@ void VulkanRenderEngine::initVulkan(){
 	createTextureImage();
 	createTextureImageView();
 	createTextureSampler();
-	createVertexBuffer();
-	createIndexBuffer();
+	scene.createDefaultScene(vulkanHelper); //Vertex buffer and index buffer.
 	createUniformBuffer();
 	createDescriptorPool();
 	createDescriptorSets();
@@ -157,6 +156,9 @@ void VulkanRenderEngine::createLogicalDevice(){
 	//Getting queues.
 	vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
 	vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue);
+
+	//Pass data to vulkan helper.
+	vulkanHelper.setDeviceData(physicalDevice, logicalDevice, graphicsQueue);
 }
 /// <summary>
 /// Creation of swap chain.
@@ -611,58 +613,6 @@ void VulkanRenderEngine::createFramebuffers(){
 	}
 }
 /// <summary>
-/// Creation of vertex buffer.
-/// </summary>
-void VulkanRenderEngine::createVertexBuffer(){ //POR HACER --> GESTIONAR A TRAVÉS DE LA CLASE SCENE
-	//Getting size and CPU buffer creation.
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, logicalDevice, physicalDevice);
-
-	//Copy vertex data to buffer.
-	void* data;
-	vkMapMemory(logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(logicalDevice, stagingBufferMemory);
-	
-	//Creating and filling buffer at GPU.
-	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory, logicalDevice, physicalDevice);
-
-	//Copying the CPU buffer to GPU.
-	vulkanHelper.copyBuffer(stagingBuffer, vertexBuffer, bufferSize, logicalDevice, commandPool, graphicsQueue);
-
-	//Free staging buffer resources.
-	vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
-	vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
-}
-/// <summary>
-/// Creation of index buffer.
-/// </summary>
-void VulkanRenderEngine::createIndexBuffer(){
-	//Getting size and CPU buffer creation.
-	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, logicalDevice, physicalDevice);
-
-	//Copy index data to buffer.
-	void* data;
-	vkMapMemory(logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(logicalDevice, stagingBufferMemory);
-
-	//Creating and filling buffer at GPU.
-	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory, logicalDevice, physicalDevice);
-
-	//Copying the CPU buffer to GPU.
-	vulkanHelper.copyBuffer(stagingBuffer, indexBuffer, bufferSize, logicalDevice, commandPool, graphicsQueue);
-
-	//Free staging buffer resources.
-	vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
-	vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
-}
-/// <summary>
 /// Creation of uniform buffer.
 /// </summary>
 void VulkanRenderEngine::createUniformBuffer(){
@@ -863,6 +813,9 @@ void VulkanRenderEngine::createCommandPool(){
 	//Command pool creation.
 	if(vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
 		throw std::runtime_error("failed to create command pool!");
+
+	//Pass data to vulkan helper.
+	vulkanHelper.setCommandsData(commandPool);
 }
 /// <summary>
 /// Creation of command buffers.
@@ -908,14 +861,14 @@ void VulkanRenderEngine::createCommandBuffers(){
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 		//Bind vertex & index buffer.
-		VkBuffer vertexBuffers[] ={vertexBuffer};
+		VkBuffer vertexBuffers[] = {scene.models[0].vertexBuffer};
 		VkDeviceSize offsets[] ={0};
 		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets); 
-		vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(commandBuffers[i], scene.models[0].indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		//Bind uniform buffers.
 		vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 		//Draw.
-		vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+		vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(scene.models[0].indices.size()), 1, 0, 0, 0);
 		vkCmdEndRenderPass(commandBuffers[i]);
 
 		//Command buffer recording (end).
@@ -1371,10 +1324,7 @@ void VulkanRenderEngine::cleanup(){
 		vkFreeMemory(logicalDevice, uniformBuffersMemory[i], nullptr);
 	}
 	//Buffers.
-	vkDestroyBuffer(logicalDevice, indexBuffer, nullptr);
-	vkFreeMemory(logicalDevice, indexBufferMemory, nullptr);
-	vkDestroyBuffer(logicalDevice, vertexBuffer, nullptr);
-	vkFreeMemory(logicalDevice, vertexBufferMemory, nullptr);
+	scene.models[0].cleanupBuffers();
 	//Semaphores & fences.
 	for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], nullptr);

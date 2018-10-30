@@ -23,6 +23,8 @@ Purpose: Header of VulkanHelper class
 #ifndef STRUCTURE_DATAS
 	#define STRUCTURE_DATAS
 	#include <set>
+	#include <array>
+	#include "AuxiliarStructs.h"
 #endif
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -62,6 +64,10 @@ public:
 	#pragma region Data members
 	const std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
 	const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+	VkPhysicalDevice physicalDevice;
+	VkDevice logicalDevice;
+	VkQueue queue;
+	VkCommandPool commandPool;
 	#pragma endregion
 
 	#pragma region Contructor & destructor
@@ -73,6 +79,10 @@ public:
 	/// Destructor of <c>VulkanHelper</c> class.
 	/// </summary>
 	~VulkanHelper();
+	#pragma endregion
+
+	#pragma region Operators
+	VulkanHelper& operator=(const VulkanHelper& other);
 	#pragma endregion
 
 	#pragma region Query methods
@@ -109,6 +119,19 @@ public:
 	/// <returns>The reference to the memory.</returns> 
 	/// </summary>
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice& physicalDevice);
+	#pragma endregion
+
+	#pragma region Setting methods POR HACER --> PARAMS DE DOC
+	/// <summary>
+	/// Method to set all the vulkan variables related to the device.
+	/// 
+	/// </summary>
+	void setDeviceData(VkPhysicalDevice& physicalDevice, VkDevice& logicalDevice, VkQueue& queue);
+	/// <summary>
+	/// Method to set all the vulkan variables related to commands.
+	/// 
+	/// </summary>
+	void setCommandsData(VkCommandPool& commandPool);
 	#pragma endregion
 
 	#pragma region Debug methods

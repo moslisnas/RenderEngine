@@ -13,6 +13,17 @@ VulkanHelper::~VulkanHelper(){
 }
 #pragma endregion
 
+#pragma region Operators
+VulkanHelper& VulkanHelper::operator=(const VulkanHelper& other){
+	this->physicalDevice = other.physicalDevice;
+	this->logicalDevice = other.logicalDevice;
+	this->queue = other.queue;
+	this->commandPool = other.commandPool;
+
+	return *this;
+}
+#pragma endregion
+
 #pragma region Query methods
 /// <summary>
 /// Method to check if debug mode is active.
@@ -113,6 +124,25 @@ uint32_t VulkanHelper::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 			return i;
 	}
 	throw std::runtime_error("failed to find suitable memory type!");
+}
+#pragma endregion
+
+#pragma region Setting methods POR HACER --> PARAMS DE DOC
+/// <summary>
+/// Method to set all the vulkan variables related to the device.
+/// 
+/// </summary>
+void VulkanHelper::setDeviceData(VkPhysicalDevice& physicalDevice, VkDevice& logicalDevice, VkQueue& queue){
+	this->physicalDevice = physicalDevice;
+	this->logicalDevice = logicalDevice;
+	this->queue = queue;
+}
+/// <summary>
+/// Method to set all the vulkan variables related to commands.
+/// 
+/// </summary>
+void VulkanHelper::setCommandsData(VkCommandPool& commandPool){
+	this->commandPool = commandPool;
 }
 #pragma endregion
 

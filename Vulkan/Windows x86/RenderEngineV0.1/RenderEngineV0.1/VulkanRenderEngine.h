@@ -16,6 +16,7 @@ Purpose: Header of VulkanRenderEngine class
 	#define STRUCTURE_DATAS
 	#include <set>
 	#include <array>
+	#include "AuxiliarStructs.h"
 #endif
 #ifndef ALGEBRAIC_METHODS
 	#define ALGEBRAIC_METHODS
@@ -31,9 +32,13 @@ Purpose: Header of VulkanRenderEngine class
 	#define GLM_FORCE_RADIANS
 	#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #endif
-#include "VulkanHelper.h"
+#ifndef HELPER_CLASSES
+	#define HELPER_CLASSES
+	#include "VulkanHelper.h"
+#endif
 #include "Viewport.h"
 #include "Auxiliar.h"
+#include "Scene.h"
 
 #pragma region Structs POR HACER --> LLEVAR A CLASE MODEL EL STRUCT VERTEX Y VER SI LLEVAR LOS UBOS A VULKANHELPER CLASS
 struct UniformBufferObject {
@@ -41,7 +46,7 @@ struct UniformBufferObject {
 	glm::mat4 view;
 	glm::mat4 proj;
 };
-struct Vertex {
+/*struct Vertex {
 	glm::vec3 pos;
 	glm::vec3 color;
 	glm::vec2 texCoord;
@@ -75,7 +80,7 @@ struct Vertex {
 
 		return attributeDescriptions;
 	}
-};
+};*/
 #pragma endregion
 
 class VulkanRenderEngine{
@@ -113,11 +118,9 @@ private:
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	size_t currentFrame = 0;
+	//Scene elements.
+	Scene scene;
 	//Buffers.
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	//Textures.
@@ -140,7 +143,7 @@ private:
 public:
 	#pragma region Data members
 	//Vertex data. POR HACER --> LLEVAR A ARRAY DE MODELS DE CLASE ESCENA.
-	const std::vector<Vertex> vertices = {
+	/*const std::vector<Vertex> vertices = {
 		{{-0.5f, -0.5f, 0.0f},{1.0f, 0.0f, 0.0f},{0.0f, 0.0f}},
 		{{0.5f, -0.5f, 0.0f},{0.0f, 1.0f, 0.0f},{1.0f, 0.0f}},
 		{{0.5f, 0.5f, 0.0f},{0.0f, 0.0f, 1.0f},{1.0f, 1.0f}},
@@ -155,7 +158,7 @@ public:
 	const std::vector<uint16_t> indices = {
 		0, 1, 2, 2, 3, 0,
 		4, 5, 6, 6, 7, 4
-	};
+	};*/
 	#pragma endregion
 
 	#pragma region Contructor & destructor
@@ -236,14 +239,6 @@ public:
 	/// Creation of framebuffers.
 	/// </summary>
 	void createFramebuffers();
-	/// <summary>
-	/// Creation of vertex buffer.
-	/// </summary>
-	void createVertexBuffer();
-	/// <summary>
-	/// Creation of index buffer.
-	/// </summary>
-	void createIndexBuffer();
 	/// <summary>
 	/// Creation of uniform buffer.
 	/// </summary>

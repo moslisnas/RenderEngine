@@ -129,12 +129,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Viewport.cpp" />
     <ClCompile Include="VulkanHelper.cpp" />
     <ClCompile Include="VulkanRenderEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Auxiliar.h" />
+    <ClInclude Include="AuxiliarStructs.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Viewport.h" />
     <ClInclude Include="VulkanHelper.h" />
     <ClInclude Include="VulkanRenderEngine.h" />
