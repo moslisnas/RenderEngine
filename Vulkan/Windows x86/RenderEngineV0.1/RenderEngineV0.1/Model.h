@@ -39,11 +39,6 @@ public:
 
 	std::vector<Vertex> vertices;
 	std::vector<uint16_t> indices;
-	//Buffers.
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
 	#pragma endregion
 
 	#pragma region Contructor & destructor
@@ -56,29 +51,15 @@ public:
 	/// </summary>
 	~Model();
 	#pragma endregion
-	
-	#pragma region Creation methods
-	/// <summary>
-	/// Creation of vertex buffer.
-	/// </summary>
-	void createVertexBuffer();
-	/// <summary>
-	/// Creation of index buffer.
-	/// </summary>
-	void createIndexBuffer();
-	#pragma endregion
 
 	#pragma region Loading methods
 	/// <summary>
 	/// Loads a rectangle as model mesh.
 	/// </summary>
-	void loadRectangle(VulkanHelper& vulkanHelper);
-	#pragma endregion
-
-	#pragma region Cleanup methods
+	void loadRectangle();
 	/// <summary>
-	/// Cleanup of Vulkan buffers.
+	/// Loads a rectangle as model mesh.
 	/// </summary>
-	void cleanupBuffers();
+	void loadRectangle2();
 	#pragma endregion
 };

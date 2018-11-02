@@ -49,7 +49,7 @@ void VulkanRenderEngine::initVulkan(){
 	createTextureImage();
 	createTextureImageView();
 	createTextureSampler();
-	scene.createDefaultScene(vulkanHelper); //Vertex buffer and index buffer.
+	scene.createDefaultScene(vulkanHelper);
 	createUniformBuffer();
 	createDescriptorPool();
 	createDescriptorSets();
@@ -861,14 +861,14 @@ void VulkanRenderEngine::createCommandBuffers(){
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 		//Bind vertex & index buffer.
-		VkBuffer vertexBuffers[] = {scene.models[0].vertexBuffer};
-		VkDeviceSize offsets[] ={0};
+		VkBuffer vertexBuffers[] = {scene.vertexBuffer};
+		VkDeviceSize offsets[] = {0};
 		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets); 
-		vkCmdBindIndexBuffer(commandBuffers[i], scene.models[0].indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(commandBuffers[i], scene.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		//Bind uniform buffers.
 		vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 		//Draw.
-		vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(scene.models[0].indices.size()), 1, 0, 0, 0);
+		vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(scene.getNumIndices()), 1, 0, 0, 0);
 		vkCmdEndRenderPass(commandBuffers[i]);
 
 		//Command buffer recording (end).
@@ -1324,7 +1324,7 @@ void VulkanRenderEngine::cleanup(){
 		vkFreeMemory(logicalDevice, uniformBuffersMemory[i], nullptr);
 	}
 	//Buffers.
-	scene.models[0].cleanupBuffers();
+	scene.cleanupBuffers();
 	//Semaphores & fences.
 	for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], nullptr);
