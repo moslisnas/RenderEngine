@@ -76,7 +76,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\Libraries\models;..\Libraries\images;..\Libraries\glfw-3.2.1.bin.WIN32\include;..\Libraries\glm-0.9.9.0;C:\VulkanSDK\1.1.82.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libraries\models;..\Libraries\images;..\Libraries\glfw-3.2.1.bin.WIN32\include;..\Libraries\glm-0.9.9.0;..\Libraries\assimp\include;C:\VulkanSDK\1.1.82.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\Libraries\glfw-3.2.1.bin.WIN32\lib-vc2015;C:\VulkanSDK\1.1.82.0\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

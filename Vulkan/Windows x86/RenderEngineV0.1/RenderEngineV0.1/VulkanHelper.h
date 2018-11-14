@@ -47,6 +47,10 @@ struct SwapChainSupportDetails {
 
 class VulkanHelper{
 private:
+	/*#pragma region Singleton member
+	static VulkanHelper* instance;
+	#pragma endregion*/
+
 	#pragma region Data members
 	#ifdef NDEBUG
 	const bool enableValidationLayers = false;

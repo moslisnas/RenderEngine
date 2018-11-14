@@ -864,7 +864,7 @@ void VulkanRenderEngine::createCommandBuffers(){
 		VkBuffer vertexBuffers[] = {scene.vertexBuffer};
 		VkDeviceSize offsets[] = {0};
 		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets); 
-		vkCmdBindIndexBuffer(commandBuffers[i], scene.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(commandBuffers[i], scene.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 		//Bind uniform buffers.
 		vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 		//Draw.

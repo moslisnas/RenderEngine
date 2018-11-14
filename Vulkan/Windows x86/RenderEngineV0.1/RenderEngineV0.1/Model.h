@@ -35,10 +35,10 @@ Purpose: Header of Model class
 class Model{
 public:
 	#pragma region Data members
-	VulkanHelper vulkanHelper;
-
+	uint32_t numVertices;
 	std::vector<Vertex> vertices;
-	std::vector<uint16_t> indices;
+	uint32_t numIndices;
+	std::vector<uint32_t> indices;
 	#pragma endregion
 
 	#pragma region Contructor & destructor
@@ -61,5 +61,10 @@ public:
 	/// Loads a rectangle as model mesh.
 	/// </summary>
 	void loadRectangle2();
+	/// <summary>
+	/// Loads an archive as model mesh.
+	/// <param name="file">Path of the model file.</param>
+	/// </summary>
+	void loadFileModel(char * file);
 	#pragma endregion
 };

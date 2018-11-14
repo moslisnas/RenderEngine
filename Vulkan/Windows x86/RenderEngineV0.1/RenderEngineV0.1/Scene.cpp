@@ -23,8 +23,11 @@ void Scene::createDefaultScene(VulkanHelper& vulkanHelper){
 	this->vulkanHelper = vulkanHelper;
 
 	numModels++;
+	//numModels++;
 	models.resize(numModels);
-	models[0].loadRectangle();
+	//models[0].loadRectangle();
+	//models[1].loadRectangle2();
+	models[0].loadFileModel("Models/ToonTorus.obj");
 
 	//Loading buffers.
 	createVertexBuffer();
@@ -68,8 +71,8 @@ void Scene::createVertexBuffer(){
 /// </summary>
 void Scene::createIndexBuffer(){
 	//Group all indices data in the same vector.
-	std::vector<uint16_t> indicesData;
-	uint16_t startIndex = 0;
+	std::vector<uint32_t> indicesData;
+	size_t startIndex = 0;
 	for(unsigned int i=0; i<numModels; i++){
 		for(unsigned int j=0; j<models[i].indices.size(); j++)
 			indicesData.push_back(models[i].indices[j] + startIndex);
