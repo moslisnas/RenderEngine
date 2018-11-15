@@ -17,17 +17,15 @@ Scene::~Scene(){
 #pragma region Creation methods
 /// <summary>
 /// Creation of default scene.
-/// <param name="vulkanHelper">VulkanHelper instance with all the information about: physical/logical device, queue and command pool.</param>
 /// </summary>
-void Scene::createDefaultScene(VulkanHelper& vulkanHelper){
-	this->vulkanHelper = vulkanHelper;
-
-	numModels++;
-	//numModels++;
+void Scene::createDefaultScene(){
+	numModels += 5;
 	models.resize(numModels);
-	//models[0].loadRectangle();
-	//models[1].loadRectangle2();
-	models[0].loadFileModel("Models/ToonTorus.obj");
+	models[0].loadRectangle();
+	models[1].loadRectangle2();
+	models[2].loadFileModel("Models/ToonTorus.obj");
+	models[3].loadFileModel2("Models/ToonTorus.obj");
+	models[4].loadFileModel3("Models/ToonTorus.obj");
 
 	//Loading buffers.
 	createVertexBuffer();
@@ -48,23 +46,23 @@ void Scene::createVertexBuffer(){
 	VkDeviceSize bufferSize = sizeof(verticesData[0]) * getNumVertices();
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, vulkanHelper.logicalDevice, vulkanHelper.physicalDevice);
+	vulkanHelper->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, vulkanHelper->logicalDevice, vulkanHelper->physicalDevice);
 
 	//Copy vertex data to buffer.
 	void* data;
-	vkMapMemory(vulkanHelper.logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(vulkanHelper->logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, verticesData.data(), (size_t)bufferSize);
-	vkUnmapMemory(vulkanHelper.logicalDevice, stagingBufferMemory);
+	vkUnmapMemory(vulkanHelper->logicalDevice, stagingBufferMemory);
 
 	//Creating and filling buffer at GPU.
-	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory, vulkanHelper.logicalDevice, vulkanHelper.physicalDevice);
+	vulkanHelper->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory, vulkanHelper->logicalDevice, vulkanHelper->physicalDevice);
 
 	//Copying the CPU buffer to GPU.
-	vulkanHelper.copyBuffer(stagingBuffer, vertexBuffer, bufferSize, vulkanHelper.logicalDevice, vulkanHelper.commandPool, vulkanHelper.queue);
+	vulkanHelper->copyBuffer(stagingBuffer, vertexBuffer, bufferSize, vulkanHelper->logicalDevice, vulkanHelper->commandPool, vulkanHelper->queue);
 
 	//Free staging buffer resources.
-	vkDestroyBuffer(vulkanHelper.logicalDevice, stagingBuffer, nullptr);
-	vkFreeMemory(vulkanHelper.logicalDevice, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(vulkanHelper->logicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(vulkanHelper->logicalDevice, stagingBufferMemory, nullptr);
 }
 /// <summary>
 /// Creation of index buffer.
@@ -84,23 +82,23 @@ void Scene::createIndexBuffer(){
 	VkDeviceSize bufferSize = sizeof(indicesData[0]) * getNumIndices();
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, vulkanHelper.logicalDevice, vulkanHelper.physicalDevice);
+	vulkanHelper->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, vulkanHelper->logicalDevice, vulkanHelper->physicalDevice);
 
 	//Copy index data to buffer.
 	void* data;
-	vkMapMemory(vulkanHelper.logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(vulkanHelper->logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, indicesData.data(), (size_t)bufferSize);
-	vkUnmapMemory(vulkanHelper.logicalDevice, stagingBufferMemory);
+	vkUnmapMemory(vulkanHelper->logicalDevice, stagingBufferMemory);
 
 	//Creating and filling buffer at GPU.
-	vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory, vulkanHelper.logicalDevice, vulkanHelper.physicalDevice);
+	vulkanHelper->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory, vulkanHelper->logicalDevice, vulkanHelper->physicalDevice);
 
 	//Copying the CPU buffer to GPU.
-	vulkanHelper.copyBuffer(stagingBuffer, indexBuffer, bufferSize, vulkanHelper.logicalDevice, vulkanHelper.commandPool, vulkanHelper.queue);
+	vulkanHelper->copyBuffer(stagingBuffer, indexBuffer, bufferSize, vulkanHelper->logicalDevice, vulkanHelper->commandPool, vulkanHelper->queue);
 
 	//Free staging buffer resources.
-	vkDestroyBuffer(vulkanHelper.logicalDevice, stagingBuffer, nullptr);
-	vkFreeMemory(vulkanHelper.logicalDevice, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(vulkanHelper->logicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(vulkanHelper->logicalDevice, stagingBufferMemory, nullptr);
 }
 #pragma endregion
 
@@ -109,11 +107,11 @@ void Scene::createIndexBuffer(){
 /// Get method of the vertices number.
 /// <returns>Number of vertices of all the scene.</returns> 
 /// </summary>
-int Scene::getNumVertices(){
-	unsigned int result = 0;
+size_t Scene::getNumVertices(){
+	size_t result = 0;
 
 	for(unsigned int i=0; i<models.size(); i++)
-		result += models[0].vertices.size();
+		result += models[i].vertices.size();
 
 	return result;
 }
@@ -121,11 +119,11 @@ int Scene::getNumVertices(){
 /// Get method of the indices number.
 /// <returns>Number of indices of all the scene.</returns> 
 /// </summary>
-int Scene::getNumIndices(){
-	unsigned int result = 0;
+size_t Scene::getNumIndices(){
+	size_t result = 0;
 
 	for(unsigned int i=0; i<models.size(); i++)
-		result += models[0].indices.size();
+		result += models[i].indices.size();
 
 	return result;
 }
@@ -137,10 +135,10 @@ int Scene::getNumIndices(){
 /// </summary>
 void Scene::cleanupBuffers(){
 	//Index buffer.
-	vkDestroyBuffer(vulkanHelper.logicalDevice, indexBuffer, nullptr);
-	vkFreeMemory(vulkanHelper.logicalDevice, indexBufferMemory, nullptr);
+	vkDestroyBuffer(vulkanHelper->logicalDevice, indexBuffer, nullptr);
+	vkFreeMemory(vulkanHelper->logicalDevice, indexBufferMemory, nullptr);
 	//Vertex buffer.
-	vkDestroyBuffer(vulkanHelper.logicalDevice, vertexBuffer, nullptr);
-	vkFreeMemory(vulkanHelper.logicalDevice, vertexBufferMemory, nullptr);
+	vkDestroyBuffer(vulkanHelper->logicalDevice, vertexBuffer, nullptr);
+	vkFreeMemory(vulkanHelper->logicalDevice, vertexBufferMemory, nullptr);
 }
 #pragma endregion

@@ -1,11 +1,23 @@
 #include "VulkanHelper.h"
 
-#pragma region Contructor & destructor
+#pragma region Contructor
 /// <summary>
 /// Constructor of <c>VulkanHelper</c> class.
 /// </summary>
 VulkanHelper::VulkanHelper(){
 }
+#pragma endregion
+
+#pragma region Static singleton access method
+VulkanHelper* VulkanHelper::getInstance(){
+	if(instance == 0)
+		instance = new VulkanHelper();
+
+	return instance;
+}
+#pragma endregion
+
+#pragma region Destructor
 /// <summary>
 /// Destructor of <c>VulkanHelper</c> class.
 /// </summary>
@@ -127,10 +139,12 @@ uint32_t VulkanHelper::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 }
 #pragma endregion
 
-#pragma region Setting methods POR HACER --> PARAMS DE DOC
+#pragma region Setting methods
 /// <summary>
 /// Method to set all the vulkan variables related to the device.
-/// 
+/// <param name="physicalDevice">Physical device used on this VulkanHelper instance.</param>
+/// <param name="logicalDevice">Logical device used on this VulkanHelpe instance.</param>
+/// <param name="queue">Graphics queue used on this VulkanHelper instance.</param>
 /// </summary>
 void VulkanHelper::setDeviceData(VkPhysicalDevice& physicalDevice, VkDevice& logicalDevice, VkQueue& queue){
 	this->physicalDevice = physicalDevice;
@@ -139,7 +153,7 @@ void VulkanHelper::setDeviceData(VkPhysicalDevice& physicalDevice, VkDevice& log
 }
 /// <summary>
 /// Method to set all the vulkan variables related to commands.
-/// 
+/// <param name="commandPool">Command pool used on this VulkanHelper instance.</param>
 /// </summary>
 void VulkanHelper::setCommandsData(VkCommandPool& commandPool){
 	this->commandPool = commandPool;

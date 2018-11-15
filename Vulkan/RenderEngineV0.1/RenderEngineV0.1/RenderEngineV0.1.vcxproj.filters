@@ -61,6 +61,9 @@
     <ClCompile Include="Model.cpp">
       <Filter>Archivos de código fuente\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="GlobalVariables.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VulkanRenderEngine.h">
@@ -82,6 +85,9 @@
       <Filter>Archivos de encabezado\Scene</Filter>
     </ClInclude>
     <ClInclude Include="AuxiliarStructs.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalVariables.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

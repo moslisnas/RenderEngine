@@ -137,6 +137,7 @@
     <Image Include="Textures\texture.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GlobalVariables.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -147,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="Auxiliar.h" />
     <ClInclude Include="AuxiliarStructs.h" />
+    <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Viewport.h" />

@@ -32,16 +32,16 @@ Purpose: Header of VulkanRenderEngine class
 	#define GLM_FORCE_RADIANS
 	#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #endif
-#ifndef HELPER_CLASSES
-	#define HELPER_CLASSES
-	#include "VulkanHelper.h"
+#ifndef GLOBAL_VARIABLES
+	#define GLOBAL_VARIABLES
+	#include "GlobalVariables.h"
 #endif
 #include "Viewport.h"
 #include "Auxiliar.h"
 #include "Scene.h"
 
-#pragma region Structs POR HACER --> VER SI LLEVAR LOS UBOS A VULKANHELPER CLASS
-struct UniformBufferObject {
+#pragma region Structs
+struct ModelViewProjectionUBO {
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
@@ -51,7 +51,6 @@ struct UniformBufferObject {
 class VulkanRenderEngine{
 private:
 	#pragma region Data members
-	VulkanHelper vulkanHelper;
 	VkInstance instance;
 	//Device elements.
 	VkPhysicalDevice physicalDevice;

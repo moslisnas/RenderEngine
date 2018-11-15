@@ -27,10 +27,6 @@ Purpose: Header of Model class
 	#include <glm/glm.hpp>
 	#include <glm/gtc/matrix_transform.hpp>
 #endif
-#ifndef HELPER_CLASSES
-	#define HELPER_CLASSES
-	#include "VulkanHelper.h"
-#endif
 
 class Model{
 public:
@@ -66,5 +62,15 @@ public:
 	/// <param name="file">Path of the model file.</param>
 	/// </summary>
 	void loadFileModel(char * file);
+	/// <summary>
+	/// Loads an archive as model mesh.
+	/// <param name="file">Path of the model file.</param>
+	/// </summary>
+	void loadFileModel2(char * file);
+	/// <summary>
+	/// Loads an archive as model mesh.
+	/// <param name="file">Path of the model file.</param>
+	/// </summary>
+	void loadFileModel3(char * file);
 	#pragma endregion
 };

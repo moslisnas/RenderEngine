@@ -18,8 +18,7 @@ Purpose: Header of Auxiliar functions
 
 /// <summary>
 /// Read data from a file.
-/// 
-/// 
+/// <param name="filename">File path which we want to load.</param>
 /// </summary>
 static std::vector<char> readFile(const std::string& filename) {
 	//Reading file.

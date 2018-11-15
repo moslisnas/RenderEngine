@@ -32,7 +32,7 @@ void VulkanRenderEngine::run(){
 /// </summary>
 void VulkanRenderEngine::initVulkan(){
 	createVulkanInstance();
-	vulkanHelper.setupDebugCallback(instance);
+	vulkanHelper->setupDebugCallback(instance);
 	viewport.createSurface(instance, surface);
 	pickPhyshicalDevice();
 	createLogicalDevice();
@@ -49,7 +49,7 @@ void VulkanRenderEngine::initVulkan(){
 	createTextureImage();
 	createTextureImageView();
 	createTextureSampler();
-	scene.createDefaultScene(vulkanHelper);
+	scene.createDefaultScene();
 	createUniformBuffer();
 	createDescriptorPool();
 	createDescriptorSets();
@@ -89,19 +89,19 @@ void VulkanRenderEngine::createVulkanInstance(){
 	createInfo.pApplicationInfo = &appInfo;
 
 	//GLFW extensions.
-	auto extensions = vulkanHelper.getRequiredExtensions();
+	auto extensions = vulkanHelper->getRequiredExtensions();
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 	createInfo.ppEnabledExtensionNames = extensions.data();
 	createInfo.enabledLayerCount = 0;
 	//Print extensions.
-	vulkanHelper.printExtensions();
+	vulkanHelper->printExtensions();
 
 	//ValidationLayers.
-	if(vulkanHelper.isDebugging() && !vulkanHelper.checkValidationLayerSupport())
+	if(vulkanHelper->isDebugging() && !vulkanHelper->checkValidationLayerSupport())
 		throw std::runtime_error("validation layers requested, but not available!");
-	if(vulkanHelper.isDebugging()) {
-		createInfo.enabledLayerCount = static_cast<uint32_t>(vulkanHelper.validationLayers.size());
-		createInfo.ppEnabledLayerNames = vulkanHelper.validationLayers.data();
+	if(vulkanHelper->isDebugging()) {
+		createInfo.enabledLayerCount = static_cast<uint32_t>(vulkanHelper->validationLayers.size());
+		createInfo.ppEnabledLayerNames = vulkanHelper->validationLayers.data();
 	}
 	else
 		createInfo.enabledLayerCount = 0;
@@ -140,12 +140,12 @@ void VulkanRenderEngine::createLogicalDevice(){
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	createInfo.pEnabledFeatures = &deviceFeatures;
 	//Extensions.
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(vulkanHelper.deviceExtensions.size());
-	createInfo.ppEnabledExtensionNames = vulkanHelper.deviceExtensions.data();
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(vulkanHelper->deviceExtensions.size());
+	createInfo.ppEnabledExtensionNames = vulkanHelper->deviceExtensions.data();
 	//Validation layers.
-	if(vulkanHelper.isDebugging()){
-		createInfo.enabledLayerCount = static_cast<uint32_t>(vulkanHelper.validationLayers.size());
-		createInfo.ppEnabledLayerNames = vulkanHelper.validationLayers.data();
+	if(vulkanHelper->isDebugging()){
+		createInfo.enabledLayerCount = static_cast<uint32_t>(vulkanHelper->validationLayers.size());
+		createInfo.ppEnabledLayerNames = vulkanHelper->validationLayers.data();
 	}
 	else
 		createInfo.enabledLayerCount = 0;
@@ -158,7 +158,7 @@ void VulkanRenderEngine::createLogicalDevice(){
 	vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue);
 
 	//Pass data to vulkan helper.
-	vulkanHelper.setDeviceData(physicalDevice, logicalDevice, graphicsQueue);
+	vulkanHelper->setDeviceData(physicalDevice, logicalDevice, graphicsQueue);
 }
 /// <summary>
 /// Creation of swap chain.
@@ -242,7 +242,7 @@ void VulkanRenderEngine::createImageViews(){
 
 	//Image views creation.
 	for(uint32_t i = 0; i < swapChainImages.size(); i++)
-		swapChainImageViews[i] = vulkanHelper.createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDevice);
+		swapChainImageViews[i] = vulkanHelper->createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDevice);
 }
 /// <summary>
 /// Creation of descriptor set layout (UBO & samplers).
@@ -315,7 +315,7 @@ void VulkanRenderEngine::createDescriptorSets(){
 		VkDescriptorBufferInfo bufferInfo = {};
 		bufferInfo.buffer = uniformBuffers[i];
 		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		bufferInfo.range = sizeof(ModelViewProjectionUBO);
 		//Image descriptor data.
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -353,8 +353,8 @@ void VulkanRenderEngine::createGraphicsPipeline(){
 	VkShaderModule fragShaderModule;
 	auto vertShaderCode = readFile("shaders/vert.spv");
 	auto fragShaderCode = readFile("shaders/frag.spv");
-	vertShaderModule = vulkanHelper.createShaderModule(vertShaderCode, logicalDevice);
-	fragShaderModule = vulkanHelper.createShaderModule(fragShaderCode, logicalDevice);
+	vertShaderModule = vulkanHelper->createShaderModule(vertShaderCode, logicalDevice);
+	fragShaderModule = vulkanHelper->createShaderModule(fragShaderCode, logicalDevice);
 
 	//Vertex shader data.
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
@@ -617,12 +617,12 @@ void VulkanRenderEngine::createFramebuffers(){
 /// </summary>
 void VulkanRenderEngine::createUniformBuffer(){
 	//Getting size and resizing.
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	VkDeviceSize bufferSize = sizeof(ModelViewProjectionUBO);
 	uniformBuffers.resize(swapChainImages.size());
 	uniformBuffersMemory.resize(swapChainImages.size());
 	//Uniform buffers creation.
 	for(size_t i = 0; i < swapChainImages.size(); i++)
-		vulkanHelper.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i], logicalDevice, physicalDevice);
+		vulkanHelper->createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i], logicalDevice, physicalDevice);
 }
 /// <summary>
 /// Creation of texture image.
@@ -630,7 +630,7 @@ void VulkanRenderEngine::createUniformBuffer(){
 void VulkanRenderEngine::createTextureImage(){
 	//Loading image.
 	int texWidth, texHeight, texChannels;
-	stbi_uc* pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	stbi_uc* pixels = stbi_load("textures/binarycode.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
 
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
@@ -640,7 +640,7 @@ void VulkanRenderEngine::createTextureImage(){
 	//CPU buffer creation.
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	vulkanHelper.createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, logicalDevice, physicalDevice);
+	vulkanHelper->createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, logicalDevice, physicalDevice);
 	
 	//Copy image data to buffer.
 	void* data;
@@ -652,13 +652,13 @@ void VulkanRenderEngine::createTextureImage(){
 	stbi_image_free(pixels);
 
 	//Image buffer creation.
-	vulkanHelper.createImage(texWidth, texHeight, mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory, logicalDevice, physicalDevice);
+	vulkanHelper->createImage(texWidth, texHeight, mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory, logicalDevice, physicalDevice);
 
 	//Put image on a layout.
 	transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
 
 	//Put buffer image data on image resource and transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps.
-	vulkanHelper.copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), logicalDevice, commandPool, graphicsQueue);
+	vulkanHelper->copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), logicalDevice, commandPool, graphicsQueue);
 
 	//Free staging buffer resources.
 	vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
@@ -683,7 +683,7 @@ void VulkanRenderEngine::generateMipmaps(VkImage image, VkFormat imageFormat, in
 		throw std::runtime_error("texture image format does not support linear blitting!");
 
 	//Allocate generate mipmaps command buffer.
-	VkCommandBuffer commandBuffer = vulkanHelper.beginSingleTimeCommands(logicalDevice, commandPool);
+	VkCommandBuffer commandBuffer = vulkanHelper->beginSingleTimeCommands(logicalDevice, commandPool);
 
 	//Mipmaps memory barrier data.
 	VkImageMemoryBarrier barrier = {};
@@ -751,14 +751,14 @@ void VulkanRenderEngine::generateMipmaps(VkImage image, VkFormat imageFormat, in
 	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
 	//Command buffer generate mipmaps.
-	vulkanHelper.endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, graphicsQueue);
+	vulkanHelper->endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, graphicsQueue);
 }
 /// <summary>
 /// Creation of texture image view.
 /// </summary>
 void VulkanRenderEngine::createTextureImageView(){
 	//Texture image view creation.
-	textureImageView = vulkanHelper.createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, logicalDevice);
+	textureImageView = vulkanHelper->createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, logicalDevice);
 }
 /// <summary>
 /// Creation of texture sampler.
@@ -794,8 +794,8 @@ void VulkanRenderEngine::createDepthResources(){
 	VkFormat depthFormat = findDepthFormat();
 
 	//Creating depth image & depth image view.
-	vulkanHelper.createImage(swapChainExtent.width, swapChainExtent.height, 1, msaaSamples, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, logicalDevice, physicalDevice);
-	depthImageView = vulkanHelper.createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1, logicalDevice);
+	vulkanHelper->createImage(swapChainExtent.width, swapChainExtent.height, 1, msaaSamples, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, logicalDevice, physicalDevice);
+	depthImageView = vulkanHelper->createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1, logicalDevice);
 
 	//Put depth image on a layout.
 	transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
@@ -815,7 +815,7 @@ void VulkanRenderEngine::createCommandPool(){
 		throw std::runtime_error("failed to create command pool!");
 
 	//Pass data to vulkan helper.
-	vulkanHelper.setCommandsData(commandPool);
+	vulkanHelper->setCommandsData(commandPool);
 }
 /// <summary>
 /// Creation of command buffers.
@@ -903,8 +903,8 @@ void VulkanRenderEngine::createColorResources(){
 	VkFormat colorFormat = swapChainImageFormat;
 
 	//Creating multisampling image & multisampling image view.
-	vulkanHelper.createImage(swapChainExtent.width, swapChainExtent.height, 1, msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory, logicalDevice, physicalDevice);
-	colorImageView = vulkanHelper.createImageView(colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDevice);
+	vulkanHelper->createImage(swapChainExtent.width, swapChainExtent.height, 1, msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory, logicalDevice, physicalDevice);
+	colorImageView = vulkanHelper->createImageView(colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDevice);
 
 	//Put multisampling image on a layout.
 	transitionImageLayout(colorImage, colorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1);
@@ -921,7 +921,7 @@ bool VulkanRenderEngine::isDeviceSuitable(VkPhysicalDevice device){
 	//Checking queue families
 	QueueFamilyIndices indices = findQueueFamilies(device);
 	//Checking extensions
-	bool extensionsSupported = vulkanHelper.checkDeviceExtensionSupport(device);
+	bool extensionsSupported = vulkanHelper->checkDeviceExtensionSupport(device);
 	//Cheking swap chain	
 	bool swapChainAdequate = false;
 	if(extensionsSupported){
@@ -1010,8 +1010,8 @@ VkFormat VulkanRenderEngine::findSupportedFormat(const std::vector<VkFormat>& ca
 			return format;
 		else if(tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
 			return format;
-
-		throw std::runtime_error("failed to find supported format!");
+		else
+			throw std::runtime_error("failed to find supported format!");
 	}
 }
 /// <summary>
@@ -1054,7 +1054,7 @@ VkSampleCountFlagBits VulkanRenderEngine::getMaxUsableSampleCount(){
 }
 #pragma endregion
 
-#pragma region Vulkan configuration methods POR HACER --> Improve hardware rating and hardware selected.
+#pragma region Vulkan configuration methods
 /// <summary>
 /// Drawing method.
 /// </summary>
@@ -1130,7 +1130,7 @@ void VulkanRenderEngine::updateUniformBuffer(uint32_t currentImage){
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	//Updating uniform buffer data: model, view & projection matrix.
-	UniformBufferObject ubo = {};
+	ModelViewProjectionUBO ubo = {};
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
@@ -1243,7 +1243,7 @@ VkExtent2D VulkanRenderEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& 
 /// </summary>
 void VulkanRenderEngine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels){
 	//Allocate transition image layout command buffer.
-	VkCommandBuffer commandBuffer = vulkanHelper.beginSingleTimeCommands(logicalDevice, commandPool);
+	VkCommandBuffer commandBuffer = vulkanHelper->beginSingleTimeCommands(logicalDevice, commandPool);
 
 	//Image memory barrier data.
 	VkImageMemoryBarrier barrier = {};
@@ -1299,7 +1299,7 @@ void VulkanRenderEngine::transitionImageLayout(VkImage image, VkFormat format, V
 	vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
 	//Command buffer transition image layout.
-	vulkanHelper.endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, graphicsQueue);
+	vulkanHelper->endSingleTimeCommands(commandBuffer, logicalDevice, commandPool, graphicsQueue);
 }
 #pragma endregion
 
@@ -1336,7 +1336,7 @@ void VulkanRenderEngine::cleanup(){
 	//Logical device.
 	vkDestroyDevice(logicalDevice, nullptr);
 	//VulkanHelper elements: Validation layers.
-	vulkanHelper.cleanup(instance);
+	vulkanHelper->cleanup(instance);
 	//Surface.
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	//Vulkan instance.

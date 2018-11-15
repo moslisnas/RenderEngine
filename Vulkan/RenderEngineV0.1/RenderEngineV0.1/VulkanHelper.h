@@ -47,9 +47,16 @@ struct SwapChainSupportDetails {
 
 class VulkanHelper{
 private:
-	/*#pragma region Singleton member
+	#pragma region Singleton data member
 	static VulkanHelper* instance;
-	#pragma endregion*/
+	#pragma endregion
+
+	#pragma region Contructor
+	/// <summary>
+	/// Constructor of <c>VulkanHelper</c> class.
+	/// </summary>
+	VulkanHelper();
+	#pragma endregion
 
 	#pragma region Data members
 	#ifdef NDEBUG
@@ -74,11 +81,11 @@ public:
 	VkCommandPool commandPool;
 	#pragma endregion
 
-	#pragma region Contructor & destructor
-	/// <summary>
-	/// Constructor of <c>VulkanHelper</c> class.
-	/// </summary>
-	VulkanHelper();
+	#pragma region Static access method
+	static VulkanHelper* getInstance();
+	#pragma endregion
+
+	#pragma region Destructor
 	/// <summary>
 	/// Destructor of <c>VulkanHelper</c> class.
 	/// </summary>
@@ -125,15 +132,17 @@ public:
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice& physicalDevice);
 	#pragma endregion
 
-	#pragma region Setting methods POR HACER --> PARAMS DE DOC
+	#pragma region Setting methods
 	/// <summary>
 	/// Method to set all the vulkan variables related to the device.
-	/// 
+	/// <param name="physicalDevice">Physical device used on this VulkanHelper instance.</param>
+	/// <param name="logicalDevice">Logical device used on this VulkanHelpe instance.</param>
+	/// <param name="queue">Graphics queue used on this VulkanHelper instance.</param>
 	/// </summary>
 	void setDeviceData(VkPhysicalDevice& physicalDevice, VkDevice& logicalDevice, VkQueue& queue);
 	/// <summary>
 	/// Method to set all the vulkan variables related to commands.
-	/// 
+	/// <param name="commandPool">Command pool used on this VulkanHelper instance.</param>
 	/// </summary>
 	void setCommandsData(VkCommandPool& commandPool);
 	#pragma endregion

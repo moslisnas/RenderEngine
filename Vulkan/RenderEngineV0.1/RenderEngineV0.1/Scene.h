@@ -11,9 +11,9 @@ Purpose: Header of Scene class
 	#define INCLUDE_VECTOR
 	#include <vector>
 #endif
-#ifndef HELPER_CLASSES
-	#define HELPER_CLASSES
-	#include "VulkanHelper.h"
+#ifndef GLOBAL_VARIABLES
+	#define GLOBAL_VARIABLES
+	#include "GlobalVariables.h"
 #endif
 #include "Model.h"
 
@@ -22,8 +22,6 @@ public:
 	#pragma region Data members
 	unsigned int numModels;
 	std::vector<Model> models;
-	//Vulkan helper.
-	VulkanHelper vulkanHelper;
 	//Buffers.
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
@@ -45,9 +43,8 @@ public:
 	#pragma region Creation methods
 	/// <summary>
 	/// Creation of default scene.
-	/// <param name="vulkanHelper">VulkanHelper instance with all the information about: physical/logical device, queue and command pool.</param>
 	/// </summary>
-	void createDefaultScene(VulkanHelper& vulkanHelper);
+	void createDefaultScene();
 	/// <summary>
 	/// Creation of vertex buffer.
 	/// </summary>
@@ -63,12 +60,12 @@ public:
 	/// Get method of the vertices number.
 	/// <returns>Number of vertices of all the scene.</returns> 
 	/// </summary>
-	int getNumVertices();
+	size_t getNumVertices();
 	/// <summary>
 	/// Get method of the indices number.
 	/// <returns>Number of indices of all the scene.</returns> 
 	/// </summary>
-	int getNumIndices();
+	size_t getNumIndices();
 	#pragma endregion
 
 	#pragma region Cleanup methods
