@@ -87,18 +87,12 @@ private:
 	//Buffers.
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
-	//Textures.
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
-	VkImageView textureImageView;
-	VkSampler textureSampler;
 	//Depth.
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
 	//Others.
 	bool framebufferResized = false;
-	uint32_t mipLevels;
 	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 	VkImage colorImage;
 	VkDeviceMemory colorImageMemory;
@@ -188,27 +182,6 @@ public:
 	/// </summary>
 	void createUniformBuffer();
 	/// <summary>
-	/// Creation of texture image.
-	/// </summary>
-	void createTextureImage();
-	/// <summary>
-	/// Mipmap generation for texture images.
-	/// <param name="image">The image from we want generate mipmap.</param>
-	/// <param name="imageFormat">The format of the image.</param>
-	/// <param name="texWidth">The texture image width.</param>
-	/// <param name="texHeight">The  texture image height.</param>
-	/// <param name="mipLevels">The number of levels used for mipmaps.</param>
-	/// </summary>
-	void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
-	/// <summary>
-	/// Creation of texture image view.
-	/// </summary>
-	void createTextureImageView();
-	/// <summary>
-	/// Creation of texture sampler.
-	/// </summary>
-	void createTextureSampler();
-	/// <summary>
 	/// Creation of depth resources.
 	/// </summary>
 	void createDepthResources();
@@ -263,12 +236,6 @@ public:
 	/// </summary>
 	VkFormat findDepthFormat();
 	/// <summary>
-	/// Checks if format has the stencil component.
-	/// <param name="format">The format itself.</param>
-	/// <returns>True if the format has stencil component, false otherwise.</returns> 
-	/// </summary>
-	bool hasStencilComponent(VkFormat format);
-	/// <summary>
 	/// Get the max number of multisampling samples supported.
 	/// <returns>The max multisampling samples supported.</returns> 
 	/// </summary>
@@ -307,15 +274,6 @@ public:
 	/// <returns>The swap extent (2D) selected.</returns> 
 	/// </summary>
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-	/// <summary>
-	/// Put image on a layout.
-	/// <param name="image">The original image to transit.</param>
-	/// <param name="format">The format for the image.</param>
-	/// <param name="oldLayout">The old layout used.</param>
-	/// <param name="newLayout">The new layout to use.</param>
-	/// <param name="mipLevels">The mipmap levels used.</param>
-	/// </summary>
-	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 	#pragma endregion
 
 	#pragma region Cleanup methods

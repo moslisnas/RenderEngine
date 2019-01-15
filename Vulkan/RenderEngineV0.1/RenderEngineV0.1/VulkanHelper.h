@@ -130,6 +130,12 @@ public:
 	/// <returns>The reference to the memory.</returns> 
 	/// </summary>
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice& physicalDevice);
+	/// <summary>
+	/// Checks if format has the stencil component.
+	/// <param name="format">The format itself.</param>
+	/// <returns>True if the format has stencil component, false otherwise.</returns> 
+	/// </summary>
+	bool hasStencilComponent(VkFormat format);
 	#pragma endregion
 
 	#pragma region Setting methods
@@ -254,6 +260,15 @@ public:
 	/// <param name="queue">The queue where the command is performed.</param>
 	/// </summary>
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkDevice& logicalDevice, VkCommandPool& commandPool, VkQueue& queue);
+	/// <summary>
+	/// Put image on a layout.
+	/// <param name="image">The original image to transit.</param>
+	/// <param name="format">The format for the image.</param>
+	/// <param name="oldLayout">The old layout used.</param>
+	/// <param name="newLayout">The new layout to use.</param>
+	/// <param name="mipLevels">The mipmap levels used.</param>
+	/// </summary>
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 	#pragma endregion
 	
 	#pragma region Cleanup methods
