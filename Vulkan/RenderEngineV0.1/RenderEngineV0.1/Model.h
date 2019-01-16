@@ -27,6 +27,7 @@ Purpose: Header of Model class
 	#include <glm/glm.hpp>
 	#include <glm/gtc/matrix_transform.hpp>
 #endif
+#include "Texture.h"
 
 class Model{
 public:
@@ -35,6 +36,14 @@ public:
 	std::vector<Vertex> vertices;
 	uint32_t numIndices;
 	std::vector<uint32_t> indices;
+	//Textures.
+	VkImage textureImage;
+	VkDeviceMemory textureImageMemory;
+	VkImageView textureImageView;
+	VkSampler textureSampler;
+	//Texture texture;
+	//Others.
+	uint32_t mipLevels;
 	#pragma endregion
 
 	#pragma region Contructor & destructor
@@ -46,6 +55,30 @@ public:
 	/// Destructor of <c>Model</c> class.
 	/// </summary>
 	~Model();
+	#pragma endregion
+
+	#pragma region Creation methods
+	/// <summary>
+	/// Creation of texture image.
+	/// </summary>
+	void createTextureImage(int i);
+	/// <summary>
+	/// Creation of texture image view.
+	/// </summary>
+	void createTextureImageView();
+	/// <summary>
+	/// Creation of texture sampler.
+	/// </summary>
+	void createTextureSampler();
+	/// <summary>
+	/// Mipmap generation for texture images.
+	/// <param name="image">The image from we want generate mipmap.</param>
+	/// <param name="imageFormat">The format of the image.</param>
+	/// <param name="texWidth">The texture image width.</param>
+	/// <param name="texHeight">The  texture image height.</param>
+	/// <param name="mipLevels">The number of levels used for mipmaps.</param>
+	/// </summary>
+	void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 	#pragma endregion
 
 	#pragma region Loading methods
@@ -72,5 +105,12 @@ public:
 	/// <param name="file">Path of the model file.</param>
 	/// </summary>
 	void loadFileModel3(char * file);
+	#pragma endregion
+
+	#pragma region Cleanup methods
+	/// <summary>
+	/// Cleanup of Vulkan texture.
+	/// </summary>
+	void cleanupTexture();
 	#pragma endregion
 };

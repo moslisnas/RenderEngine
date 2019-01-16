@@ -141,6 +141,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Viewport.cpp" />
     <ClCompile Include="VulkanHelper.cpp" />
     <ClCompile Include="VulkanRenderEngine.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Viewport.h" />
     <ClInclude Include="VulkanHelper.h" />
     <ClInclude Include="VulkanRenderEngine.h" />

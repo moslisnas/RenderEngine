@@ -64,6 +64,9 @@
     <ClCompile Include="Viewport.cpp">
       <Filter>Archivos de código fuente\RenderEngine</Filter>
     </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Archivos de código fuente\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VulkanRenderEngine.h">
@@ -89,6 +92,9 @@
     </ClInclude>
     <ClInclude Include="Viewport.h">
       <Filter>Archivos de encabezado\RenderEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Archivos de encabezado\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
