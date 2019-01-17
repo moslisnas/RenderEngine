@@ -1,0 +1,5 @@
+﻿  VulkanRenderEngine.cpp
+c:\users\molic\documents\github\renderengine\vulkan\renderenginev0.1\renderenginev0.1\vulkanrenderengine.cpp(341): warning C4267: '=': conversión de 'size_t' a 'uint32_t'; posible pérdida de datos
+c:\users\molic\documents\github\renderengine\vulkan\renderenginev0.1\renderenginev0.1\vulkanrenderengine.cpp(871): warning C4715: 'VulkanRenderEngine::findSupportedFormat': no todas las rutas de acceso de control devuelven un valor
+  RenderEngineV0.1.vcxproj -> C:\Users\molic\Documents\Github\RenderEngine\Vulkan\RenderEngineV0.1\x64\Debug\RenderEngineV0.1.exe
+  RenderEngineV0.1.vcxproj -> C:\Users\molic\Documents\Github\RenderEngine\Vulkan\RenderEngineV0.1\x64\Debug\RenderEngineV0.1.pdb (Partial PDB)

@@ -91,8 +91,8 @@ void Model::createTextureSampler(){
 	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.anisotropyEnable = VK_TRUE;
-	samplerInfo.maxAnisotropy = 16;
+	samplerInfo.anisotropyEnable = VK_TRUE; //POR HACER --> VkPhysicalDeviceFeatures.samplerAnisotropy
+	samplerInfo.maxAnisotropy = 16; //POR HACER --> REVISAR SI SE PUEDE UTILIZAR EL LIMITE VkPhysicalDeviceProperties.limits.maxSamplerAnisotropy
 	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 	samplerInfo.unnormalizedCoordinates = VK_FALSE;
 	samplerInfo.compareEnable = VK_FALSE;
@@ -101,7 +101,7 @@ void Model::createTextureSampler(){
 	samplerInfo.minLod = 0; // Optional
 	samplerInfo.maxLod = static_cast<float>(mipLevels);
 	samplerInfo.mipLodBias = 0; // Optional
-								//Sampler creation.
+	//Sampler creation.
 	if(vkCreateSampler(vulkanHelper->logicalDevice, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
 		throw std::runtime_error("failed to create texture sampler!");
 }

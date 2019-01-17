@@ -27,13 +27,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\compile.bat">
-      <Filter>Archivos de recursos</Filter>
-    </None>
     <None Include="Shaders\shader.frag">
       <Filter>Archivos de recursos</Filter>
     </None>
     <None Include="Shaders\shader.vert">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="Shaders\shaderTextures.frag">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="Shaders\shaderTextures.vert">
       <Filter>Archivos de recursos</Filter>
     </None>
   </ItemGroup>

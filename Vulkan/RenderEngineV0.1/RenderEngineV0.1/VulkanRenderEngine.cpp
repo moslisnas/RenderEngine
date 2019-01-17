@@ -331,10 +331,10 @@ void VulkanRenderEngine::createDescriptorSets(){
 
 		//Image descriptor data.
 		VkDescriptorImageInfo imageInfo = {};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = scene.models[1].textureImageView;
-		imageInfo.sampler = scene.models[1].textureSampler;
 		for(size_t j=0; j<scene.numModels; j++){
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = scene.models[j].textureImageView;
+			imageInfo.sampler = scene.models[j].textureSampler;
 			//Write descriptor data: sampler.
 			descriptorWrites[j+1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[j+1].dstSet = descriptorSets[i];
@@ -344,18 +344,6 @@ void VulkanRenderEngine::createDescriptorSets(){
 			descriptorWrites[j+1].descriptorCount = 1;
 			descriptorWrites[j+1].pImageInfo = &imageInfo;
 		}
-		//Image descriptor data.
-		/*VkDescriptorImageInfo imageInfo2 ={};
-		imageInfo2.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo2.imageView = scene.models[1].textureImageView;
-		imageInfo2.sampler = scene.models[1].textureSampler;
-		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[2].dstSet = descriptorSets[i];
-		descriptorWrites[2].dstBinding = 2;
-		descriptorWrites[2].dstArrayElement = 0;
-		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pImageInfo = &imageInfo2;*/
 		//descriptorWrite.pTexelBufferView = nullptr; // Optional
 		//Update descriptor buffers.
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
