@@ -255,16 +255,9 @@ void VulkanRenderEngine::createDescriptorSetLayout(){
 	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	//Descriptor set layout binding data: sampler.
-	VkDescriptorSetLayoutBinding samplerLayoutBinding2 ={};
-	samplerLayoutBinding2.binding = 2;
-	samplerLayoutBinding2.descriptorCount = 1;
-	samplerLayoutBinding2.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding2.pImmutableSamplers = nullptr;
-	samplerLayoutBinding2.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	//Descriptor set layout creation data.
-	std::array<VkDescriptorSetLayoutBinding, 3> bindings = {uboLayoutBinding, samplerLayoutBinding, samplerLayoutBinding2};
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -278,20 +271,19 @@ void VulkanRenderEngine::createDescriptorSetLayout(){
 /// </summary>
 void VulkanRenderEngine::createDescriptorPool(){
 	//Descriptor pool size data.
-	std::array<VkDescriptorPoolSize, 3> poolSizes = {};
+	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-	poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+	//POR HACER --> Si queremos que tengan la misma textura indicamos el valor swapChainImages.size()
+	poolSizes[1].descriptorCount =  static_cast<uint32_t>(scene.models.size());//static_cast<uint32_t>(swapChainImages.size());
 
 	//Descriptor pool creation data.
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
+	poolInfo.maxSets = static_cast<uint32_t>(scene.models.size()); //static_cast<uint32_t>(swapChainImages.size());
 	//Descriptor pool creation.
 	if(vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
 		throw std::runtime_error("failed to create descriptor pool!");
@@ -332,6 +324,7 @@ void VulkanRenderEngine::createDescriptorSets(){
 		//Image descriptor data.
 		VkDescriptorImageInfo imageInfo = {};
 		for(size_t j=0; j<scene.numModels; j++){
+			//
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			imageInfo.imageView = scene.models[j].textureImageView;
 			imageInfo.sampler = scene.models[j].textureSampler;
