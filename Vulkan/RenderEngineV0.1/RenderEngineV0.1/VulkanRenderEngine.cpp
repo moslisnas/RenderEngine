@@ -249,7 +249,7 @@ void VulkanRenderEngine::createDescriptorSetLayout(){
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
 	//Descriptor set layout binding data: sampler.
-	VkDescriptorSetLayoutBinding samplerLayoutBinding ={};
+	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
 	samplerLayoutBinding.binding = 1;
 	samplerLayoutBinding.descriptorCount = 1;
 	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -276,14 +276,14 @@ void VulkanRenderEngine::createDescriptorPool(){
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	//POR HACER --> Si queremos que tengan la misma textura indicamos el valor swapChainImages.size()
-	poolSizes[1].descriptorCount =  static_cast<uint32_t>(scene.models.size());//static_cast<uint32_t>(swapChainImages.size());
+	poolSizes[1].descriptorCount = /*static_cast<uint32_t>(scene.models.size());*/ static_cast<uint32_t>(swapChainImages.size());
 
 	//Descriptor pool creation data.
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(scene.models.size()); //static_cast<uint32_t>(swapChainImages.size());
+	poolInfo.maxSets = /*static_cast<uint32_t>(scene.models.size());*/ static_cast<uint32_t>(swapChainImages.size());
 	//Descriptor pool creation.
 	if(vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
 		throw std::runtime_error("failed to create descriptor pool!");
@@ -297,7 +297,7 @@ void VulkanRenderEngine::createDescriptorSets(){
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
+	allocInfo.descriptorSetCount = 1;//static_cast<uint32_t>(swapChainImages.size());
 	allocInfo.pSetLayouts = layouts.data();
 	descriptorSets.resize(swapChainImages.size());
 	//Descriptor sets allocation.
@@ -305,41 +305,39 @@ void VulkanRenderEngine::createDescriptorSets(){
 		throw std::runtime_error("failed to allocate descriptor sets!");
 
 	for(size_t i = 0; i < swapChainImages.size(); i++) {
-		//Descriptor buffer data.
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = uniformBuffers[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(ModelViewProjectionUBO);
+	//Descriptor buffer data. //POR HACER --> Cambier esto por el del modelo &cube.uniformBuffer.descriptor;
+	VkDescriptorBufferInfo bufferInfo = {};
+	bufferInfo.buffer = uniformBuffers[i];
+	bufferInfo.offset = 0;
+	bufferInfo.range = sizeof(ModelViewProjectionUBO);
 
-		//Write descriptor data: UBO.
-		std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = descriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
+	//Write descriptor data: UBO.
+	std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[0].dstSet = descriptorSets[i];//POR HACER --> Cambiar esto por modelos. cube.descriptorSet;
+	descriptorWrites[0].dstBinding = 0;
+	descriptorWrites[0].dstArrayElement = 0;
+	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrites[0].descriptorCount = 1;
+	descriptorWrites[0].pBufferInfo = &bufferInfo;//POR HACER --> Cambier esto por el del modelo &cube.uniformBuffer.descriptor;
 
-		//Image descriptor data.
-		VkDescriptorImageInfo imageInfo = {};
-		for(size_t j=0; j<scene.numModels; j++){
-			//
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = scene.models[j].textureImageView;
-			imageInfo.sampler = scene.models[j].textureSampler;
-			//Write descriptor data: sampler.
-			descriptorWrites[j+1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[j+1].dstSet = descriptorSets[i];
-			descriptorWrites[j+1].dstBinding = j+1;
-			descriptorWrites[j+1].dstArrayElement = 0;
-			descriptorWrites[j+1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[j+1].descriptorCount = 1;
-			descriptorWrites[j+1].pImageInfo = &imageInfo;
-		}
-		//descriptorWrite.pTexelBufferView = nullptr; // Optional
-		//Update descriptor buffers.
-		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+	//Image descriptor data.
+	VkDescriptorImageInfo imageInfo = {};
+	//POR HACER --> Cambier esto por el del modelo &cube.uniformBuffer.descriptor;
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = scene.models[1].textureImageView;
+	imageInfo.sampler = scene.models[1].textureSampler;
+	//Write descriptor data: sampler.
+	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[1].dstSet = descriptorSets[i];//POR HACER --> Cambiar esto por modelos. cube.descriptorSet;
+	descriptorWrites[1].dstBinding = 1;
+	descriptorWrites[1].dstArrayElement = 0;
+	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrites[1].descriptorCount = 1;
+	descriptorWrites[1].pImageInfo = &imageInfo;//POR HACER --> Cambier esto por el del modelo &cube.uniformBuffer.descriptor;
+	//descriptorWrite.pTexelBufferView = nullptr; // Optional
+	//Update descriptor buffers.
+	vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 }
 /// <summary>

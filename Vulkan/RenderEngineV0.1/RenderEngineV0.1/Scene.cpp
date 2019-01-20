@@ -25,10 +25,10 @@ void Scene::createDefaultScene(){
 	//createTextureSampler();
 
 	//Models.
-	numModels += 2;
+	numModels += 1;
 	models.resize(numModels);
 	models[0].loadRectangle();
-	models[1].loadRectangle2();
+	//models[1].loadRectangle2();
 	//models[2].loadFileModel("Models/ToonTorus.obj");
 	//models[3].loadFileModel2("Models/ToonTorus.obj");
 	//models[4].loadFileModel3("Models/ToonTorus.obj");
